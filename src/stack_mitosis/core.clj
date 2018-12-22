@@ -3,6 +3,10 @@
 
 (def rds (aws/client {:api :rds}))
 
+(defn databases
+  [rds]
+  (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
+
 (defn tags
   [arn]
   {:op :ListTagsForResource
@@ -44,7 +48,7 @@
   (aws/doc rds :DeleteDBInstance)
   (aws/doc rds :ListTagsForResource)
 
-  (def instances (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
+  (def instances (databases rds))
 
   (filter #(re-find #"mysql" (:Engine %)) instances)
 
