@@ -1,0 +1,4 @@
+{:deps
+ {com.cognitect.aws/api       {:mvn/version "0.8.158"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.467"}
+  com.cognitect.aws/rds       {:mvn/version "680.2.372.0"}}}
