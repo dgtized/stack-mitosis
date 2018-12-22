@@ -44,11 +44,15 @@
   (aws/doc rds :DeleteDBInstance)
   (aws/doc rds :ListTagsForResource)
 
+  (def instances (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
+
+  (filter #(re-find #"mysql" (:Engine %)) instances)
+
   (map (fn [{:keys [DBInstanceIdentifier ReadReplicaDBInstanceIdentifiers DBInstanceArn]}]
          {:id DBInstanceIdentifier
           :arn DBInstanceArn
           :replicas ReadReplicaDBInstanceIdentifiers})
-       (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
+       instances)
 
   (aws/invoke rds (tags "")))
 
