@@ -6,7 +6,10 @@
 (comment
   (keys (aws/ops rds))
 
-  (map :DBInstanceIdentifier (:DBInstances (aws/invoke rds {:op :DescribeDBInstances}))))
+  (map (fn [{:keys [DBInstanceIdentifier ReadReplicaDBInstanceIdentifiers]}]
+         {:id DBInstanceIdentifier
+          :replicas ReadReplicaDBInstanceIdentifiers})
+       (:DBInstances (aws/invoke rds {:op :DescribeDBInstances}))))
 
 (defn -main []
   (println "hi"))
