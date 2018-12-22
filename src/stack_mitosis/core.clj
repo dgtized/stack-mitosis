@@ -21,6 +21,14 @@
    :request {:DbInstanceIdentifier id
              :SkipFinalSnapshot true}})
 
+(defn modify
+  [id options]
+  {:op :ModifyDBInstance
+   :request
+   (merge {:DbInstanceIdentifier id
+           :ApplyImmediately true}
+          options)})
+
 (defn promote
   [id]
   {:op :PromoteReadReplica
