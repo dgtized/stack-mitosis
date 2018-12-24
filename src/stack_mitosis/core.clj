@@ -15,28 +15,28 @@
 (defn rename
   [old new]
   {:op :ModifyDBInstance
-   :request {:DbInstanceIdentifier old
+   :request {:DBInstanceIdentifier old
              :NewDBInstanceIdentifier new
              :ApplyImmediately true}})
 
 (defn delete
   [id]
   {:op :DeleteDBInstance
-   :request {:DbInstanceIdentifier id
+   :request {:DBInstanceIdentifier id
              :SkipFinalSnapshot true}})
 
 (defn modify
   [id options]
   {:op :ModifyDBInstance
    :request
-   (merge {:DbInstanceIdentifier id
+   (merge {:DBInstanceIdentifier id
            :ApplyImmediately true}
           options)})
 
 (defn promote
   [id]
   {:op :PromoteReadReplica
-   :request {:DbInstanceIdentifier id}})
+   :request {:DBInstanceIdentifier id}})
 
 (comment
   (keys (aws/ops rds))
