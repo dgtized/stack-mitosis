@@ -33,10 +33,23 @@
            :ApplyImmediately true}
           options)})
 
+(defn create-replica
+  [source replica]
+  {:op :CreateDBInstanceReadReplica
+   :request {:SourceDBInstanceIdentifier source
+             :DBInstanceIdentifier replica}})
+
 (defn promote
   [id]
   {:op :PromoteReadReplica
    :request {:DBInstanceIdentifier id}})
+
+(defn alias [prefix name]
+  (str prefix "-" name))
+
+(defn replicate-tree
+  [source targets]
+  (map create-replica (cons source targets) targets))
 
 (comment
   (keys (aws/ops rds))
