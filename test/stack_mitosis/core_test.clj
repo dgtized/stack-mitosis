@@ -27,3 +27,31 @@
         c {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}
         d {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}]
     (is (= [:a :b :d :c] (c/list-tree [a b c d] :a)))))
+
+(deftest copy-tree
+  (let [instances [{:DBInstanceIdentifier "source"}
+                   {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
+                   {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]
+                    :ReadReplicaSourceDBInstanceIdentifier "target"}
+                   {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
+                   {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
+    (is (= [{:op :CreateDBInstanceReadReplica
+             :request {:SourceDBInstanceIdentifier "source"
+                       :DBInstanceIdentifier "target-temp"}}
+            {:op :CreateDBInstanceReadReplica,
+             :request {:SourceDBInstanceIdentifier "target-temp"
+                       :DBInstanceIdentifier "a-temp"}}
+            {:op :CreateDBInstanceReadReplica,
+             :request {:SourceDBInstanceIdentifier "b-temp"
+                       :DBInstanceIdentifier "c-temp"}}
+            {:op :CreateDBInstanceReadReplica,
+             :request {:SourceDBInstanceIdentifier "target-temp"
+                       :DBInstanceIdentifier "b-temp"}}
+            {:op :PromoteReadReplica,
+             :request {:DBInstanceIdentifier "target-temp"}}]
+           (c/copy-tree instances "source" "target"
+                        (fn [instance]
+                          (-> instance
+                              (update :DBInstanceIdentifier c/alias "temp")
+                              ;; fixme need to account for nil at root
+                              (update :ReadReplicaSourceDBInstanceIdentifier c/alias "temp"))))))))

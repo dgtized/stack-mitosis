@@ -59,6 +59,15 @@
             #(:ReadReplicaDBInstanceIdentifiers (instance-by-id instances %))
             root))
 
+(defn copy-tree
+  [instances source target transform]
+  (let [df (map (comp transform (partial instance-by-id instances))
+                (list-tree instances target))]
+    (conj (mapv #(create-replica (if-let [parent (:ReadReplicaSourceDBInstanceIdentifier %)]
+                                   parent source)
+                                 (:DBInstanceIdentifier %)) df)
+          (promote (:DBInstanceIdentifier (first df))))))
+
 (defn replicate-tree
   [source targets]
   (conj (mapv create-replica (cons source targets) targets)
