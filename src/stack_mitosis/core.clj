@@ -47,6 +47,18 @@
 (defn alias [prefix name]
   (str prefix "-" name))
 
+(defn instance-by-id
+  [instances id]
+  (->> instances
+       (filter #(= (:DBInstanceIdentifier %) id))
+       first))
+
+(defn list-tree
+  [instances root]
+  (tree-seq (partial instance-by-id instances)
+            #(:ReadReplicaDBInstanceIdentifiers (instance-by-id instances %))
+            root))
+
 (defn replicate-tree
   [source targets]
   (conj (mapv create-replica (cons source targets) targets)
