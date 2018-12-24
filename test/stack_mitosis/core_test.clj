@@ -56,6 +56,29 @@
                               ;; fixme need to account for nil at root
                               (update :ReadReplicaSourceDBInstanceIdentifier c/alias "temp"))))))))
 
+(deftest rename-tree
+  (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
+                   {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]}
+                   {:DBInstanceIdentifier "b"}
+                   {:DBInstanceIdentifier "c"}]]
+    (is (= [{:op :ModifyDBInstance
+             :request
+             {:DBInstanceIdentifier "c" :NewDBInstanceIdentifier "temp-c"
+              :ApplyImmediately true}}
+            {:op :ModifyDBInstance
+             :request
+             {:DBInstanceIdentifier "b" :NewDBInstanceIdentifier "temp-b"
+              :ApplyImmediately true}}
+            {:op :ModifyDBInstance
+             :request
+             {:DBInstanceIdentifier "a" :NewDBInstanceIdentifier "temp-a"
+              :ApplyImmediately true}}
+            {:op :ModifyDBInstance
+             :request
+             {:DBInstanceIdentifier "root" :NewDBInstanceIdentifier "temp-root"
+              :ApplyImmediately true}}]
+           (c/rename-tree instances "root" (partial c/alias "temp"))))))
+
 (deftest delete-tree
   (let [instances [{:DBInstanceIdentifier "source"}
                    {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}

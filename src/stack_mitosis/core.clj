@@ -68,6 +68,12 @@
                                  (:DBInstanceIdentifier %)) df)
           (promote (:DBInstanceIdentifier (first df))))))
 
+(defn rename-tree
+  [instances source transform]
+  ;; FIXME need reverse topologic sort
+  (let [tree (reverse (list-tree instances source))]
+    (map rename tree (map transform tree))))
+
 (defn delete-tree
   [instances root]
   (->> (list-tree instances root)
