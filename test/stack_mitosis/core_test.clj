@@ -21,4 +21,9 @@
   (let [a {:DBInstanceIdentifier :a :ReadReplicaDBInstanceIdentifiers [:b]}
         b {:DBInstanceIdentifier :b :ReadReplicaDBInstanceIdentifiers [:c]}
         c {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}]
-    (is (= [:a :b :c] (c/list-tree [a b c] :a)))))
+    (is (= [:a :b :c] (c/list-tree [a b c] :a))))
+  (let [a {:DBInstanceIdentifier :a :ReadReplicaDBInstanceIdentifiers [:b :c]}
+        b {:DBInstanceIdentifier :b :ReadReplicaDBInstanceIdentifiers [:d]}
+        c {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}
+        d {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}]
+    (is (= [:a :b :d :c] (c/list-tree [a b c d] :a)))))
