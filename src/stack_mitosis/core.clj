@@ -68,6 +68,13 @@
                                  (:DBInstanceIdentifier %)) df)
           (promote (:DBInstanceIdentifier (first df))))))
 
+(defn delete-tree
+  [instances root]
+  (->> (list-tree instances root)
+       ;; FIXME need reverse topologic sort
+       reverse
+       (map delete)))
+
 (defn replicate-tree
   [source targets]
   (conj (mapv create-replica (cons source targets) targets)

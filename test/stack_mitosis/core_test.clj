@@ -55,3 +55,20 @@
                               (update :DBInstanceIdentifier c/alias "temp")
                               ;; fixme need to account for nil at root
                               (update :ReadReplicaSourceDBInstanceIdentifier c/alias "temp"))))))))
+
+(deftest delete-tree
+  (let [instances [{:DBInstanceIdentifier "source"}
+                   {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
+                   {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]
+                    :ReadReplicaSourceDBInstanceIdentifier "target"}
+                   {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
+                   {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
+    (is (= [{:op :DeleteDBInstance
+             :request {:DBInstanceIdentifier "c" :SkipFinalSnapshot true}}
+            {:op :DeleteDBInstance
+             :request {:DBInstanceIdentifier "b" :SkipFinalSnapshot true}}
+            {:op :DeleteDBInstance
+             :request {:DBInstanceIdentifier "a" :SkipFinalSnapshot true}}
+            {:op :DeleteDBInstance
+             :request {:DBInstanceIdentifier "target" :SkipFinalSnapshot true}}]
+           (c/delete-tree instances "target")))))
