@@ -1,5 +1,6 @@
 (ns stack-mitosis.core
-  (:require [cognitect.aws.client.api :as aws]))
+  (:require [cognitect.aws.client.api :as aws]
+            [clojure.string :as str]))
 
 (def rds (aws/client {:api :rds}))
 
@@ -85,6 +86,14 @@
   [source targets]
   (conj (mapv create-replica (cons source targets) targets)
         (promote (first targets))))
+
+(defn replace-tree
+  [instances source target]
+  (concat (copy-tree instances source target identity)
+          (rename-tree instances target (partial alias "old"))
+          (rename-tree instances (alias "temp" target) #(str/replace % "temp-" ""))
+          ;; re-deploy
+          (delete-tree instances (alias "old" target))))
 
 (comment
   (keys (aws/ops rds))
