@@ -49,7 +49,8 @@
 
 (defn replicate-tree
   [source targets]
-  (map create-replica (cons source targets) targets))
+  (conj (mapv create-replica (cons source targets) targets)
+        (promote (first targets))))
 
 (comment
   (keys (aws/ops rds))

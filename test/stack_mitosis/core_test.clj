@@ -8,5 +8,6 @@
           {:op :CreateDBInstanceReadReplica,
            :request {:SourceDBInstanceIdentifier "a", :DBInstanceIdentifier "b"}}
           {:op :CreateDBInstanceReadReplica,
-           :request {:SourceDBInstanceIdentifier "b", :DBInstanceIdentifier "c"}}]
+           :request {:SourceDBInstanceIdentifier "b", :DBInstanceIdentifier "c"}}
+          {:op :PromoteReadReplica, :request {:DBInstanceIdentifier "a"}}]
          (c/replicate-tree "root" ["a" "b" "c"]))))
