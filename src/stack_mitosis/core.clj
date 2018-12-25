@@ -45,7 +45,7 @@
   {:op :PromoteReadReplica
    :request {:DBInstanceIdentifier id}})
 
-(defn alias [prefix name]
+(defn aliased [prefix name]
   (str prefix "-" name))
 
 (defn instance-by-id
@@ -90,10 +90,10 @@
 (defn replace-tree
   [instances source target]
   (concat (copy-tree instances source target identity)
-          (rename-tree instances target (partial alias "old"))
-          (rename-tree instances (alias "temp" target) #(str/replace % "temp-" ""))
+          (rename-tree instances target (partial aliased "old"))
+          (rename-tree instances (aliased "temp" target) #(str/replace % "temp-" ""))
           ;; re-deploy
-          (delete-tree instances (alias "old" target))))
+          (delete-tree instances (aliased "old" target))))
 
 (comment
   (keys (aws/ops rds))

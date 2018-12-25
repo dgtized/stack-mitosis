@@ -52,9 +52,9 @@
            (c/copy-tree instances "source" "target"
                         (fn [instance]
                           (-> instance
-                              (update :DBInstanceIdentifier c/alias "temp")
+                              (update :DBInstanceIdentifier c/aliased "temp")
                               ;; fixme need to account for nil at root
-                              (update :ReadReplicaSourceDBInstanceIdentifier c/alias "temp"))))))))
+                              (update :ReadReplicaSourceDBInstanceIdentifier c/aliased "temp"))))))))
 
 (deftest rename-tree
   (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
@@ -77,7 +77,7 @@
              :request
              {:DBInstanceIdentifier "root" :NewDBInstanceIdentifier "temp-root"
               :ApplyImmediately true}}]
-           (c/rename-tree instances "root" (partial c/alias "temp"))))))
+           (c/rename-tree instances "root" (partial c/aliased "temp"))))))
 
 (deftest delete-tree
   (let [instances [{:DBInstanceIdentifier "source"}
