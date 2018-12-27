@@ -49,12 +49,7 @@
                        :DBInstanceIdentifier "b-temp"}}
             {:op :PromoteReadReplica,
              :request {:DBInstanceIdentifier "target-temp"}}]
-           (c/copy-tree instances "source" "target"
-                        (fn [instance]
-                          (-> instance
-                              (update :DBInstanceIdentifier c/aliased "temp")
-                              ;; fixme need to account for nil at root
-                              (c/update-if [:ReadReplicaSourceDBInstanceIdentifier] c/aliased "temp"))))))))
+           (c/copy-tree instances "source" "target" (partial c/transform "temp"))))))
 
 (deftest rename-tree
   (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}

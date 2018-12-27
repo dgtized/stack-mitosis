@@ -87,9 +87,15 @@
   (conj (mapv create-replica (cons source targets) targets)
         (promote (first targets))))
 
+(defn transform
+  [suffix instance]
+  (-> instance
+      (update :DBInstanceIdentifier aliased suffix)
+      (update-if [:ReadReplicaSourceDBInstanceIdentifier] aliased suffix)))
+
 (defn replace-tree
   [instances source target]
-  (concat (copy-tree instances source target identity)
+  (concat (copy-tree instances source target (partial transform "temp"))
           (rename-tree instances target (partial aliased "old"))
           (rename-tree instances (aliased "temp" target) #(str/replace % "temp-" ""))
           ;; re-deploy
