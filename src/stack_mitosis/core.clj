@@ -1,6 +1,7 @@
 (ns stack-mitosis.core
-  (:require [cognitect.aws.client.api :as aws]
-            [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [cognitect.aws.client.api :as aws]
+            [stack-mitosis.helpers :refer [update-if]]))
 
 (def rds (aws/client {:api :rds}))
 
@@ -117,13 +118,6 @@
        instances)
 
   (aws/invoke rds (tags "")))
-
-(defn update-if
-  "update-in, but only run `f` if key at `ks` exists and is not nil"
-  [m ks f & args]
-  (if (get-in m ks)
-    (apply update-in m ks f args)
-    m))
 
 (defn -main []
   (println "hi"))
