@@ -54,7 +54,7 @@
                           (-> instance
                               (update :DBInstanceIdentifier c/aliased "temp")
                               ;; fixme need to account for nil at root
-                              (update :ReadReplicaSourceDBInstanceIdentifier c/aliased "temp"))))))))
+                              (c/update-if [:ReadReplicaSourceDBInstanceIdentifier] c/aliased "temp"))))))))
 
 (deftest rename-tree
   (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
