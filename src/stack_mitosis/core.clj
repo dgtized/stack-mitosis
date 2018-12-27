@@ -1,7 +1,7 @@
 (ns stack-mitosis.core
   (:require [clojure.string :as str]
             [cognitect.aws.client.api :as aws]
-            [stack-mitosis.helpers :refer [update-if]]))
+            [stack-mitosis.helpers :refer [update-if topological-sort]]))
 
 (def rds (aws/client {:api :rds}))
 
@@ -61,6 +61,12 @@
             #(:ReadReplicaDBInstanceIdentifiers (instance-by-id instances %))
             root))
 
+(defn topo
+  [instances ids]
+  (topological-sort
+   (zipmap ids (map #(set (:ReadReplicaDBInstanceIdentifiers (instance-by-id instances %)))
+                    ids))))
+
 (defn copy-tree
   [instances source target transform]
   (let [df (map (comp transform (partial instance-by-id instances))
@@ -72,15 +78,13 @@
 
 (defn rename-tree
   [instances source transform]
-  ;; FIXME need reverse topologic sort
-  (let [tree (reverse (list-tree instances source))]
+  (let [tree (topo instances (list-tree instances source))]
     (map rename tree (map transform tree))))
 
 (defn delete-tree
   [instances root]
   (->> (list-tree instances root)
-       ;; FIXME need reverse topologic sort
-       reverse
+       (topo instances)
        (map delete)))
 
 (defn transform
