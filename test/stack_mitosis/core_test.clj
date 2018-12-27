@@ -63,11 +63,11 @@
                    {:DBInstanceIdentifier "c"}]]
     (is (= [{:op :ModifyDBInstance
              :request
-             {:DBInstanceIdentifier "c" :NewDBInstanceIdentifier "temp-c"
+             {:DBInstanceIdentifier "b" :NewDBInstanceIdentifier "temp-b"
               :ApplyImmediately true}}
             {:op :ModifyDBInstance
              :request
-             {:DBInstanceIdentifier "b" :NewDBInstanceIdentifier "temp-b"
+             {:DBInstanceIdentifier "c" :NewDBInstanceIdentifier "temp-c"
               :ApplyImmediately true}}
             {:op :ModifyDBInstance
              :request
@@ -87,9 +87,9 @@
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
     (is (= [{:op :DeleteDBInstance
-             :request {:DBInstanceIdentifier "c" :SkipFinalSnapshot true}}
-            {:op :DeleteDBInstance
              :request {:DBInstanceIdentifier "b" :SkipFinalSnapshot true}}
+            {:op :DeleteDBInstance
+             :request {:DBInstanceIdentifier "c" :SkipFinalSnapshot true}}
             {:op :DeleteDBInstance
              :request {:DBInstanceIdentifier "a" :SkipFinalSnapshot true}}
             {:op :DeleteDBInstance
