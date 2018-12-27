@@ -82,11 +82,6 @@
        reverse
        (map delete)))
 
-(defn replicate-tree
-  [source targets]
-  (conj (mapv create-replica (cons source targets) targets)
-        (promote (first targets))))
-
 (defn transform
   [suffix instance]
   (-> instance
