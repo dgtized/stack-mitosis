@@ -1,10 +1,13 @@
 (ns stack-mitosis.wait
   (:require [clojure.core.async :as a]))
 
-(defn block [time prob]
+(defn block [time]
   (Thread/sleep time)
   (println "waited" time)
-  (< (rand) prob))
+  (let [state (rand-nth (concat (repeat 3 :done)
+                                (repeat 6 :in-progress)
+                                (repeat 1 :failed)))]
+    (some #{:done :failed} [state])))
 
 (defn waiter [pred-fn delay max-attempts]
   (let [completed (a/chan)]
@@ -40,6 +43,6 @@
     ))
 
 (comment
-  (a/<!! (waiter #(block 10 0.2) 100 5)))
+  (a/<!! (waiter #(block 10) 100 5)))
 
 ;; (defn poll-until [predicate {:timeout 1000 :delay 100}])
