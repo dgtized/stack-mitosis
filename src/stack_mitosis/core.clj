@@ -101,6 +101,10 @@
           ;; re-deploy
           (delete-tree instances (aliased "old" target))))
 
+(defn describe [id]
+  (:DBInstances (aws/invoke rds {:op :DescribeDBInstances
+                                 :request {:DBInstanceIdentifier id}})))
+
 (comment
   (keys (aws/ops rds))
   (aws/doc rds :CreateDBInstance) ;; for testing
