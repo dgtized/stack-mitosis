@@ -20,7 +20,10 @@
           (a/>! completed :max-attempts))))
     completed))
 
-(comment
-  (a/<!! (waiter #(block 10) 100 5)))
+(defn poll-until [pred-fn options]
+  (let [{:keys [delay max-attempts]} options]
+    (a/<!! (waiter pred-fn delay max-attempts))))
 
-;; (defn poll-until [predicate {:timeout 1000 :delay 100}])
+(comment
+  (poll-until #(block 10) {:delay 100 :max-attempts 5})
+  )

@@ -1,7 +1,8 @@
 (ns stack-mitosis.core
   (:require [clojure.string :as str]
             [cognitect.aws.client.api :as aws]
-            [stack-mitosis.helpers :refer [update-if topological-sort]]))
+            [stack-mitosis.helpers :refer [topological-sort update-if]]
+            [stack-mitosis.wait :as wait]))
 
 (def rds (aws/client {:api :rds}))
 
@@ -102,8 +103,10 @@
           (delete-tree instances (aliased "old" target))))
 
 (defn describe [id]
-  (:DBInstances (aws/invoke rds {:op :DescribeDBInstances
-                                 :request {:DBInstanceIdentifier id}})))
+  (->> {:op :DescribeDBInstances :request {:DBInstanceIdentifier id}}
+       (aws/invoke rds)
+       :DBInstances
+       first))
 
 (defn transition-to
   "Maps current rds status to in-progress, failed or done
@@ -146,6 +149,10 @@
           :arn DBInstanceArn
           :replicas ReadReplicaDBInstanceIdentifiers})
        instances)
+
+  (def example-id (:DBInstanceIdentifier (rand-nth instances)))
+  (describe example-id)
+  (wait/poll-until #(transition-to (describe example-id)) {:delay 100 :max-attempts 5})
 
   (aws/invoke rds (tags "")))
 
