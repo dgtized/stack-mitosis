@@ -152,7 +152,7 @@
 
   (def example-id (:DBInstanceIdentifier (rand-nth instances)))
   (describe example-id)
-  (wait/poll-until #(some #{:done :failed} [(transition-to (describe example-id))])
+  (wait/poll-until #(transition-to (describe example-id))
                    {:delay 100 :max-attempts 5})
 
   (aws/invoke rds (tags "")))
