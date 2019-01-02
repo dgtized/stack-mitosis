@@ -113,7 +113,7 @@
 
   From https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html"
   [state]
-  (condp contains? (get state :DBInstanceStatus)
+  (condp contains? (get state :DBInstanceStatus :in-progress)
     #{"backing-up" "backtracking" "configuring-enhanced-monitoring"
       "configuring-iam-database-auth" "configuring-log-exports"
       "converting-to-vpc" "creating" "deleting" "maintenance" "modifying"
@@ -152,7 +152,8 @@
 
   (def example-id (:DBInstanceIdentifier (rand-nth instances)))
   (describe example-id)
-  (wait/poll-until #(transition-to (describe example-id)) {:delay 100 :max-attempts 5})
+  (wait/poll-until #(some #{:done :failed} [(transition-to (describe example-id))])
+                   {:delay 100 :max-attempts 5})
 
   (aws/invoke rds (tags "")))
 
