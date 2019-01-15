@@ -133,12 +133,12 @@
 (defn blocking [action]
   (when (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica :PromoteReadReplica :ModifyDBInstance}
                    (:op action))
-    (fn [] (-> action :request :DBInstanceIdentifier describe transition-to))))
+    (-> action :request :DBInstanceIdentifier describe transition-to)))
 
 (defn interpret [action]
   (aws/invoke rds action)
-  (when-let [condition (blocking action)]
-    (wait/poll-until condition {:delay 60000 :max-attempts 60})))
+  (when-let [operation (blocking action)]
+    (wait/poll-until #(aws/invoke rds operation) {:delay 60000 :max-attempts 60})))
 
 (defn evaluate-plan [actions]
   (map interpret actions))
