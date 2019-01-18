@@ -1,7 +1,7 @@
 {:deps
  {org.clojure/core.async      {:mvn/version "0.4.490"}
-  com.cognitect.aws/api       {:mvn/version "0.8.166"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.467"}
+  com.cognitect.aws/api       {:mvn/version "0.8.198"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.481"}
   com.cognitect.aws/rds       {:mvn/version "680.2.372.0"}}
  :aliases
  {:outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
