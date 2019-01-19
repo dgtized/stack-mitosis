@@ -16,3 +16,10 @@
            (p/position instances
                        {:request {:DBInstanceIdentifier "missing"}})))))
 
+(deftest change
+  (let [db {:DBInstanceIdentifier "a"}]
+    (is (= {:DBInstanceIdentifier "new-name"}
+           (p/change db {:op :ModifyDBInstance
+                         :request {:DBInstanceIdentifier "a"
+                                   :NewDBInstanceIdentifier "new-name"}})))))
+
