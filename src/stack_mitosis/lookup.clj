@@ -20,3 +20,8 @@
   [instances db-id]
   (get (by-id instances db-id)
        :ReadReplicaSourceDBInstanceIdentifier))
+
+(defn replicas
+  [instances db-id]
+  (get (by-id instances db-id)
+       :ReadReplicaDBInstanceIdentifiers))

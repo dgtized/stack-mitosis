@@ -19,14 +19,14 @@
 (defn list-tree
   [instances root]
   (tree-seq (partial lookup/by-id instances)
-            #(:ReadReplicaDBInstanceIdentifiers (lookup/by-id instances %))
+            (partial lookup/replicas instances)
             root))
 
 (defn topo
   [instances ids]
-  (topological-sort
-   (zipmap ids (map #(set (:ReadReplicaDBInstanceIdentifiers (lookup/by-id instances %)))
-                    ids))))
+  (->> (map #(set (lookup/replicas instances %)) ids)
+       (zipmap ids)
+       topological-sort))
 
 (defn copy-tree
   [instances source target transform]
