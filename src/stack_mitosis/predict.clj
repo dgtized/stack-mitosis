@@ -19,8 +19,10 @@
         child (get-in op [:request :DBInstanceIdentifier])
         source (lookup/by-id instances parent)]
     (conj (update instances (lookup/position instances parent) attach child)
-          (assoc (merge source (dissoc (:request op) :SourceDBInstanceIdentifier :ApplyImmediately))
-                 :ReadReplicaSourceDBInstanceIdentifier parent))))
+          (-> source
+              (merge (dissoc (:request op) :SourceDBInstanceIdentifier :ApplyImmediately))
+              (assoc :ReadReplicaSourceDBInstanceIdentifier parent)
+              (dissoc :ReadReplicaDBInstanceIdentifiers)))))
 
 (defmethod predict :PromoteReadReplica
   [instances op]
@@ -35,15 +37,26 @@
 
 (defmethod predict :ModifyDBInstance
   [instances op]
-  (letfn [(new-name [db]
-            (merge (if-let [new-id (get-in op [:request :NewDBInstanceIdentifier])]
-                     (assoc db :DBInstanceIdentifier new-id)
-                     db)
-                   ;; merge in everything else in request
-                   (dissoc (:request op)
-                           :NewDBInstanceIdentifier :DBInstanceIdentifier :ApplyImmediately)))]
-    (update instances (lookup/position instances
-                                       (get-in op [:request :DBInstanceIdentifier])) new-name)))
+  (let [current-id (get-in op [:request :DBInstanceIdentifier])
+        new-id (get-in op [:request :NewDBInstanceIdentifier])
+        parent (get (lookup/by-id instances current-id) :ReadReplicaSourceDBInstanceIdentifier)]
+    (letfn [(new-name [db]
+              (merge (if new-id
+                       (assoc db :DBInstanceIdentifier new-id)
+                       db)
+                     ;; merge in everything else in request
+                     (dissoc (:request op)
+                             :NewDBInstanceIdentifier :DBInstanceIdentifier :ApplyImmediately)))
+            (rename-refs [db]
+              (cond (and new-id (= (:ReadReplicaSourceDBInstanceIdentifier db) current-id))
+                    ;; update children
+                    (assoc db :ReadReplicaSourceDBInstanceIdentifier new-id)
+
+                    (and new-id (= (:DBInstanceIdentifier db) parent))
+                    (attach (detach db current-id) new-id)
+                    :else db))]
+      (mapv rename-refs
+            (update instances (lookup/position instances current-id) new-name)))))
 
 (defmethod predict :DeleteDBInstance
   [instances op]

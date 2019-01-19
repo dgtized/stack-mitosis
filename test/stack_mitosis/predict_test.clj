@@ -46,3 +46,16 @@
                    {:DBInstanceIdentifier "b"}]]
     (is (= [{:DBInstanceIdentifier "a"}]
            (p/predict instances (op/delete "b"))))))
+
+(deftest state
+  (let [instances [{:DBInstanceIdentifier "root"}]
+        ops [(op/create-replica "root" "foo")
+             (op/create-replica "foo" "beta")
+             (op/create-replica "foo" "omega")
+             (op/rename "foo" "alpha")
+             (op/promote "alpha")]]
+    (is (= [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers []}
+            {:DBInstanceIdentifier "alpha" :ReadReplicaDBInstanceIdentifiers ["omega" "beta"]}
+            {:DBInstanceIdentifier "beta" :ReadReplicaSourceDBInstanceIdentifier "alpha"}
+            {:DBInstanceIdentifier "omega" :ReadReplicaSourceDBInstanceIdentifier "alpha"}]
+           (p/state instances ops)))))
