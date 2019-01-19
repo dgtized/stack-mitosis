@@ -39,3 +39,11 @@
                        :request {:DBInstanceIdentifier "replica"
                                  :SourceDBInstanceIdentifier "root"
                                  :Port 123}})))))
+
+(deftest delete
+  (let [instances [{:DBInstanceIdentifier "a"}
+                   {:DBInstanceIdentifier "b"}]]
+    (is (= [{:DBInstanceIdentifier "a"}]
+           (p/predict instances
+                      {:op :DeleteDBInstance
+                       :request {:DBInstanceIdentifier "b"}})))))
