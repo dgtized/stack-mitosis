@@ -1,5 +1,6 @@
 (ns stack-mitosis.predict-test
   (:require [stack-mitosis.predict :as p]
+            [stack-mitosis.operations :as op]
             [clojure.test :refer :all]))
 
 (deftest modify
@@ -7,10 +8,7 @@
                    {:DBInstanceIdentifier "b"}]]
     (is (= [{:DBInstanceIdentifier "a"}
             {:DBInstanceIdentifier "new-name"}]
-           (p/predict instances
-                      {:op :ModifyDBInstance
-                       :request {:DBInstanceIdentifier "b"
-                                 :NewDBInstanceIdentifier "new-name"}})))
+           (p/predict instances (op/rename "b" "new-name"))))
     (is (= [{:DBInstanceIdentifier "a"}
             {:DBInstanceIdentifier "b" :MultiAZ true}]
            (p/predict instances
@@ -47,6 +45,4 @@
   (let [instances [{:DBInstanceIdentifier "a"}
                    {:DBInstanceIdentifier "b"}]]
     (is (= [{:DBInstanceIdentifier "a"}]
-           (p/predict instances
-                      {:op :DeleteDBInstance
-                       :request {:DBInstanceIdentifier "b"}})))))
+           (p/predict instances (op/delete "b"))))))

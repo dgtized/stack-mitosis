@@ -13,7 +13,7 @@
         child (get-in op [:request :DBInstanceIdentifier])
         source (lookup/by-id instances parent)]
     (conj (update instances (lookup/position instances parent) attach child)
-          (assoc (merge source (dissoc (:request op) :SourceDBInstanceIdentifier))
+          (assoc (merge source (dissoc (:request op) :SourceDBInstanceIdentifier :ApplyImmediately))
                  :ReadReplicaSourceDBInstanceIdentifier parent))))
 
 (defmethod predict :PromoteReadReplica
@@ -25,7 +25,7 @@
                       (partial remove #(= % child))))
             (promote [db]
               (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
-                     (dissoc (:request op) :DBInstanceIdentifier)))]
+                     (dissoc (:request op) :DBInstanceIdentifier :ApplyImmediately)))]
       (-> instances
           (update (lookup/position instances parent) detach)
           (update (lookup/position instances child) promote)))))
@@ -37,7 +37,8 @@
                      (assoc db :DBInstanceIdentifier new-id)
                      db)
                    ;; merge in everything else in request
-                   (dissoc (:request op) :NewDBInstanceIdentifier :DBInstanceIdentifier)))]
+                   (dissoc (:request op)
+                           :NewDBInstanceIdentifier :DBInstanceIdentifier :ApplyImmediately)))]
     (update instances (lookup/position instances
                                        (get-in op [:request :DBInstanceIdentifier])) new-name)))
 
