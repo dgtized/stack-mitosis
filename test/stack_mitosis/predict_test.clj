@@ -30,3 +30,12 @@
                       {:op :PromoteReadReplica
                        :request {:DBInstanceIdentifier "leaf"
                                  :BackupRetentionPeriod 1}})))))
+
+(deftest create-replica
+  (let [root {:DBInstanceIdentifier "root" :MultiAZ false}]
+    (is (= [root {:DBInstanceIdentifier "replica" :MultiAZ false :Port 123}]
+           (p/predict [root]
+                      {:op :CreateDBInstanceReadReplica
+                       :request {:DBInstanceIdentifier "replica"
+                                 :SourceDBInstanceIdentifier "root"
+                                 :Port 123}})))))

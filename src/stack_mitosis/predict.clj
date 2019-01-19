@@ -3,7 +3,11 @@
 
 (defmulti predict (fn [instances op] (get op :op)))
 
-;; (defmethod change :CreateDBInstanceReadReplica)
+(defmethod predict :CreateDBInstanceReadReplica
+  [instances op]
+  (let [source (lookup/by-id instances (get-in op [:request :SourceDBInstanceIdentifier]))]
+    (conj instances
+          (merge source (dissoc (:request op) :SourceDBInstanceIdentifier)))))
 
 (defmethod predict :PromoteReadReplica
   [instances op]
