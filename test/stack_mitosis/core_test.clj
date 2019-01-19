@@ -1,6 +1,6 @@
 (ns stack-mitosis.core-test
-  (:require [stack-mitosis.core :as c]
-            [clojure.test :refer :all]
+  (:require [clojure.test :refer :all]
+            [stack-mitosis.core :as c]
             [stack-mitosis.operations :as op]))
 
 (deftest list-tree
