@@ -20,3 +20,6 @@
             (assoc db :DBInstanceIdentifier
                    (get-in op [:request :NewDBInstanceIdentifier])))]
     (update instances (position instances op) new-name)))
+
+(defn state [instances operations]
+  (reduce predict instances operations))

@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [cognitect.aws.client.api :as aws]
             [stack-mitosis.helpers :refer [topological-sort update-if]]
-            [stack-mitosis.wait :as wait]))
+            [stack-mitosis.wait :as wait]
+            [stack-mitosis.predict :as predict]))
 
 (def rds (aws/client {:api :rds}))
 
@@ -103,14 +104,14 @@
   ;; TODO something something sequence monad
   (let [copy (copy-tree instances source target (partial transform "temp"))
 
-        a (reduce predict instances copy)
+        a (predict/state instances copy)
         rename-old (rename-tree a target (partial aliased "old"))
 
-        b (reduce predict instances (concat copy rename-old))
+        b (predict/state instances (concat copy rename-old))
         rename-temp (rename-tree b (aliased "temp" target) #(str/replace % "temp-" ""))
         ;; re-deploy
 
-        c (reduce predict instances (concat copy rename-old rename-temp))
+        c (predict/state instances (concat copy rename-old rename-temp))
         delete (delete-tree c (aliased "old" target))]
     (concat copy rename-old rename-temp delete)))
 
