@@ -51,3 +51,18 @@
             (op/delete "a")
             (op/delete "target")]
            (c/delete-tree instances "target")))))
+
+(deftest replace-tree
+  (let [instances [{:DBInstanceIdentifier "production"}
+                   {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
+                   {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]]
+    (is (= [(op/create-replica "production" "temp-staging")
+            (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/promote "temp-staging")
+            (op/rename "staging-replica" "old-staging-replica")
+            (op/rename "staging" "old-staging")
+            (op/rename "temp-staging-replica" "staging-replica")
+            (op/rename "temp-staging" "staging")
+            (op/delete "old-staging-replica")
+            (op/delete "old-staging")]
+           (c/replace-tree instances "production" "staging")))))
