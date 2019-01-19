@@ -50,10 +50,10 @@
        (map op/delete)))
 
 (defn transform
-  [suffix instance]
+  [prefix instance]
   (-> instance
-      (update :DBInstanceIdentifier aliased suffix)
-      (update-if [:ReadReplicaSourceDBInstanceIdentifier] aliased suffix)))
+      (update :DBInstanceIdentifier (partial aliased prefix))
+      (update-if [:ReadReplicaSourceDBInstanceIdentifier] (partial aliased prefix))))
 
 (defn replace-tree
   [instances source target]

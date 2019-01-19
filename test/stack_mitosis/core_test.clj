@@ -21,11 +21,11 @@
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
-    (is (= [(op/create-replica "source" "target-temp")
-            (op/create-replica "target-temp" "a-temp")
-            (op/create-replica "b-temp" "c-temp") ;; out of order, b-temp doesn't exist yet
-            (op/create-replica "target-temp" "b-temp")
-            (op/promote "target-temp")]
+    (is (= [(op/create-replica "source" "temp-target")
+            (op/create-replica "temp-target" "temp-a")
+            (op/create-replica "temp-b" "temp-c") ;; out of order, b-temp doesn't exist yet
+            (op/create-replica "temp-target" "temp-b")
+            (op/promote "temp-target")]
            (c/copy-tree instances "source" "target" (partial c/transform "temp"))))))
 
 (deftest rename-tree
