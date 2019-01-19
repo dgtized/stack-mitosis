@@ -33,22 +33,10 @@
                    {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]}
                    {:DBInstanceIdentifier "b"}
                    {:DBInstanceIdentifier "c"}]]
-    (is (= [{:op :ModifyDBInstance
-             :request
-             {:DBInstanceIdentifier "b" :NewDBInstanceIdentifier "temp-b"
-              :ApplyImmediately true}}
-            {:op :ModifyDBInstance
-             :request
-             {:DBInstanceIdentifier "c" :NewDBInstanceIdentifier "temp-c"
-              :ApplyImmediately true}}
-            {:op :ModifyDBInstance
-             :request
-             {:DBInstanceIdentifier "a" :NewDBInstanceIdentifier "temp-a"
-              :ApplyImmediately true}}
-            {:op :ModifyDBInstance
-             :request
-             {:DBInstanceIdentifier "root" :NewDBInstanceIdentifier "temp-root"
-              :ApplyImmediately true}}]
+    (is (= [(op/rename "b" "temp-b")
+            (op/rename "c" "temp-c")
+            (op/rename "a" "temp-a")
+            (op/rename "root" "temp-root")]
            (c/rename-tree instances "root" (partial c/aliased "temp"))))))
 
 (deftest delete-tree
@@ -58,12 +46,8 @@
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
-    (is (= [{:op :DeleteDBInstance
-             :request {:DBInstanceIdentifier "b" :SkipFinalSnapshot true}}
-            {:op :DeleteDBInstance
-             :request {:DBInstanceIdentifier "c" :SkipFinalSnapshot true}}
-            {:op :DeleteDBInstance
-             :request {:DBInstanceIdentifier "a" :SkipFinalSnapshot true}}
-            {:op :DeleteDBInstance
-             :request {:DBInstanceIdentifier "target" :SkipFinalSnapshot true}}]
+    (is (= [(op/delete "b")
+            (op/delete "c")
+            (op/delete "a")
+            (op/delete "target")]
            (c/delete-tree instances "target")))))
