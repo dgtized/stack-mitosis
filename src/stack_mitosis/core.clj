@@ -31,6 +31,7 @@
 (defn copy-tree
   [instances source target transform]
   (let [df (map (comp transform (partial lookup/by-id instances))
+                ;; FIXME needs to be in dependency order
                 (list-tree instances target))]
     (conj (mapv #(op/create-replica (if-let [parent (:ReadReplicaSourceDBInstanceIdentifier %)]
                                       parent source)
