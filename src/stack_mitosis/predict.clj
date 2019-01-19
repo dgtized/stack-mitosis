@@ -16,6 +16,8 @@
 
 (defmethod predict :CreateDBInstanceReadReplica
   [instances op]
+  {:pre [(lookup/exists? instances (r/source-id op))]
+   :post [(lookup/exists? % (r/db-id op))]}
   (let [parent (r/source-id op)
         child (r/db-id op)
         source (lookup/by-id instances parent)]
@@ -27,6 +29,7 @@
 
 (defmethod predict :PromoteReadReplica
   [instances op]
+  {:pre [(lookup/exists? instances (r/db-id op))]}
   (let [child (r/db-id op)
         parent (lookup/parent instances child)]
     (letfn [(promote [db]
@@ -38,6 +41,7 @@
 
 (defmethod predict :ModifyDBInstance
   [instances op]
+  {:pre [(lookup/exists? instances (r/db-id op))]}
   (let [current-id (r/db-id op)
         new-id (r/new-id op)
         parent (lookup/parent instances current-id)]
@@ -61,6 +65,8 @@
 
 (defmethod predict :DeleteDBInstance
   [instances op]
+  {:pre [(lookup/exists? instances (r/db-id op))]
+   :post [(not (lookup/exists? % (r/db-id op)))]}
   (let [db-id (r/db-id op)]
     (->> instances
          (remove #(= (:DBInstanceIdentifier %) db-id))

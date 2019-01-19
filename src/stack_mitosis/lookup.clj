@@ -7,6 +7,8 @@
        (filter #(= (:DBInstanceIdentifier %) db-id))
        first))
 
+(def exists? by-id)
+
 (defn position
   "Offset of db referenced by id"
   [instances db-id]
