@@ -28,7 +28,7 @@
 (defmethod predict :PromoteReadReplica
   [instances op]
   (let [child (r/db-id op)
-        parent (get (lookup/by-id instances child) :ReadReplicaSourceDBInstanceIdentifier)]
+        parent (lookup/parent instances child)]
     (letfn [(promote [db]
               (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
                      (dissoc (:request op) :DBInstanceIdentifier :ApplyImmediately)))]
@@ -40,7 +40,7 @@
   [instances op]
   (let [current-id (r/db-id op)
         new-id (r/new-id op)
-        parent (get (lookup/by-id instances current-id) :ReadReplicaSourceDBInstanceIdentifier)]
+        parent (lookup/parent instances current-id)]
     (letfn [(new-name [db]
               (merge (if new-id
                        (assoc db :DBInstanceIdentifier new-id)

@@ -15,3 +15,8 @@
         (fn [idx db]
           (when (= (:DBInstanceIdentifier db) db-id) idx)))
        first))
+
+(defn parent
+  [instances db-id]
+  (get (by-id instances db-id)
+       :ReadReplicaSourceDBInstanceIdentifier))
