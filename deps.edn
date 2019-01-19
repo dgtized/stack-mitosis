@@ -1,7 +1,7 @@
 {:deps
  {org.clojure/core.async      {:mvn/version "0.4.490"}
-  com.cognitect.aws/api       {:mvn/version "0.8.198"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.481"}
+  com.cognitect.aws/api       {:mvn/version "0.8.204"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.485"}
   com.cognitect.aws/rds       {:mvn/version "680.2.372.0"}
   org.clojure/algo.monads     {:mvn/version "0.1.6"}}
  :aliases
