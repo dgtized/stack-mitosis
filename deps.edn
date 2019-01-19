@@ -5,5 +5,12 @@
   com.cognitect.aws/rds       {:mvn/version "680.2.372.0"}
   org.clojure/algo.monads     {:mvn/version "0.1.6"}}
  :aliases
- {:outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
-             :main-opts ["-m" "depot.outdated.main"]}}}
+ {;; clj -Aoutdated
+  :outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
+             :main-opts ["-m" "depot.outdated.main"]}
+
+  ;; clj -Atest
+  :test {:extra-paths ["test"]
+         :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                 :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+         :main-opts ["-m" "cognitect.test-runner"]}}}
