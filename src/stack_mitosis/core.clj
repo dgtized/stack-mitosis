@@ -2,8 +2,9 @@
   (:require [clojure.string :as str]
             [cognitect.aws.client.api :as aws]
             [stack-mitosis.helpers :refer [topological-sort update-if]]
-            [stack-mitosis.wait :as wait]
-            [stack-mitosis.predict :as predict]))
+            [stack-mitosis.lookup :as lookup]
+            [stack-mitosis.predict :as predict]
+            [stack-mitosis.wait :as wait]))
 
 (def rds (aws/client {:api :rds}))
 
@@ -51,27 +52,21 @@
 (defn aliased [prefix name]
   (str prefix "-" name))
 
-(defn instance-by-id
-  [instances id]
-  (->> instances
-       (filter #(= (:DBInstanceIdentifier %) id))
-       first))
-
 (defn list-tree
   [instances root]
-  (tree-seq (partial instance-by-id instances)
-            #(:ReadReplicaDBInstanceIdentifiers (instance-by-id instances %))
+  (tree-seq (partial lookup/by-id instances)
+            #(:ReadReplicaDBInstanceIdentifiers (lookup/by-id instances %))
             root))
 
 (defn topo
   [instances ids]
   (topological-sort
-   (zipmap ids (map #(set (:ReadReplicaDBInstanceIdentifiers (instance-by-id instances %)))
+   (zipmap ids (map #(set (:ReadReplicaDBInstanceIdentifiers (lookup/by-id instances %)))
                     ids))))
 
 (defn copy-tree
   [instances source target transform]
-  (let [df (map (comp transform (partial instance-by-id instances))
+  (let [df (map (comp transform (partial lookup/by-id instances))
                 (list-tree instances target))]
     (conj (mapv #(create-replica (if-let [parent (:ReadReplicaSourceDBInstanceIdentifier %)]
                                    parent source)
