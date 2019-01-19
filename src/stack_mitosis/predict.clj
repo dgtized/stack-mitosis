@@ -1,13 +1,5 @@
-(ns stack-mitosis.predict)
-
-(defn position
-  "Offset of db referenced by identifier"
-  [instances op]
-  (let [instance (get-in op [:request :DBInstanceIdentifier])]
-    (first (keep-indexed
-            (fn [idx db]
-              (when (= (:DBInstanceIdentifier db) instance) idx))
-            instances))))
+(ns stack-mitosis.predict
+  (:require [stack-mitosis.lookup :as lookup]))
 
 (defmulti predict (fn [instances op] (get op :op)))
 
@@ -21,7 +13,8 @@
                      db)
                    ;; merge in everything else in request
                    (dissoc (:request op) :NewDBInstanceIdentifier :DBInstanceIdentifier)))]
-    (update instances (position instances op) new-name)))
+    (update instances (lookup/position instances
+                                       (get-in op [:request :DBInstanceIdentifier])) new-name)))
 
 (defn state [instances operations]
   (reduce predict instances operations))
