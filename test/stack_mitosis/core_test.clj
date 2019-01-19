@@ -1,6 +1,7 @@
 (ns stack-mitosis.core-test
   (:require [stack-mitosis.core :as c]
-            [clojure.test :refer :all]))
+            [clojure.test :refer :all]
+            [stack-mitosis.operations :as op]))
 
 (deftest list-tree
   (let [a {:DBInstanceIdentifier :a :ReadReplicaDBInstanceIdentifiers [:b]}
@@ -20,20 +21,11 @@
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
-    (is (= [{:op :CreateDBInstanceReadReplica
-             :request {:SourceDBInstanceIdentifier "source"
-                       :DBInstanceIdentifier "target-temp"}}
-            {:op :CreateDBInstanceReadReplica,
-             :request {:SourceDBInstanceIdentifier "target-temp"
-                       :DBInstanceIdentifier "a-temp"}}
-            {:op :CreateDBInstanceReadReplica,
-             :request {:SourceDBInstanceIdentifier "b-temp"
-                       :DBInstanceIdentifier "c-temp"}}
-            {:op :CreateDBInstanceReadReplica,
-             :request {:SourceDBInstanceIdentifier "target-temp"
-                       :DBInstanceIdentifier "b-temp"}}
-            {:op :PromoteReadReplica,
-             :request {:DBInstanceIdentifier "target-temp"}}]
+    (is (= [(op/create-replica "source" "target-temp")
+            (op/create-replica "target-temp" "a-temp")
+            (op/create-replica "b-temp" "c-temp") ;; out of order, b-temp doesn't exist yet
+            (op/create-replica "target-temp" "b-temp")
+            (op/promote "target-temp")]
            (c/copy-tree instances "source" "target" (partial c/transform "temp"))))))
 
 (deftest rename-tree
