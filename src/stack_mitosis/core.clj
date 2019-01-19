@@ -54,7 +54,6 @@
       (update :DBInstanceIdentifier aliased suffix)
       (update-if [:ReadReplicaSourceDBInstanceIdentifier] aliased suffix)))
 
-(def predict identity) ;; placeholder
 (defn replace-tree
   [instances source target]
   ;; actions in copy, rename & delete change the local instances db, so use
