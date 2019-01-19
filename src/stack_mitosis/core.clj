@@ -94,13 +94,25 @@
       (update :DBInstanceIdentifier aliased suffix)
       (update-if [:ReadReplicaSourceDBInstanceIdentifier] aliased suffix)))
 
+(def predict identity) ;; placeholder
 (defn replace-tree
   [instances source target]
-  (concat (copy-tree instances source target (partial transform "temp"))
-          (rename-tree instances target (partial aliased "old"))
-          (rename-tree instances (aliased "temp" target) #(str/replace % "temp-" ""))
-          ;; re-deploy
-          (delete-tree instances (aliased "old" target))))
+  ;; actions in copy, rename & delete change the local instances db, so use
+  ;; predict to update that db for calculating next set of operations by
+  ;; applying computation thus far to the initial instances
+  ;; TODO something something sequence monad
+  (let [copy (copy-tree instances source target (partial transform "temp"))
+
+        a (reduce predict instances copy)
+        rename-old (rename-tree a target (partial aliased "old"))
+
+        b (reduce predict instances (concat copy rename-old))
+        rename-temp (rename-tree b (aliased "temp" target) #(str/replace % "temp-" ""))
+        ;; re-deploy
+
+        c (reduce predict instances (concat copy rename-old rename-temp))
+        delete (delete-tree c (aliased "old" target))]
+    (concat copy rename-old rename-temp delete)))
 
 (defn describe [id]
   (->> {:op :DescribeDBInstances :request {:DBInstanceIdentifier id}}
