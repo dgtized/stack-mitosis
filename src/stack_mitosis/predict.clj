@@ -3,7 +3,13 @@
 
 (defn attach
   [db child-id]
-  (update db :ReadReplicaDBInstanceIdentifiers conj child-id))
+  (update db :ReadReplicaDBInstanceIdentifiers
+          conj child-id))
+
+(defn detach
+  [db child-id]
+  (update db :ReadReplicaDBInstanceIdentifiers
+          (partial remove #(= % child-id))))
 
 (defmulti predict (fn [instances op] (get op :op)))
 
@@ -20,14 +26,11 @@
   [instances op]
   (let [child (get-in op [:request :DBInstanceIdentifier])
         parent (get (lookup/by-id instances child) :ReadReplicaSourceDBInstanceIdentifier)]
-    (letfn [(detach [db]
-              (update db :ReadReplicaDBInstanceIdentifiers
-                      (partial remove #(= % child))))
-            (promote [db]
+    (letfn [(promote [db]
               (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
                      (dissoc (:request op) :DBInstanceIdentifier :ApplyImmediately)))]
       (-> instances
-          (update (lookup/position instances parent) detach)
+          (update (lookup/position instances parent) detach child)
           (update (lookup/position instances child) promote)))))
 
 (defmethod predict :ModifyDBInstance
