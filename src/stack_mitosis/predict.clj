@@ -15,10 +15,12 @@
 ;; (defmethod change :PromoteReadReplica)
 (defmethod predict :ModifyDBInstance
   [instances op]
-  ;; TODO handle many other keys for changes other than renames
   (letfn [(new-name [db]
-            (assoc db :DBInstanceIdentifier
-                   (get-in op [:request :NewDBInstanceIdentifier])))]
+            (merge (if-let [new-id (get-in op [:request :NewDBInstanceIdentifier])]
+                     (assoc db :DBInstanceIdentifier new-id)
+                     db)
+                   ;; merge in everything else in request
+                   (dissoc (:request op) :NewDBInstanceIdentifier :DBInstanceIdentifier)))]
     (update instances (position instances op) new-name)))
 
 (defn state [instances operations]

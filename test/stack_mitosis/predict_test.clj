@@ -24,5 +24,10 @@
            (p/predict instances
                       {:op :ModifyDBInstance
                        :request {:DBInstanceIdentifier "b"
-                                 :NewDBInstanceIdentifier "new-name"}})))))
+                                 :NewDBInstanceIdentifier "new-name"}})))
+    (is (= [{:DBInstanceIdentifier "a"}
+            {:DBInstanceIdentifier "b" :MultiAZ true}]
+           (p/predict instances
+                      {:op :ModifyDBInstance
+                       :request {:DBInstanceIdentifier "b" :MultiAZ true}})))))
 
