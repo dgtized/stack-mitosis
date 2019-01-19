@@ -4,7 +4,21 @@
 (defmulti predict (fn [instances op] (get op :op)))
 
 ;; (defmethod change :CreateDBInstanceReadReplica)
-;; (defmethod change :PromoteReadReplica)
+
+(defmethod predict :PromoteReadReplica
+  [instances op]
+  (let [child (get-in op [:request :DBInstanceIdentifier])
+        parent (get (lookup/by-id instances child) :ReadReplicaSourceDBInstanceIdentifier)]
+    (letfn [(detach [db]
+              (update db :ReadReplicaDBInstanceIdentifiers
+                      (partial remove #(= % child))))
+            (promote [db]
+              (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
+                     (dissoc (:request op) :DBInstanceIdentifier)))]
+      (-> instances
+          (update (lookup/position instances parent) detach)
+          (update (lookup/position instances child) promote)))))
+
 (defmethod predict :ModifyDBInstance
   [instances op]
   (letfn [(new-name [db]

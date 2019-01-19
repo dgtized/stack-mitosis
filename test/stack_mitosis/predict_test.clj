@@ -2,7 +2,7 @@
   (:require [stack-mitosis.predict :as p]
             [clojure.test :refer :all]))
 
-(deftest predict
+(deftest modify
   (let [instances [{:DBInstanceIdentifier "a"}
                    {:DBInstanceIdentifier "b"}]]
     (is (= [{:DBInstanceIdentifier "a"}
@@ -17,3 +17,16 @@
                       {:op :ModifyDBInstance
                        :request {:DBInstanceIdentifier "b" :MultiAZ true}})))))
 
+(deftest promote
+  (let [instances [{:DBInstanceIdentifier "root"
+                    :ReadReplicaDBInstanceIdentifiers ["leaf"]}
+                   {:DBInstanceIdentifier "leaf"
+                    :ReadReplicaSourceDBInstanceIdentifier "root"}]]
+    (is (= [{:DBInstanceIdentifier "root"
+             :ReadReplicaDBInstanceIdentifiers []}
+            {:DBInstanceIdentifier "leaf"
+             :BackupRetentionPeriod 1}]
+           (p/predict instances
+                      {:op :PromoteReadReplica
+                       :request {:DBInstanceIdentifier "leaf"
+                                 :BackupRetentionPeriod 1}})))))
