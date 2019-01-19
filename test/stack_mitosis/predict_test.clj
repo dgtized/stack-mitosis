@@ -16,10 +16,13 @@
            (p/position instances
                        {:request {:DBInstanceIdentifier "missing"}})))))
 
-(deftest change
-  (let [db {:DBInstanceIdentifier "a"}]
-    (is (= {:DBInstanceIdentifier "new-name"}
-           (p/change db {:op :ModifyDBInstance
-                         :request {:DBInstanceIdentifier "a"
-                                   :NewDBInstanceIdentifier "new-name"}})))))
+(deftest predict
+  (let [instances [{:DBInstanceIdentifier "a"}
+                   {:DBInstanceIdentifier "b"}]]
+    (is (= [{:DBInstanceIdentifier "a"}
+            {:DBInstanceIdentifier "new-name"}]
+           (p/predict instances
+                      {:op :ModifyDBInstance
+                       :request {:DBInstanceIdentifier "b"
+                                 :NewDBInstanceIdentifier "new-name"}})))))
 

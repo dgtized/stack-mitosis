@@ -1,14 +1,5 @@
 (ns stack-mitosis.predict)
 
-(defmulti change (fn [db op] (get op :op)))
-
-;; (defmethod change :CreateDBInstanceReadReplica)
-;; (defmethod change :PromoteReadReplica)
-(defmethod change :ModifyDBInstance
-  [db op]
-  ;; TODO handle many other keys
-  (assoc db :DBInstanceIdentifier (get-in op [:request :NewDBInstanceIdentifier])))
-
 (defn position
   "Offset of db referenced by identifier"
   [instances op]
@@ -18,5 +9,14 @@
               (when (= (:DBInstanceIdentifier db) instance) idx))
             instances))))
 
-(defn predict [instances op]
-  (update instances (position instances op) change op))
+(defmulti predict (fn [instances op] (get op :op)))
+
+;; (defmethod change :CreateDBInstanceReadReplica)
+;; (defmethod change :PromoteReadReplica)
+(defmethod predict :ModifyDBInstance
+  [instances op]
+  ;; TODO handle many other keys for changes other than renames
+  (letfn [(new-name [db]
+            (assoc db :DBInstanceIdentifier
+                   (get-in op [:request :NewDBInstanceIdentifier])))]
+    (update instances (position instances op) new-name)))
