@@ -44,7 +44,7 @@
 (deftest delete
   (let [instances [{:DBInstanceIdentifier "a"}
                    {:DBInstanceIdentifier "b"}]]
-    (is (= [{:DBInstanceIdentifier "a"}]
+    (is (= [{:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers []}]
            (p/predict instances (op/delete "b"))))))
 
 (deftest state
@@ -58,4 +58,12 @@
             {:DBInstanceIdentifier "alpha" :ReadReplicaDBInstanceIdentifiers ["omega" "beta"]}
             {:DBInstanceIdentifier "beta" :ReadReplicaSourceDBInstanceIdentifier "alpha"}
             {:DBInstanceIdentifier "omega" :ReadReplicaSourceDBInstanceIdentifier "alpha"}]
+           (p/state instances ops))))
+  (let [instances [{:DBInstanceIdentifier "root"}]
+        ops [(op/create-replica "root" "alpha")
+             (op/create-replica "alpha" "beta")
+             (op/promote "alpha")
+             (op/delete "beta")]]
+    (is (= [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers []}
+            {:DBInstanceIdentifier "alpha" :ReadReplicaDBInstanceIdentifiers []}]
            (p/state instances ops)))))

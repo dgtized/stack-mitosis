@@ -61,7 +61,10 @@
 (defmethod predict :DeleteDBInstance
   [instances op]
   (let [db-id (get-in op [:request :DBInstanceIdentifier])]
-    (remove #(= (:DBInstanceIdentifier %) db-id) instances)))
+    (->> instances
+         (remove #(= (:DBInstanceIdentifier %) db-id))
+         ;; may need to account for if delete is allowed if db has replicas
+         (mapv #(detach % db-id)))))
 
 (defn state [instances operations]
   (reduce predict instances operations))
