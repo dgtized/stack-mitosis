@@ -32,9 +32,12 @@
                                  :BackupRetentionPeriod 1}})))))
 
 (deftest create-replica
-  (let [root {:DBInstanceIdentifier "root" :MultiAZ false}]
-    (is (= [root {:DBInstanceIdentifier "replica" :MultiAZ false :Port 123}]
-           (p/predict [root]
+  (let [instances [{:DBInstanceIdentifier "root" :MultiAZ false}]]
+    (is (= [{:DBInstanceIdentifier "root" :MultiAZ false
+             :ReadReplicaDBInstanceIdentifiers ["replica"]}
+            {:DBInstanceIdentifier "replica" :MultiAZ false :Port 123
+             :ReadReplicaSourceDBInstanceIdentifier "root"}]
+           (p/predict instances
                       {:op :CreateDBInstanceReadReplica
                        :request {:DBInstanceIdentifier "replica"
                                  :SourceDBInstanceIdentifier "root"

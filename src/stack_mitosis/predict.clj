@@ -1,13 +1,20 @@
 (ns stack-mitosis.predict
   (:require [stack-mitosis.lookup :as lookup]))
 
+(defn attach
+  [db child-id]
+  (update db :ReadReplicaDBInstanceIdentifiers conj child-id))
+
 (defmulti predict (fn [instances op] (get op :op)))
 
 (defmethod predict :CreateDBInstanceReadReplica
   [instances op]
-  (let [source (lookup/by-id instances (get-in op [:request :SourceDBInstanceIdentifier]))]
-    (conj instances
-          (merge source (dissoc (:request op) :SourceDBInstanceIdentifier)))))
+  (let [parent (get-in op [:request :SourceDBInstanceIdentifier])
+        child (get-in op [:request :DBInstanceIdentifier])
+        source (lookup/by-id instances parent)]
+    (conj (update instances (lookup/position instances parent) attach child)
+          (assoc (merge source (dissoc (:request op) :SourceDBInstanceIdentifier))
+                 :ReadReplicaSourceDBInstanceIdentifier parent))))
 
 (defmethod predict :PromoteReadReplica
   [instances op]
