@@ -1,5 +1,6 @@
 (ns stack-mitosis.predict
-  (:require [stack-mitosis.lookup :as lookup]))
+  (:require [stack-mitosis.lookup :as lookup]
+            [stack-mitosis.request :as r]))
 
 (defn attach
   [db child-id]
@@ -15,8 +16,8 @@
 
 (defmethod predict :CreateDBInstanceReadReplica
   [instances op]
-  (let [parent (get-in op [:request :SourceDBInstanceIdentifier])
-        child (get-in op [:request :DBInstanceIdentifier])
+  (let [parent (r/source-id op)
+        child (r/db-id op)
         source (lookup/by-id instances parent)]
     (conj (update instances (lookup/position instances parent) attach child)
           (-> source
@@ -26,7 +27,7 @@
 
 (defmethod predict :PromoteReadReplica
   [instances op]
-  (let [child (get-in op [:request :DBInstanceIdentifier])
+  (let [child (r/db-id op)
         parent (get (lookup/by-id instances child) :ReadReplicaSourceDBInstanceIdentifier)]
     (letfn [(promote [db]
               (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
@@ -37,8 +38,8 @@
 
 (defmethod predict :ModifyDBInstance
   [instances op]
-  (let [current-id (get-in op [:request :DBInstanceIdentifier])
-        new-id (get-in op [:request :NewDBInstanceIdentifier])
+  (let [current-id (r/db-id op)
+        new-id (r/new-id op)
         parent (get (lookup/by-id instances current-id) :ReadReplicaSourceDBInstanceIdentifier)]
     (letfn [(new-name [db]
               (merge (if new-id
@@ -60,7 +61,7 @@
 
 (defmethod predict :DeleteDBInstance
   [instances op]
-  (let [db-id (get-in op [:request :DBInstanceIdentifier])]
+  (let [db-id (r/db-id op)]
     (->> instances
          (remove #(= (:DBInstanceIdentifier %) db-id))
          ;; may need to account for if delete is allowed if db has replicas
