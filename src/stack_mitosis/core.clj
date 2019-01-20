@@ -99,9 +99,8 @@
     (-> action :request :DBInstanceIdentifier op/describe)))
 
 (defn completed?
-  [operation]
-  (->> operation
-       (aws/invoke rds)
+  [described-instances]
+  (->> described-instances
        :DBInstances
        first
        transition-to
@@ -110,7 +109,8 @@
 (defn interpret [action]
   (aws/invoke rds action)
   (when-let [operation (blocking action)]
-    (wait/poll-until #(completed? operation) {:delay 60000 :max-attempts 60})))
+    (wait/poll-until #(completed? (aws/invoke rds operation))
+                     {:delay 60000 :max-attempts 60})))
 
 (defn evaluate-plan [actions]
   (map interpret actions))
