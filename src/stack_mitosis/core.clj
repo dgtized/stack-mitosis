@@ -71,12 +71,6 @@
         delete (delete-tree c (aliased "old" target))]
     (concat copy rename-old rename-temp delete)))
 
-(defn describe [id]
-  (->> {:op :DescribeDBInstances :request {:DBInstanceIdentifier id}}
-       (aws/invoke rds)
-       :DBInstances
-       first))
-
 (defn transition-to
   "Maps current rds status to in-progress, failed or done
 
@@ -133,7 +127,7 @@
        instances)
 
   (def example-id (:DBInstanceIdentifier (rand-nth instances)))
-  (describe example-id)
+  (->> example-id op/describe (aws/invoke rds) :DBInstances first)
   (wait/poll-until #(transition-to (describe example-id))
                    {:delay 100 :max-attempts 5})
 

@@ -36,3 +36,7 @@
   [id]
   {:op :PromoteReadReplica
    :request {:DBInstanceIdentifier id}})
+
+(defn describe [id]
+  {:op :DescribeDBInstances
+   :request {:DBInstanceIdentifier id}})
