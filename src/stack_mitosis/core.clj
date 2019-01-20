@@ -1,7 +1,7 @@
 (ns stack-mitosis.core
   (:require [clojure.string :as str]
             [cognitect.aws.client.api :as aws]
-            [stack-mitosis.helpers :refer [topological-sort update-if]]
+            [stack-mitosis.helpers :refer [topological-sort update-if bfs-tree-seq]]
             [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
             [stack-mitosis.predict :as predict]
@@ -18,9 +18,7 @@
 
 (defn list-tree
   [instances root]
-  (tree-seq (partial lookup/by-id instances)
-            (partial lookup/replicas instances)
-            root))
+  (bfs-tree-seq (partial lookup/replicas instances) root))
 
 (defn topo
   [instances ids]
@@ -31,7 +29,6 @@
 (defn copy-tree
   [instances source target transform]
   (let [df (map (comp transform (partial lookup/by-id instances))
-                ;; FIXME needs to be in dependency order
                 (list-tree instances target))]
     (conj (mapv #(op/create-replica (if-let [parent (:ReadReplicaSourceDBInstanceIdentifier %)]
                                       parent source)

@@ -12,7 +12,7 @@
         b {:DBInstanceIdentifier :b :ReadReplicaDBInstanceIdentifiers [:d]}
         c {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}
         d {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}]
-    (is (= [:a :b :d :c] (c/list-tree [a b c d] :a)))))
+    (is (= [:a :b :c :d] (c/list-tree [a b c d] :a)))))
 
 (deftest copy-tree
   (let [instances [{:DBInstanceIdentifier "source"}
@@ -23,8 +23,8 @@
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
     (is (= [(op/create-replica "source" "temp-target")
             (op/create-replica "temp-target" "temp-a")
-            (op/create-replica "temp-b" "temp-c") ;; out of order, b-temp doesn't exist yet
             (op/create-replica "temp-target" "temp-b")
+            (op/create-replica "temp-b" "temp-c")
             (op/promote "temp-target")]
            (c/copy-tree instances "source" "target" (partial c/transform "temp"))))))
 

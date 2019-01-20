@@ -29,3 +29,14 @@
           (if (empty? no-deps)
             nil ;; cyclic dependencies
             (recur (concat ret no-deps) graph')))))))
+
+(defn bfs-tree-seq
+  "Returns a bread-first-search traversal of every node in a tree. Children should
+  take a node and return all of that nodes children. Presumes no cycles/duplicates."
+  [children root]
+  (letfn [(step [queue]
+            (lazy-seq
+             (when (seq queue)
+               (let [node (peek queue)]
+                 (cons node (step (into (pop queue) (children node))))))))]
+    (step (conj clojure.lang.PersistentQueue/EMPTY root))))
