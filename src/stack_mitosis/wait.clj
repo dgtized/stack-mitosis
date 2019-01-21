@@ -1,5 +1,6 @@
 (ns stack-mitosis.wait
-  (:require [clojure.core.async :as a]))
+  (:require [clojure.core.async :as a]
+            [clojure.tools.logging :as log]))
 
 (defn block [time]
   (Thread/sleep time)
@@ -16,7 +17,8 @@
       (if-let [resp (pred-fn)]
         (a/>! completed resp)
         (if (< attempt max-attempts)
-          (recur (inc attempt))
+          (do (log/debug (str "Attempt " attempt))
+              (recur (inc attempt)))
           (a/>! completed :max-attempts))))
     completed))
 
