@@ -133,6 +133,7 @@
 
   (def instances (databases rds))
 
+  (map :DBInstanceIdentifier instances)
   (filter #(re-find #"mysql" (:Engine %)) instances)
 
   (map (fn [{:keys [DBInstanceIdentifier ReadReplicaDBInstanceIdentifiers DBInstanceArn]}]
