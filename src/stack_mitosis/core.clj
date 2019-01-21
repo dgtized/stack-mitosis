@@ -1,6 +1,7 @@
 (ns stack-mitosis.core
   (:require [clojure.string :as str]
             [cognitect.aws.client.api :as aws]
+            [clojure.tools.logging :as log]
             [stack-mitosis.helpers :refer [topological-sort update-if bfs-tree-seq]]
             [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
@@ -107,10 +108,15 @@
        (contains? #{:done :failed})))
 
 (defn interpret [action]
+  (log/info "Invoking " action)
   (aws/invoke rds action)
   (when-let [operation (blocking action)]
-    (wait/poll-until #(completed? (aws/invoke rds operation))
-                     {:delay 60000 :max-attempts 60})))
+    (let [started (. System (nanoTime))
+          ret (wait/poll-until #(completed? (aws/invoke rds operation))
+                               {:delay 60000 :max-attempts 60})
+          msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)]
+      (log/info (str "Completed after : " msecs " msecs"))
+      ret)))
 
 (defn evaluate-plan [actions]
   (map interpret actions))
