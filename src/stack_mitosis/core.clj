@@ -108,14 +108,18 @@
        (contains? #{:done :failed})))
 
 (defn interpret [action]
+  (println "Invoking " action)
   (log/info "Invoking " action)
   (aws/invoke rds action)
   (when-let [operation (blocking action)]
     (let [started (. System (nanoTime))
           ret (wait/poll-until #(completed? (aws/invoke rds operation))
                                {:delay 60000 :max-attempts 60})
-          msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)]
-      (log/info (str "Completed after : " msecs " msecs"))
+          msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
+          status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
+          msg (str "Completed after : " msecs " msecs with status: " status)]
+      (println msg)
+      (log/info msg)
       ret)))
 
 (defn evaluate-plan [actions]
