@@ -2,7 +2,13 @@
  {org.clojure/core.async      {:mvn/version "0.4.490"}
   com.cognitect.aws/api       {:mvn/version "0.8.223"}
   com.cognitect.aws/endpoints {:mvn/version "1.1.11.489"}
+
   com.cognitect.aws/rds       {:mvn/version "697.2.391.0"}
+
+  ;; for STS refresh
+  com.cognitect.aws/iam       {:mvn/version "697.2.391.0"}
+  com.cognitect.aws/sts       {:mvn/version "697.2.391.0"}
+
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
   ;; logging
