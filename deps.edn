@@ -6,7 +6,11 @@
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
   ;; logging
-  org.clojure/tools.logging   {:mvn/version "0.4.1"}}
+  org.clojure/tools.logging   {:mvn/version "0.4.1"}
+
+  ;; command line
+  org.clojure/tools.cli       {:mvn/version "0.4.1"}
+  }
  :aliases
  {;; clj -Aoutdated
   :outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
