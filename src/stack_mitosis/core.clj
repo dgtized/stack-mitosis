@@ -91,7 +91,9 @@
     :failed
     #{"stopped" "available"}
     :done
-    ;; handle unknown?
+    ;; unknown or missing
+    nil
+    :failed
     ))
 
 (defn blocking [action]
@@ -123,6 +125,7 @@
       ret)))
 
 (defn evaluate-plan [actions]
+  ;; TODO: handle errors & break on first error (also expired tokens)
   (map interpret actions))
 
 (comment
