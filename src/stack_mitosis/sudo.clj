@@ -25,10 +25,13 @@
 
 (comment
   (def iam (aws/client {:api :iam}))
+  (def sts (aws/client {:api :sts}))
   (keys (aws/ops iam))
   (aws/doc iam :GetRole)
   (->> (aws/invoke iam {:op :ListRoles}) :Roles (map :RoleName))
   (:User (aws/invoke iam {:op :GetUser}))
+  (keys (aws/ops sts))
+  (aws/doc sts :AssumeRole)
 
   (def provider (assumed-role-credentials-provider (:Arn new-role) "example-session" 600))
 
