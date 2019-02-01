@@ -4,7 +4,7 @@
 
 (defn block [time]
   (Thread/sleep time)
-  (println "waited" time)
+  (log/debug "waited" time)
   (contains? #{:done :failed}
              (rand-nth (concat (repeat 3 :done)
                                (repeat 6 :in-progress)

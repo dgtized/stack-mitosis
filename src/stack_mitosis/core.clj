@@ -110,7 +110,6 @@
        (contains? #{:done :failed})))
 
 (defn interpret [action]
-  (println "Invoking " action)
   (log/info "Invoking " action)
   (aws/invoke rds action)
   (when-let [operation (blocking action)]
@@ -120,7 +119,6 @@
           msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
           status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
           msg (str "Completed after : " msecs " msecs with status: " status)]
-      (println msg)
       (log/info msg)
       ret)))
 
@@ -157,4 +155,4 @@
   (aws/invoke rds (op/tags "")))
 
 (defn -main []
-  (println "hi"))
+  (log/info "starting"))
