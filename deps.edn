@@ -13,10 +13,16 @@
 
   ;; logging
   org.clojure/tools.logging   {:mvn/version "0.4.1"}
+  log4j/log4j {:mvn/version"1.2.17"
+               :exclusions [javax.mail/mail
+                            javax.jms/jms
+                            com.sun.jmdk/jmxtools
+                            com.sun.jmx/jmxri]}
 
   ;; command line
   org.clojure/tools.cli       {:mvn/version "0.4.1"}
   }
+ :paths ["src" "resources"]
  :aliases
  {;; clj -Aoutdated
   :outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
