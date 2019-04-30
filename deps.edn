@@ -1,18 +1,18 @@
 {:deps
  {org.clojure/core.async      {:mvn/version "0.4.490"}
-  com.cognitect.aws/api       {:mvn/version "0.8.223"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.489"}
+  com.cognitect.aws/api       {:mvn/version "0.8.301"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.537"}
 
-  com.cognitect.aws/rds       {:mvn/version "697.2.391.0"}
+  com.cognitect.aws/rds       {:mvn/version "716.2.440.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "697.2.391.0"}
+  com.cognitect.aws/iam       {:mvn/version "715.2.436.0"}
   com.cognitect.aws/sts       {:mvn/version "697.2.391.0"}
 
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
   ;; logging
-  org.clojure/tools.logging   {:mvn/version "0.4.1"}
+  org.clojure/tools.logging   {:mvn/version "0.5.0-alpha.1"}
   log4j/log4j {:mvn/version"1.2.17"
                :exclusions [javax.mail/mail
                             javax.jms/jms
@@ -20,7 +20,7 @@
                             com.sun.jmx/jmxri]}
 
   ;; command line
-  org.clojure/tools.cli       {:mvn/version "0.4.1"}
+  org.clojure/tools.cli       {:mvn/version "0.4.2"}
   }
  :paths ["src" "resources"]
  :aliases
@@ -31,5 +31,5 @@
   ;; clj -Atest
   :test {:extra-paths ["test"]
          :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                 :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+                                                 :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}
          :main-opts ["-m" "cognitect.test-runner"]}}}
