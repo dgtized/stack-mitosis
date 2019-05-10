@@ -151,9 +151,13 @@
   (map :DBInstanceIdentifier instances)
   (filter #(re-find #"mysql" (:Engine %)) instances)
 
-  (map (fn [{:keys [DBInstanceIdentifier ReadReplicaDBInstanceIdentifiers DBInstanceArn]}]
+  (map (fn [{:keys [DBInstanceIdentifier
+                   ReadReplicaDBInstanceIdentifiers
+                   ReadReplicaSourceDBInstanceIdentifier
+                   DBInstanceArn]}]
          {:id DBInstanceIdentifier
           :arn DBInstanceArn
+          :source ReadReplicaSourceDBInstanceIdentifier
           :replicas ReadReplicaDBInstanceIdentifiers})
        instances)
 
