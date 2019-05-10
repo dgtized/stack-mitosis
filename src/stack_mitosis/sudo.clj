@@ -20,7 +20,7 @@
             :aws/session-token     (:SessionToken creds)
             ::credentials/ttl      refresh-every-n-seconds}))))))
 
-(defn lookup-role [role]
+(defn lookup-role [iam role]
   (->> {:op :GetRole :request {:RoleName role}}
        (aws/invoke iam)
        :Role :Arn))
