@@ -100,11 +100,6 @@
       :failed
       )))
 
-(defn blocking [action]
-  (when (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica :PromoteReadReplica :ModifyDBInstance}
-                   (:op action))
-    (-> action :request :DBInstanceIdentifier op/describe)))
-
 (defn completed?
   [described-instances]
   (->> described-instances
@@ -122,7 +117,7 @@
         result)
       (do
         (log/info result)
-        (when-let [operation (blocking action)]
+        (when-let [operation (op/polling-operation action)]
           (let [started (. System (nanoTime))
                 ret (wait/poll-until #(completed? (aws/invoke rds operation))
                                      {:delay 60000 :max-attempts 60})

@@ -40,3 +40,11 @@
 (defn describe [id]
   {:op :DescribeDBInstances
    :request {:DBInstanceIdentifier id}})
+
+(defn polling-operation
+  "Calculate if operation requires a describe to poll for completion."
+  [action]
+  (when (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica
+                     :PromoteReadReplica :ModifyDBInstance}
+                   (:op action))
+    (-> action :request :DBInstanceIdentifier describe)))
