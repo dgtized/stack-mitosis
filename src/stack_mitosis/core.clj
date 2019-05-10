@@ -1,14 +1,16 @@
 (ns stack-mitosis.core
   (:require [clojure.string :as str]
-            [cognitect.aws.client.api :as aws]
             [clojure.tools.logging :as log]
-            [stack-mitosis.helpers :refer [topological-sort update-if bfs-tree-seq]]
+            [cognitect.aws.client.api :as aws]
+            [stack-mitosis.helpers :refer [bfs-tree-seq topological-sort update-if]]
             [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
             [stack-mitosis.predict :as predict]
+            [stack-mitosis.sudo :as sudo]
             [stack-mitosis.wait :as wait]))
 
-(def rds (aws/client {:api :rds}))
+;; TODO: thread this client to all that use it
+(def rds (aws/client {:api :rds :credentials-provider (sudo/provider)}))
 
 (defn databases
   [rds]
