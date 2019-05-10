@@ -24,17 +24,17 @@
          :aws/secret-access-key (:SecretAccessKey creds)
          :aws/session-token     (:SessionToken creds)}))))
 
-(defonce *provider* (atom (credentials/default-credentials-provider)))
+(defonce current-provider (atom (credentials/default-credentials-provider)))
 
 (defn provider []
-  (deref *provider*))
+  (deref current-provider))
 
 (defn sudo-provider []
   ;; resources/role.edn contains :mfa_serial & :role_arn
   (let [target-role (edn/read-string (slurp (io/resource "role.edn")))
         token (assume-mfa-role "sudo" target-role (* 4 60 60))
         provider (credential-provider token)]
-    (reset! *provider* provider)
+    (reset! current-provider provider)
     provider))
 
 (comment
@@ -51,6 +51,8 @@
   ;; make a client using the assumed role credentials provider
   (def iam-with-assumed-role (aws/client {:api :iam :credentials-provider sudo}))
   (def sts-with-assumed-role (aws/client {:api :sts :credentials-provider sudo}))
+
+  (aws/validate-requests sts-with-assumed-role)
 
   ;; use it!
   (aws/invoke iam-with-assumed-role {:op :GetUser :request {:UserName (:UserName me)}})
