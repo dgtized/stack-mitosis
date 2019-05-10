@@ -1,5 +1,7 @@
 (ns stack-mitosis.sudo
-  (:require [cognitect.aws.client.api :as aws]
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]
+            [cognitect.aws.client.api :as aws]
             [cognitect.aws.credentials :as credentials]))
 
 ;; borrowing liberally from https://github.com/cognitect-labs/aws-api/blob/fbf89760913ee3fbc836ec8befa9b17af33c5a64/examples/assume_role_example.clj
@@ -24,6 +26,8 @@
        :Role :Arn))
 
 (comment
+  ;; resources/role.edn contains :mfa_serial & :role_arn
+  (def target-role (edn/read-string (slurp (io/resource "role.edn"))))
   (def iam (aws/client {:api :iam}))
   (def sts (aws/client {:api :sts}))
   (keys (aws/ops iam))
