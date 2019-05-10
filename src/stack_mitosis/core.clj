@@ -113,7 +113,7 @@
        transition-to
        (contains? #{:done :failed})))
 
-(defn interpret [action]
+(defn interpret [rds action]
   (log/info "Invoking " action)
   (let [{:keys [ErrorResponse] :as result} (aws/invoke rds action)]
     (if ErrorResponse
@@ -132,9 +132,9 @@
             (log/info msg)
             ret))))))
 
-(defn evaluate-plan [actions]
+(defn evaluate-plan [rds actions]
   ;; TODO: handle errors & break on first error (also expired tokens)
-  (map interpret actions))
+  (map (partial interpret rds) actions))
 
 (comment
   (keys (aws/ops rds))
