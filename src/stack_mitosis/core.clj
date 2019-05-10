@@ -74,40 +74,6 @@
         delete (delete-tree c (aliased "old" target))]
     (concat copy rename-old rename-temp delete)))
 
-(defn transition-to
-  "Maps current rds status to in-progress, failed or done
-
-  From https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html"
-  [state]
-  (if (:ErrorResponse state)
-    :failed
-    (condp contains? (get state :DBInstanceStatus)
-      #{"backing-up" "backtracking" "configuring-enhanced-monitoring"
-        "configuring-iam-database-auth" "configuring-log-exports"
-        "converting-to-vpc" "creating" "deleting" "maintenance" "modifying"
-        "moving-to-vpc" "rebooting" "renaming" "resetting-master-credentials"
-        "starting" "stopping" "storage-optimization" "upgrading"}
-      :in-progress
-      #{"failed" "inaccessible-encryption-credentials" "incompatible-credentials"
-        "incompatible-network" "incompatible-option-group"
-        "incompatible-parameters" "incompatible-restore" "restore-error"
-        "storage-full"}
-      :failed
-      #{"stopped" "available"}
-      :done
-      ;; unknown or missing
-      nil
-      :failed
-      )))
-
-(defn completed?
-  [described-instances]
-  (->> described-instances
-       :DBInstances
-       first
-       transition-to
-       (contains? #{:done :failed})))
-
 (defn interpret [rds action]
   (log/info "Invoking " action)
   (let [{:keys [ErrorResponse] :as result} (aws/invoke rds action)]
@@ -119,7 +85,7 @@
         (log/info result)
         (when-let [operation (op/polling-operation action)]
           (let [started (. System (nanoTime))
-                ret (wait/poll-until #(completed? (aws/invoke rds operation))
+                ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
                                      {:delay 60000 :max-attempts 60})
                 msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
                 status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
@@ -158,7 +124,7 @@
 
   (def example-id (:DBInstanceIdentifier (rand-nth instances)))
   (->> example-id op/describe (aws/invoke rds) :DBInstances first)
-  (wait/poll-until #(completed? (aws/invoke rds (op/describe example-id)))
+  (wait/poll-until #(op/completed? (aws/invoke rds (op/describe example-id)))
                    {:delay 100 :max-attempts 5})
 
   (aws/invoke rds (op/tags "")))
