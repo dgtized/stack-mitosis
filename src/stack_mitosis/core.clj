@@ -112,6 +112,7 @@
                   :Engine "postgres"
                   :AllocatedStorage 5
                   :MasterUsername "root"}]
+    ;; create & create replica of a fresh instance take ~6 minutes
     [(op/create (merge {:DBInstanceIdentifier "mitosis-root"
                         :MasterUserPassword (generate-password)}
                        template))
