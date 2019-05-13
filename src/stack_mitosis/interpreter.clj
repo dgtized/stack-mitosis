@@ -42,8 +42,8 @@
 
 (comment
   (evaluate-plan rds (plan/make-test-env))
-  (plan/replace-tree (predict/state [] (plan/make-test-env))
-                     "mitosis-root" "mitosis-alpha")
+  (-> (predict/state [] (plan/make-test-env))
+      (plan/replace-tree "mitosis-root" "mitosis-alpha"))
   (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
   (evaluate-plan rds (plan/cleanup-test-env))
   )
