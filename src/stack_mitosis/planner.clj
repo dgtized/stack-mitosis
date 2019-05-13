@@ -4,7 +4,8 @@
              :refer [bfs-tree-seq topological-sort update-if]]
             [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
-            [stack-mitosis.predict :as predict]))
+            [stack-mitosis.predict :as predict]
+            [stack-mitosis.request :as r]))
 
 (defn aliased [prefix name]
   (str prefix "-" name))
@@ -65,6 +66,18 @@
         c (predict/state instances (concat copy rename-old rename-temp))
         delete (delete-tree c (aliased "old" target))]
     (concat copy rename-old rename-temp delete)))
+
+
+(defn skippable [instances {:keys [op] :as action}]
+  (cond
+    (and (= op :CreateDBInstance)
+         (lookup/by-id instances (r/db-id action)))
+    (merge action {:skip "Instance already exists"})
+    ;; catch error if replica has incorrect parent?
+    (and (= op :CreateDBInstanceReadReplica)
+         (lookup/by-id instances (r/db-id action)))
+    (merge action {:skip "Instance already exists"})
+    :else action))
 
 (defn make-test-env []
   ;; mysql allows replicas of replicas, postgres does not

@@ -66,3 +66,10 @@
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
            (plan/replace-tree instances "production" "staging")))))
+
+(deftest skippable
+  (let [instances [{:DBInstanceIdentifier "a"}]]
+    (is (= {:op :CreateDBInstance
+            :request {:DBInstanceIdentifier "a"}
+            :skip "Instance already exists"}
+           (plan/skippable instances (op/create {:DBInstanceIdentifier "a"}))))))
