@@ -40,3 +40,10 @@
                (let [node (peek queue)]
                  (cons node (step (into (pop queue) (children node))))))))]
     (step (conj clojure.lang.PersistentQueue/EMPTY root))))
+
+(defn generate-password
+  ([] (generate-password 20))
+  ([n] (let [chars (map char (concat (range (int \0) (int \9))
+                                     (range (int \A) (int \Z))
+                                     (range (int \a) (int \z))))]
+         (reduce str (take n (repeatedly #(rand-nth chars)))))))

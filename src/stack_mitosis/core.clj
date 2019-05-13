@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [cognitect.aws.client.api :as aws]
-            [stack-mitosis.helpers :refer [bfs-tree-seq topological-sort update-if]]
+            [stack-mitosis.helpers :refer [bfs-tree-seq topological-sort update-if] :as helpers]
             [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
             [stack-mitosis.predict :as predict]
@@ -100,13 +100,6 @@
           :while (not (:ErrorResponse result))]
     result))
 
-(defn generate-password
-  ([] (generate-password 20))
-  ([n] (let [chars (map char (concat (range (int \0) (int \9))
-                                     (range (int \A) (int \Z))
-                                     (range (int \a) (int \z))))]
-         (reduce str (take n (repeatedly #(rand-nth chars)))))))
-
 (defn make-test-env []
   (let [template {:DBInstanceClass "db.t3.micro"
                   :Engine "postgres"
@@ -114,10 +107,10 @@
                   :MasterUsername "root"}]
     ;; create & create replica of a fresh instance take ~6 minutes
     [(op/create (merge {:DBInstanceIdentifier "mitosis-root"
-                        :MasterUserPassword (generate-password)}
+                        :MasterUserPassword (helpers/generate-password)}
                        template))
      (op/create (merge {:DBInstanceIdentifier "mitosis-alpha"
-                        :MasterUserPassword (generate-password)}
+                        :MasterUserPassword (helpers/generate-password)}
                        template))
      (op/create-replica "mitosis-alpha" "mitosis-beta")
      #_(op/create-replica "mitosis-beta" "mitosis-gamma")
