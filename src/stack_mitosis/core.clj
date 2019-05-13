@@ -29,6 +29,8 @@
        (zipmap ids)
        topological-sort))
 
+;; postgres does not allow replica of replica, so need to promote before
+;; replicating children
 (defn copy-tree
   [instances source target transform]
   (let [df (map (comp transform (partial lookup/by-id instances))
@@ -101,8 +103,9 @@
     result))
 
 (defn make-test-env []
+  ;; mysql allows replicas of replicas, postgres does not
   (let [template {:DBInstanceClass "db.t3.micro"
-                  :Engine "postgres"
+                  :Engine "mysql"
                   :AllocatedStorage 5
                   :MasterUsername "root"}]
     ;; create & create replica of a fresh instance take ~6 minutes
