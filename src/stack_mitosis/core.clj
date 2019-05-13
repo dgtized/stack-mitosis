@@ -89,7 +89,7 @@
                                      {:delay 60000 :max-attempts 60})
                 msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
                 status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
-                msg (str "Completed after : " msecs " msecs with status: " status)]
+                msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
             (log/info msg)
             ret))))))
 
