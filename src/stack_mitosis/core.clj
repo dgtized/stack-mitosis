@@ -106,11 +106,18 @@
                :DBInstanceClass "db.t3.micro"
                :Engine "postgres"})
    (op/create-replica "mitosis-alpha" "mitosis-beta")
-   (op/create-replica "mitosis-beta" "mitosis-gamma")])
+   #_(op/create-replica "mitosis-beta" "mitosis-gamma")
+   ])
 
 (defn cleanup-test-env []
   (conj (delete-tree (predict/state [] (make-test-env)) "mitosis-alpha")
         (op/delete "mitosis-root")))
+
+(comment
+  (evaluate-plan rds (make-test-env))
+  (evaluate-plan rds (replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
+  (evaluate-plan rds (cleanup-test-env))
+  )
 
 (comment
   (keys (aws/ops rds))
