@@ -1,4 +1,4 @@
-(ns stack-mitosis.core
+(ns stack-mitosis.planner
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [cognitect.aws.client.api :as aws]
