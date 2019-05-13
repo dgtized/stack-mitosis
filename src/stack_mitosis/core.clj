@@ -93,10 +93,12 @@
             (log/info msg)
             ret))))))
 
-(defn evaluate-plan [rds operations]
-  ;; TODO: handle errors & break on first error (also expired tokens)
-  (doseq [action operations]
-    (interpret rds action)))
+(defn evaluate-plan
+  [rds operations]
+  (doseq [action operations
+          :let [result (interpret rds action)]
+          :while (not (:ErrorResponse result))]
+    result))
 
 (defn generate-password
   ([] (generate-password 20))
