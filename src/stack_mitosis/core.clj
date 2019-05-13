@@ -93,9 +93,10 @@
             (log/info msg)
             ret))))))
 
-(defn evaluate-plan [rds actions]
+(defn evaluate-plan [rds operations]
   ;; TODO: handle errors & break on first error (also expired tokens)
-  (map (partial interpret rds) actions))
+  (doseq [action operations]
+    (interpret rds action)))
 
 (defn make-test-env []
   [(op/create {:DBInstanceIdentifier "mitosis-root"
