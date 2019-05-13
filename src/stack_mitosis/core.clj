@@ -102,23 +102,25 @@
 
 (defn generate-password
   ([] (generate-password 20))
-  ([n] (let [chars (map char (range 33 127))]
+  ([n] (let [chars (map char (concat (range (int \0) (int \9))
+                                     (range (int \A) (int \Z))
+                                     (range (int \a) (int \z))))]
          (reduce str (take n (repeatedly #(rand-nth chars)))))))
 
 (defn make-test-env []
-  [(op/create {:DBInstanceIdentifier "mitosis-root"
-               :DBInstanceClass "db.t3.micro"
-               :Engine "postgres"
-               :MasterUsername "root"
-               :MasterUserPassword (generate-password)})
-   (op/create {:DBInstanceIdentifier "mitosis-alpha"
-               :DBInstanceClass "db.t3.micro"
-               :Engine "postgres"
-               :MasterUsername "root"
-               :MasterUserPassword (generate-password)})
-   (op/create-replica "mitosis-alpha" "mitosis-beta")
-   #_(op/create-replica "mitosis-beta" "mitosis-gamma")
-   ])
+  (let [template {:DBInstanceClass "db.t3.micro"
+                  :Engine "postgres"
+                  :AllocatedStorage 5
+                  :MasterUsername "root"}]
+    [(op/create (merge {:DBInstanceIdentifier "mitosis-root"
+                        :MasterUserPassword (generate-password)}
+                       template))
+     (op/create (merge {:DBInstanceIdentifier "mitosis-alpha"
+                        :MasterUserPassword (generate-password)}
+                       template))
+     (op/create-replica "mitosis-alpha" "mitosis-beta")
+     #_(op/create-replica "mitosis-beta" "mitosis-gamma")
+     ]))
 
 (defn cleanup-test-env []
   (conj (delete-tree (predict/state [] (make-test-env)) "mitosis-alpha")
