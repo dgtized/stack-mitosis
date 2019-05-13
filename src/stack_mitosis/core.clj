@@ -97,6 +97,20 @@
   ;; TODO: handle errors & break on first error (also expired tokens)
   (map (partial interpret rds) actions))
 
+(defn make-test-env []
+  [(op/create {:DBInstanceIdentifier "mitosis-root"
+               :DBInstanceClass "db.t3.micro"
+               :Engine "postgres"})
+   (op/create {:DBInstanceIdentifier "mitosis-alpha"
+               :DBInstanceClass "db.t3.micro"
+               :Engine "postgres"})
+   (op/create-replica "mitosis-alpha" "mitosis-beta")
+   (op/create-replica "mitosis-beta" "mitosis-gamma")])
+
+(defn cleanup-test-env []
+  (conj (delete-tree (predict/state [] (make-test-env)) "mitosis-alpha")
+        (op/delete "mitosis-root")))
+
 (comment
   (keys (aws/ops rds))
   (aws/doc rds :CreateDBInstance) ;; for testing
