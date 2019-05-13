@@ -98,13 +98,22 @@
   (doseq [action operations]
     (interpret rds action)))
 
+(defn generate-password
+  ([] (generate-password 20))
+  ([n] (let [chars (map char (range 33 127))]
+         (reduce str (take n (repeatedly #(rand-nth chars)))))))
+
 (defn make-test-env []
   [(op/create {:DBInstanceIdentifier "mitosis-root"
                :DBInstanceClass "db.t3.micro"
-               :Engine "postgres"})
+               :Engine "postgres"
+               :MasterUsername "root"
+               :MasterUserPassword (generate-password)})
    (op/create {:DBInstanceIdentifier "mitosis-alpha"
                :DBInstanceClass "db.t3.micro"
-               :Engine "postgres"})
+               :Engine "postgres"
+               :MasterUsername "root"
+               :MasterUserPassword (generate-password)})
    (op/create-replica "mitosis-alpha" "mitosis-beta")
    #_(op/create-replica "mitosis-beta" "mitosis-gamma")
    ])

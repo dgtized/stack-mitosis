@@ -18,7 +18,7 @@
   [instances op]
   {:pre [((complement lookup/exists?) instances (r/db-id op))]
    :post [(lookup/exists? % (r/db-id op))]}
-  (conj instances (:request op)))
+  (conj instances (dissoc (:request op) :MasterUsername :MasterUserPassword)))
 
 (defmethod predict :CreateDBInstanceReadReplica
   [instances op]

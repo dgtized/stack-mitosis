@@ -6,6 +6,8 @@
 (deftest create
   (is (= [{:DBInstanceIdentifier "a"}]
          (p/predict [] (op/create {:DBInstanceIdentifier "a"}))))
+  (is (= [{:DBInstanceIdentifier "a"}]
+         (p/predict [] (op/create {:DBInstanceIdentifier "a" :MasterUsername "foo" :MasterUserPassword "bar"}))))
   (is (thrown-with-msg? java.lang.AssertionError #"complement"
                         (p/predict [{:DBInstanceIdentifier "a"}]
                                    (op/create {:DBInstanceIdentifier "a"})))))
