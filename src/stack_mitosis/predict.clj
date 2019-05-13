@@ -14,6 +14,12 @@
 
 (defmulti predict (fn [instances op] (get op :op)))
 
+(defmethod predict :CreateDBInstance
+  [instances op]
+  {:pre [((complement lookup/exists?) instances (r/db-id op))]
+   :post [(lookup/exists? % (r/db-id op))]}
+  (conj instances (:request op)))
+
 (defmethod predict :CreateDBInstanceReadReplica
   [instances op]
   {:pre [(lookup/exists? instances (r/source-id op))]

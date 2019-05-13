@@ -26,6 +26,11 @@
            :ApplyImmediately true}
           options)})
 
+(defn create
+  [options]
+  {:op :CreateDBInstance
+   :request options})
+
 (defn create-replica
   [source replica]
   {:op :CreateDBInstanceReadReplica

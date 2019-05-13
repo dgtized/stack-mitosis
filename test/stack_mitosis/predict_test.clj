@@ -3,6 +3,13 @@
             [stack-mitosis.operations :as op]
             [clojure.test :refer :all]))
 
+(deftest create
+  (is (= [{:DBInstanceIdentifier "a"}]
+         (p/predict [] (op/create {:DBInstanceIdentifier "a"}))))
+  (is (thrown-with-msg? java.lang.AssertionError #"complement"
+                        (p/predict [{:DBInstanceIdentifier "a"}]
+                                   (op/create {:DBInstanceIdentifier "a"})))))
+
 (deftest modify
   (let [instances [{:DBInstanceIdentifier "a"}
                    {:DBInstanceIdentifier "b"}]]
