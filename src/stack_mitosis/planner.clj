@@ -68,15 +68,18 @@
     (concat copy rename-old rename-temp delete)))
 
 
+(defn duplicate-instance [id]
+  (format "Instance '%s' already exists" id))
+
 (defn skippable [instances {:keys [op] :as action}]
   (cond
     (and (= op :CreateDBInstance)
          (lookup/by-id instances (r/db-id action)))
-    (merge action {:skip "Instance already exists"})
+    (assoc action :skip (duplicate-instance (r/db-id action)))
     ;; catch error if replica has incorrect parent?
     (and (= op :CreateDBInstanceReadReplica)
          (lookup/by-id instances (r/db-id action)))
-    (merge action {:skip "Instance already exists"})
+    (assoc action :skip (duplicate-instance (r/db-id action)))
     :else action))
 
 (defn make-test-env []

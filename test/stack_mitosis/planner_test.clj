@@ -72,9 +72,9 @@
                    {:DBInstanceIdentifier "b"}]]
     (is (= {:op :CreateDBInstance
             :request {:DBInstanceIdentifier "a"}
-            :skip "Instance already exists"}
+            :skip (plan/duplicate-instance "a")}
            (plan/skippable instances (op/create {:DBInstanceIdentifier "a"}))))
     (is (= {:op :CreateDBInstanceReadReplica
             :request {:DBInstanceIdentifier "b" :SourceDBInstanceIdentifier "a"}
-            :skip "Instance already exists"}
+            :skip (plan/duplicate-instance "b")}
            (plan/skippable instances (op/create-replica "a" "b"))))))
