@@ -16,22 +16,25 @@
 
 (defn interpret [rds action]
   (log/info "Invoking " action)
-  (let [{:keys [ErrorResponse] :as result} (aws/invoke rds action)]
-    (if ErrorResponse
-      (do
-        (log/error ErrorResponse)
-        result)
-      (do
-        (log/info result)
-        (when-let [operation (op/polling-operation action)]
-          (let [started (. System (nanoTime))
-                ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
-                                     {:delay 60000 :max-attempts 60})
-                msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
-                status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
-                msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
-            (log/info msg)
-            ret))))))
+  (let [consider (plan/attempt (databases rds) action)]
+    (if (= (first consider) :skip)
+      (log/infof "Skipping: " (second consider))
+      (let [{:keys [ErrorResponse] :as result} (aws/invoke rds action)]
+        (if ErrorResponse
+          (do
+            (log/error ErrorResponse)
+            result)
+          (do
+            (log/info result)
+            (when-let [operation (op/polling-operation action)]
+              (let [started (. System (nanoTime))
+                    ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
+                                         {:delay 60000 :max-attempts 60})
+                    msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
+                    status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
+                    msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
+                (log/info msg)
+                ret))))))))
 
 (defn evaluate-plan
   [rds operations]
