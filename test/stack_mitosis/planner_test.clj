@@ -70,15 +70,15 @@
 (deftest attempt
   (let [instances [{:DBInstanceIdentifier "a"}
                    {:DBInstanceIdentifier "b"}]]
-    (is (= {:ok (op/create {:DBInstanceIdentifier "c"})}
+    (is (= [:ok (op/create {:DBInstanceIdentifier "c"})]
            (plan/attempt instances (op/create {:DBInstanceIdentifier "c"}))))
-    (is (= {:skip (plan/duplicate-instance "a")}
+    (is (= [:skip (plan/duplicate-instance "a")]
            (plan/attempt instances (op/create {:DBInstanceIdentifier "a"}))))
-    (is (= {:skip (plan/duplicate-instance "b")}
+    (is (= [:skip (plan/duplicate-instance "b")]
            (plan/attempt instances (op/create-replica "a" "b"))))
 
-    (is (= {:skip (plan/promoted-instance "a")}
+    (is (= [:skip (plan/promoted-instance "a")]
            (plan/attempt instances (op/promote "a"))))
-    (is (= {:ok (op/promote "a")}
+    (is (= [:ok (op/promote "a")]
            (plan/attempt [{:DBInstanceIdentifier "a" :ReadReplicaSourceDBInstanceIdentifier "b"}]
                          (op/promote "a"))))))

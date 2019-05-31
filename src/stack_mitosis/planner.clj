@@ -78,15 +78,15 @@
   (cond
     (and (= op :CreateDBInstance)
          (lookup/by-id instances (r/db-id action)))
-    {:skip (duplicate-instance (r/db-id action))}
+    [:skip (duplicate-instance (r/db-id action))]
     ;; catch error if replica has incorrect parent?
     (and (= op :CreateDBInstanceReadReplica)
          (lookup/by-id instances (r/db-id action)))
-    {:skip (duplicate-instance (r/db-id action))}
+    [:skip (duplicate-instance (r/db-id action))]
     (and (= op :PromoteReadReplica)
          (not (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id action)))))
-    {:skip (promoted-instance (r/db-id action))}
-    :else {:ok action}))
+    [:skip (promoted-instance (r/db-id action))]
+    :else [:ok action]))
 
 (defn make-test-env []
   ;; mysql allows replicas of replicas, postgres does not
