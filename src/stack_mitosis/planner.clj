@@ -71,16 +71,16 @@
 (defn duplicate-instance [id]
   (format "Instance '%s' already exists" id))
 
-(defn skippable [instances {:keys [op] :as action}]
+(defn attempt [instances {:keys [op] :as action}]
   (cond
     (and (= op :CreateDBInstance)
          (lookup/by-id instances (r/db-id action)))
-    (assoc action :skip (duplicate-instance (r/db-id action)))
+    {:skip (duplicate-instance (r/db-id action))}
     ;; catch error if replica has incorrect parent?
     (and (= op :CreateDBInstanceReadReplica)
          (lookup/by-id instances (r/db-id action)))
-    (assoc action :skip (duplicate-instance (r/db-id action)))
-    :else action))
+    {:skip (duplicate-instance (r/db-id action))}
+    :else {:ok action}))
 
 (defn make-test-env []
   ;; mysql allows replicas of replicas, postgres does not

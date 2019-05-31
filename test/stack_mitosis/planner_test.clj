@@ -67,14 +67,12 @@
             (op/delete "old-staging")]
            (plan/replace-tree instances "production" "staging")))))
 
-(deftest skippable
+(deftest attempt
   (let [instances [{:DBInstanceIdentifier "a"}
                    {:DBInstanceIdentifier "b"}]]
-    (is (= {:op :CreateDBInstance
-            :request {:DBInstanceIdentifier "a"}
-            :skip (plan/duplicate-instance "a")}
-           (plan/skippable instances (op/create {:DBInstanceIdentifier "a"}))))
-    (is (= {:op :CreateDBInstanceReadReplica
-            :request {:DBInstanceIdentifier "b" :SourceDBInstanceIdentifier "a"}
-            :skip (plan/duplicate-instance "b")}
-           (plan/skippable instances (op/create-replica "a" "b"))))))
+    (is (= {:ok (op/create {:DBInstanceIdentifier "c"})}
+           (plan/attempt instances (op/create {:DBInstanceIdentifier "c"}))))
+    (is (= {:skip (plan/duplicate-instance "a")}
+           (plan/attempt instances (op/create {:DBInstanceIdentifier "a"}))))
+    (is (= {:skip (plan/duplicate-instance "b")}
+           (plan/attempt instances (op/create-replica "a" "b"))))))
