@@ -71,6 +71,9 @@
 (defn duplicate-instance [id]
   (format "Instance '%s' already exists" id))
 
+(defn promoted-instance [id]
+  (format "Instance '%s' already promoted to top-level." id))
+
 (defn attempt [instances {:keys [op] :as action}]
   (cond
     (and (= op :CreateDBInstance)
@@ -80,6 +83,9 @@
     (and (= op :CreateDBInstanceReadReplica)
          (lookup/by-id instances (r/db-id action)))
     {:skip (duplicate-instance (r/db-id action))}
+    (and (= op :PromoteReadReplica)
+         (not (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id action)))))
+    {:skip (promoted-instance (r/db-id action))}
     :else {:ok action}))
 
 (defn make-test-env []

@@ -75,4 +75,10 @@
     (is (= {:skip (plan/duplicate-instance "a")}
            (plan/attempt instances (op/create {:DBInstanceIdentifier "a"}))))
     (is (= {:skip (plan/duplicate-instance "b")}
-           (plan/attempt instances (op/create-replica "a" "b"))))))
+           (plan/attempt instances (op/create-replica "a" "b"))))
+
+    (is (= {:skip (plan/promoted-instance "a")}
+           (plan/attempt instances (op/promote "a"))))
+    (is (= {:ok (op/promote "a")}
+           (plan/attempt [{:DBInstanceIdentifier "a" :ReadReplicaSourceDBInstanceIdentifier "b"}]
+                         (op/promote "a"))))))
