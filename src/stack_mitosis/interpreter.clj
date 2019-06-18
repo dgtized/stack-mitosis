@@ -46,12 +46,24 @@
           :while (not (:ErrorResponse result))]
     result))
 
+(defn check-plan
+  "Check plan against current state before evaluating."
+  [rds operations]
+  (map (partial plan/attempt (databases rds)) operations))
+
 (comment
-  (evaluate-plan rds (plan/make-test-env))
+  (time (evaluate-plan rds (plan/make-test-env)))
   (-> (predict/state [] (plan/make-test-env))
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
-  (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
-  (evaluate-plan rds (plan/cleanup-test-env))
+  (evaluate-plan rds [(op/delete "temp-mitosis-alpha")])
+  (evaluate-plan rds [(op/modify "temp-mitosis-alpha"
+                                 {:BackupRetentionPeriod 1
+                                  :PreferredMaintenanceWindow "sat:10:00-sat:11:00"})])
+
+  ;; check plan
+  (check-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
+  (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha")))
+  (time (evaluate-plan rds (plan/cleanup-test-env)))
   )
 
 (comment
