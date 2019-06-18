@@ -1,6 +1,8 @@
 (ns stack-mitosis.interpreter
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [cognitect.aws.client.api :as aws]
+            [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
             [stack-mitosis.planner :as plan]
             [stack-mitosis.predict :as predict]
