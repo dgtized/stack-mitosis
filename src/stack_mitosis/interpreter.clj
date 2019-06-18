@@ -16,6 +16,7 @@
   [rds]
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
+;; TODO: implement "restart" action for running command
 (defn interpret [rds action]
   (log/info "Invoking " action)
   (let [consider (plan/attempt (databases rds) action)]
@@ -66,6 +67,7 @@
   (def instances (databases rds))
 
   (map :DBInstanceIdentifier instances)
+  (map #(select-keys % [:StorageType :AllocatedStorage]) instances)
   (filter #(re-find #"mysql" (:Engine %)) instances)
 
   (map (fn [{:keys [DBInstanceIdentifier

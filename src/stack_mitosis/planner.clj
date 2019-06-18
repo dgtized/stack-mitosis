@@ -92,6 +92,7 @@
   ;; mysql allows replicas of replicas, postgres does not
   (let [template {:DBInstanceClass "db.t3.micro"
                   :Engine "mysql"
+                  :StorageType "gp2"
                   :AllocatedStorage 5
                   :MasterUsername "root"}]
     ;; create & create replica of a fresh instance take ~6 minutes

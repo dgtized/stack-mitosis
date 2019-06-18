@@ -1,6 +1,7 @@
 (ns stack-mitosis.cli
   (:require [clojure.tools.cli :as cli]))
 
+;; maybe allow specifying mfa token / role arn for sudo?
 (def cli-options
   [["-s" "--source SRC" "Root identifier of database tree to copy from"]
    ["-t" "--target DST" "Root identifier of database tree to copy over"]
