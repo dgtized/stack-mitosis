@@ -21,7 +21,7 @@
   (log/info "Invoking " action)
   (let [consider (plan/attempt (databases rds) action)]
     (if (= (first consider) :skip)
-      (log/infof "Skipping: " (second consider))
+      (log/infof "Skipping: %s" (second consider))
       (let [{:keys [ErrorResponse] :as result} (aws/invoke rds action)]
         (if ErrorResponse
           (do

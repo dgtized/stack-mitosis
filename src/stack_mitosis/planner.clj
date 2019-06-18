@@ -46,6 +46,7 @@
   [prefix instance]
   (-> instance
       (update :DBInstanceIdentifier (partial aliased prefix))
+      ;; what about children identifiers?
       (update-if [:ReadReplicaSourceDBInstanceIdentifier] (partial aliased prefix))))
 
 (defn replace-tree
