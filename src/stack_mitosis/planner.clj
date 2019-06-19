@@ -24,12 +24,14 @@
 ;; replicating children
 (defn copy-tree
   [instances source target transform]
-  (let [df (map (comp transform (partial lookup/by-id instances))
-                (list-tree instances target))]
-    (conj (mapv #(op/create-replica (if-let [parent (:ReadReplicaSourceDBInstanceIdentifier %)]
-                                      parent source)
-                                    (:DBInstanceIdentifier %)) df)
-          (op/promote (:DBInstanceIdentifier (first df))))))
+  (let [[root & tree] (map (comp transform (partial lookup/by-id instances))
+                           (list-tree instances target))
+        root-id (:DBInstanceIdentifier root)]
+    (into [(op/create-replica source root-id)
+           (op/enable-backups root-id)
+           (op/promote root-id)]
+          (mapv #(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier %) (:DBInstanceIdentifier %))
+                tree))))
 
 (defn rename-tree
   [instances source transform]

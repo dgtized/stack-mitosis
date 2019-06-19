@@ -22,10 +22,11 @@
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
     (is (= [(op/create-replica "source" "temp-target")
+            (op/enable-backups "temp-target")
+            (op/promote "temp-target")
             (op/create-replica "temp-target" "temp-a")
             (op/create-replica "temp-target" "temp-b")
-            (op/create-replica "temp-b" "temp-c")
-            (op/promote "temp-target")]
+            (op/create-replica "temp-b" "temp-c")]
            (plan/copy-tree instances "source" "target" (partial plan/transform "temp"))))))
 
 (deftest rename-tree
@@ -57,8 +58,9 @@
                    {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
                    {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]]
     (is (= [(op/create-replica "production" "temp-staging")
-            (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/enable-backups "temp-staging")
             (op/promote "temp-staging")
+            (op/create-replica "temp-staging" "temp-staging-replica")
             (op/rename "staging-replica" "old-staging-replica")
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
