@@ -5,13 +5,6 @@
   {:op :ListTagsForResource
    :request {:ResourceName arn}})
 
-(defn rename
-  [old new]
-  {:op :ModifyDBInstance
-   :request {:DBInstanceIdentifier old
-             :NewDBInstanceIdentifier new
-             :ApplyImmediately true}})
-
 (defn delete
   [id]
   {:op :DeleteDBInstance
@@ -25,6 +18,14 @@
    (merge {:DBInstanceIdentifier id
            :ApplyImmediately true}
           options)})
+
+(defn rename
+  [old new]
+  (modify old {:NewDBInstanceIdentifier new}))
+
+(defn enable-backups
+  [id]
+  (modify id {:BackupRetentionPeriod 1}))
 
 (defn create
   [options]
