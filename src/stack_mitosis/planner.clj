@@ -80,6 +80,9 @@
 (defn promoted-instance [id]
   (format "Instance '%s' already promoted to top-level." id))
 
+(defn no-changes [id]
+  (format "Instance '%s' already applied modifications." id))
+
 (defn attempt [instances {:keys [op] :as action}]
   (cond
     (and (= op :CreateDBInstance)
@@ -92,6 +95,13 @@
     (and (= op :PromoteReadReplica)
          (not (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id action)))))
     [:skip (promoted-instance (r/db-id action))]
+    (and (= op :ModifyDBInstance)
+         (let [id (r/db-id action)
+               current (lookup/by-id instances id)
+               predicted (lookup/by-id (predict/state instances [action]) id)
+               [diff-a diff-b _] (clojure.data/diff current predicted)]
+           (and (empty? diff-a) (empty? diff-b))))
+    [:skip (no-changes (r/db-id action))]
     :else [:ok action]))
 
 (defn make-test-env []

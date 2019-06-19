@@ -83,4 +83,21 @@
            (plan/attempt instances (op/promote "a"))))
     (is (= [:ok (op/promote "a")]
            (plan/attempt [{:DBInstanceIdentifier "a" :ReadReplicaSourceDBInstanceIdentifier "b"}]
-                         (op/promote "a"))))))
+                         (op/promote "a")))))
+  (testing "modify"
+    (is (= [:ok (op/enable-backups "x")]
+           (plan/attempt [{:DBInstanceIdentifier "x"}]
+                         (op/enable-backups "x"))))
+    (is (= [:skip (plan/no-changes "x")]
+           (plan/attempt [{:DBInstanceIdentifier "x" :BackupRetentionPeriod 1}]
+                         (op/enable-backups "x"))))
+    (is (= [:ok (op/enable-backups "x")]
+           (plan/attempt [{:DBInstanceIdentifier "x" :BackupRetentionPeriod 0}]
+                         (op/enable-backups "x"))))
+    (is (= [:ok (op/enable-backups "x")]
+           (plan/attempt [{:DBInstanceIdentifier "x" :BackupRetentionPeriod 2}]
+                         (op/enable-backups "x")))))
+  (testing "rename"
+    (is (= [:ok (op/rename "x" "y")]
+           (plan/attempt [{:DBInstanceIdentifier "x"}]
+                         (op/rename "x" "y"))))))
