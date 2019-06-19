@@ -100,4 +100,7 @@
   (testing "rename"
     (is (= [:ok (op/rename "x" "y")]
            (plan/attempt [{:DBInstanceIdentifier "x"}]
-                         (op/rename "x" "y"))))))
+                         (op/rename "x" "y"))))
+    (is (= [:skip (plan/no-changes "x")]
+           (plan/attempt [{:DBInstanceIdentifier "x"}]
+                         (op/rename "x" "x"))))))
