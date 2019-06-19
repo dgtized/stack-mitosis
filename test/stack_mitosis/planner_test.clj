@@ -25,6 +25,7 @@
             (op/enable-backups "temp-target")
             (op/promote "temp-target")
             (op/create-replica "temp-target" "temp-a")
+            (op/enable-backups "temp-a")
             (op/create-replica "temp-target" "temp-b")
             (op/create-replica "temp-b" "temp-c")]
            (plan/copy-tree instances "source" "target" (partial plan/transform "temp"))))))
