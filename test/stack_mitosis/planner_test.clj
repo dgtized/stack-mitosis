@@ -103,4 +103,6 @@
                          (op/rename "x" "y"))))
     (is (= [:skip (plan/no-changes "x")]
            (plan/attempt [{:DBInstanceIdentifier "x"}]
-                         (op/rename "x" "x"))))))
+                         (op/rename "x" "x"))))
+    ;; should rename of missing instance or duplicate instance error?
+    ))
