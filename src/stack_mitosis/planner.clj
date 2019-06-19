@@ -32,8 +32,9 @@
            (op/promote root-id)]
           ;; need to enable-backups for any replicas of replicas in mysql
           ;; for source -> a -> b -> c, b needs backups-enabled too
-          (map #(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier %) (:DBInstanceIdentifier %))
-               tree))))
+          (for [instance tree]
+            (op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
+                               (:DBInstanceIdentifier instance))))))
 
 (defn rename-tree
   [instances source transform]
