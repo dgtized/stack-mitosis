@@ -35,7 +35,8 @@
 
 (defmethod predict :PromoteReadReplica
   [instances op]
-  {:pre [(lookup/exists? instances (r/db-id op))]}
+  {:pre [(lookup/exists? instances (r/db-id op))
+         (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id op)))]}
   (let [child (r/db-id op)
         parent (lookup/parent instances child)]
     (letfn [(promote [db]
