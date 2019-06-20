@@ -62,6 +62,7 @@
 
   ;; check plan
   (check-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
+  (filter #(re-find #"mitosis" %) (map :DBInstanceIdentifier (databases rds)))
   (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha")))
   (time (evaluate-plan rds (plan/cleanup-test-env)))
   )
