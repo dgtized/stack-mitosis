@@ -80,6 +80,7 @@
 
   (map :DBInstanceIdentifier instances)
   (map #(select-keys % [:StorageType :AllocatedStorage]) instances)
+  (map #(select-keys % [:DBInstanceIdentifier :BackupRetentionPeriod]) instances)
   (filter #(re-find #"mysql" (:Engine %)) instances)
 
   (map (fn [{:keys [DBInstanceIdentifier
