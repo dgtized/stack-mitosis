@@ -1,5 +1,6 @@
 (ns stack-mitosis.planner
   (:require [clojure.string :as str]
+            [clojure.data]
             [stack-mitosis.helpers :as helpers
              :refer [bfs-tree-seq topological-sort update-if]]
             [stack-mitosis.lookup :as lookup]
