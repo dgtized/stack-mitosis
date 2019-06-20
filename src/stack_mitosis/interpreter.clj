@@ -78,9 +78,8 @@
 
   (def instances (databases rds))
 
-  (map :DBInstanceIdentifier instances)
   (map #(select-keys % [:StorageType :AllocatedStorage]) instances)
-  (map #(select-keys % [:DBInstanceIdentifier :BackupRetentionPeriod]) instances)
+  (map #(select-keys % [:DBInstanceIdentifier :DBInstanceStatus]) (databases rds))
   (filter #(re-find #"mysql" (:Engine %)) instances)
 
   (map (fn [{:keys [DBInstanceIdentifier
