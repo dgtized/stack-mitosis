@@ -62,6 +62,13 @@
 
   ;; check plan
   (check-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
+
+  ;; TODO: move attempt into planning, ie we should skip steps that already happen even in planning
+  ;; change wait mechanics to poll all?
+  ;; improve wait mechanics for rename and other modify actions
+  ;; add --plan to CLI
+  ;; add restart command runner to interpeter
+
   (filter #(re-find #"mitosis" %) (map :DBInstanceIdentifier (databases rds)))
   (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha")))
   (time (evaluate-plan rds (plan/cleanup-test-env)))
