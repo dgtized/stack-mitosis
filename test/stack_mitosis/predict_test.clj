@@ -21,8 +21,7 @@
     (is (= [{:DBInstanceIdentifier "a"}
             {:DBInstanceIdentifier "b" :MultiAZ true}]
            (p/predict instances
-                      {:op :ModifyDBInstance
-                       :request {:DBInstanceIdentifier "b" :MultiAZ true}})))))
+                      (op/modify "b" {:MultiAZ true}))))))
 
 (deftest promote
   (let [instances [{:DBInstanceIdentifier "root"
