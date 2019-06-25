@@ -30,7 +30,9 @@
           (do
             (println "Flight plan:")
             (doseq [{:keys [op request]} plan]
-              (printf "%s\n\t%s\n" op request)))
+              (if-let [db-id (:DBInstanceIdentifier request)]
+                (printf "%-30s %s\n\t%s\n" op db-id (dissoc request :DBInstanceIdentifier))
+                (printf "%s\n\t%s\n" op request))))
           :else
           (interpreter/evaluate-plan rds plan))))
 
