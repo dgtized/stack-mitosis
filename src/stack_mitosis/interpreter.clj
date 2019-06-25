@@ -48,8 +48,8 @@
 
 (defn check-plan
   "Check plan against current state before evaluating."
-  [rds operations]
-  (map (partial plan/attempt (databases rds)) operations))
+  [state operations]
+  (map plan/attempt (reductions predict/predict state operations) operations))
 
 (comment
   (time (evaluate-plan rds (plan/make-test-env)))
@@ -61,7 +61,8 @@
                                   :PreferredMaintenanceWindow "sat:10:00-sat:11:00"})])
 
   ;; check plan
-  (check-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha"))
+  (let [state (databases rds)]
+    (check-plan state (plan/replace-tree state "mitosis-root" "mitosis-alpha")))
 
   ;; TODO: move attempt into planning, ie we should skip steps that already happen even in planning
   ;; change wait mechanics to poll all?
