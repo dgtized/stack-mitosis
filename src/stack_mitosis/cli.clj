@@ -27,9 +27,10 @@
         plan (plan/replace-tree (interpreter/databases rds)
                                 (:source options) (:target options))]
     (cond (:plan options)
-          (doseq [op plan]
-            (pr op)
-            (newline))
+          (do
+            (println "Flight plan:")
+            (doseq [{:keys [op request]} plan]
+              (printf "%s\n\t%s\n" op request)))
           :else
           (interpreter/evaluate-plan rds plan))))
 
