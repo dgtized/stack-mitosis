@@ -31,7 +31,9 @@
           (-> source
               (merge (dissoc (:request op) :SourceDBInstanceIdentifier :ApplyImmediately))
               (assoc :ReadReplicaSourceDBInstanceIdentifier parent)
-              (dissoc :ReadReplicaDBInstanceIdentifiers)))))
+              ;; remove sources replica list for new replica, and reset backup
+              ;; retention to match what AWS does.
+              (dissoc :ReadReplicaDBInstanceIdentifiers :BackupRetentionPeriod)))))
 
 (defmethod predict :PromoteReadReplica
   [instances op]

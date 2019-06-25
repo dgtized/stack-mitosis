@@ -49,7 +49,14 @@
                       {:op :CreateDBInstanceReadReplica
                        :request {:DBInstanceIdentifier "replica"
                                  :SourceDBInstanceIdentifier "root"
-                                 :Port 123}})))))
+                                 :Port 123}})))
+    (testing "propagate only *some* instance fields to replica"
+      (let [root {:DBInstanceIdentifier "root" :BackupRetentionPeriod 1
+                  :ReadReplicaDBInstanceIdentifiers ["other-clone"]
+                  :Port 123}]
+        (is (= [(update-in root [:ReadReplicaDBInstanceIdentifiers] conj "clone")
+                {:DBInstanceIdentifier "clone" :ReadReplicaSourceDBInstanceIdentifier "root" :Port 123}]
+               (p/predict [root] (op/create-replica "root" "clone"))))))))
 
 (deftest delete
   (let [instances [{:DBInstanceIdentifier "a"}
