@@ -25,7 +25,8 @@
 (defn process [options]
   (let [rds interpreter/rds
         plan (plan/replace-tree (interpreter/databases rds)
-                                (:source options) (:target options))]
+                                (:source options) (:target options)
+                                :restart (:restart options))]
     (cond (:plan options)
           (do
             (println "Flight plan:")
@@ -48,4 +49,6 @@
 (comment
   (println (parse-args ["--source" "production" "--target" "staging"
                         "--restart" "./restart.sh" "production"]))
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha" "--plan"])))
+  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
+                        "--plan"
+                        "--restart" "'./service-restart.sh'"])))

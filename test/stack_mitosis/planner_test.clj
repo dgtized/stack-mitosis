@@ -66,9 +66,10 @@
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
             (op/rename "temp-staging" "staging")
+            (op/shell-command "./restart.sh")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" "staging")))))
+           (plan/replace-tree instances "production" "staging" :restart "./restart.sh")))))
 
 (deftest attempt
   (let [instances [{:DBInstanceIdentifier "a"}

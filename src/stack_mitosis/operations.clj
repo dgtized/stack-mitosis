@@ -47,6 +47,10 @@
   {:op :DescribeDBInstances
    :request {:DBInstanceIdentifier id}})
 
+(defn shell-command [cmd]
+  {:op :shell-command
+   :request {:cmd cmd}})
+
 (defn polling-operation
   "Calculate if operation requires a describe to poll for completion."
   [action]
