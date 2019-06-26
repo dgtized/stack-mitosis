@@ -74,7 +74,7 @@
 
         shell-command (when restart [(op/shell-command restart)])
 
-        c (predict/state instances (concat copy rename-old rename-temp))
+        c (predict/state instances (concat copy rename-old rename-temp shell-command))
         delete (delete-tree c (aliased "old" target))]
     (concat copy rename-old rename-temp shell-command delete)))
 

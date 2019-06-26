@@ -14,6 +14,11 @@
 
 (defmulti predict (fn [instances op] (get op :op)))
 
+(defmethod predict :shell-command
+  [instances op]
+  ;; no-op identity
+  instances)
+
 (defmethod predict :CreateDBInstance
   [instances op]
   {:pre [((complement lookup/exists?) instances (r/db-id op))]

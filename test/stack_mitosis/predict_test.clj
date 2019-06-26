@@ -84,3 +84,7 @@
     (is (= [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers []}
             {:DBInstanceIdentifier "alpha" :ReadReplicaDBInstanceIdentifiers []}]
            (p/state instances ops)))))
+
+(deftest shell-command
+  (let [instances [{:DBInstanceIdentifier "root"}]]
+    (is (= instances (p/predict instances (op/shell-command "restart"))))))
