@@ -95,3 +95,7 @@
   (if (:ErrorResponse described-instances)
     false
     (contains? #{:done :failed} (transition-to (first (:DBInstances described-instances))))))
+
+(defn missing?
+  [described-instances]
+  (= :cognitect.anomalies/not-found (:cognitect.anomalies/category described-instances)))
