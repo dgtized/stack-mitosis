@@ -8,6 +8,7 @@
             [stack-mitosis.predict :as predict]
             [stack-mitosis.sudo :as sudo]
             [stack-mitosis.wait :as wait]
+            [stack-mitosis.request :as r]
             [stack-mitosis.shell :as shell]))
 
 ;; TODO: thread this client to all that use it
@@ -17,14 +18,22 @@
   [rds]
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
+(defn describe
+  [rds id]
+  (aws/invoke rds (op/describe id)))
+
 (defn- wait-for-action
   [rds action]
-  (let [operation (op/polling-operation action)]
+  (let [id (r/db-id action)
+        [result-id completed-fn]
+        (if-let [new-id (r/new-id action)]
+          [new-id #(and (op/missing? (describe rds id))
+                        (op/completed? (describe rds new-id)))]
+          [id #(op/completed? (describe rds id))])]
     (let [started (. System (nanoTime))
-          ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
-                               {:delay 60000 :max-attempts 60})
+          ret (wait/poll-until completed-fn {:delay 60000 :max-attempts 60})
           msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
-          status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
+          status (-> (describe rds result-id) :DBInstances first :DBInstanceStatus)
           msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
       (log/info msg)
       ret)))

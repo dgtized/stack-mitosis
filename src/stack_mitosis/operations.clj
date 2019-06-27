@@ -56,16 +56,6 @@
   (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica
                :PromoteReadReplica :ModifyDBInstance} (:op action)))
 
-(defn polling-operation
-  "Calculate if operation requires a describe to poll for completion."
-  [{:keys [op request]}]
-  (when (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica
-                     :PromoteReadReplica :ModifyDBInstance}
-                   op)
-    (let [new-id (and (= :ModifyDBInstance op) (:NewDBInstanceIdentifier request))
-          id (:DBInstanceIdentifier request)]
-      (describe (or new-id id)))))
-
 (defn transition-to
   "Maps current rds status to in-progress, failed or done
 
