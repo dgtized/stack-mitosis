@@ -51,4 +51,5 @@
                         "--restart" "./restart.sh" "production"]))
   (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
                         "--plan"
-                        "--restart" "'./service-restart.sh'"])))
+                        "--restart" "'./service-restart.sh'"]))
+  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"])))
