@@ -19,7 +19,7 @@
 
 (defn- wait-for-action
   [rds action]
-  (when-let [operation (op/polling-operation action)]
+  (let [operation (op/polling-operation action)]
     (let [started (. System (nanoTime))
           ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
                                {:delay 60000 :max-attempts 60})
@@ -46,7 +46,8 @@
             result)
           (do
             (log/info result)
-            (wait-for-action rds action)))))))
+            (when (op/blocking-operation? action)
+              (wait-for-action rds action))))))))
 
 (defn evaluate-plan
   [rds operations]

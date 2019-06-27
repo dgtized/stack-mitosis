@@ -51,6 +51,11 @@
   {:op :shell-command
    :request {:cmd cmd}})
 
+(defn blocking-operation?
+  [action]
+  (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica
+               :PromoteReadReplica :ModifyDBInstance} (:op action)))
+
 (defn polling-operation
   "Calculate if operation requires a describe to poll for completion."
   [{:keys [op request]}]
