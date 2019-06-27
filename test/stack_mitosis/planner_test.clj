@@ -11,7 +11,7 @@
   (let [a {:DBInstanceIdentifier :a :ReadReplicaDBInstanceIdentifiers [:b :c]}
         b {:DBInstanceIdentifier :b :ReadReplicaDBInstanceIdentifiers [:d]}
         c {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}
-        d {:DBInstanceIdentifier :c :ReadReplicaDBInstanceIdentifiers []}]
+        d {:DBInstanceIdentifier :d :ReadReplicaDBInstanceIdentifiers []}]
     (is (= [:a :b :c :d] (plan/list-tree [a b c d] :a)))))
 
 (deftest copy-tree
