@@ -17,6 +17,18 @@
   [rds]
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
+(defn- wait-for-action
+  [rds action]
+  (when-let [operation (op/polling-operation action)]
+    (let [started (. System (nanoTime))
+          ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
+                               {:delay 60000 :max-attempts 60})
+          msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
+          status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
+          msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
+      (log/info msg)
+      ret)))
+
 ;; TODO: implement "restart" action for running command
 (defn interpret [rds action]
   (log/infof "Invoking %s" action)
@@ -34,15 +46,7 @@
             result)
           (do
             (log/info result)
-            (when-let [operation (op/polling-operation action)]
-              (let [started (. System (nanoTime))
-                    ret (wait/poll-until #(op/completed? (aws/invoke rds operation))
-                                         {:delay 60000 :max-attempts 60})
-                    msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
-                    status (-> (aws/invoke rds operation) :DBInstances first :DBInstanceStatus)
-                    msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
-                (log/info msg)
-                ret))))))))
+            (wait-for-action rds action)))))))
 
 (defn evaluate-plan
   [rds operations]
