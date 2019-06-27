@@ -7,7 +7,8 @@
             [stack-mitosis.planner :as plan]
             [stack-mitosis.predict :as predict]
             [stack-mitosis.sudo :as sudo]
-            [stack-mitosis.wait :as wait]))
+            [stack-mitosis.wait :as wait]
+            [stack-mitosis.shell :as shell]))
 
 ;; TODO: thread this client to all that use it
 (def rds (aws/client {:api :rds :credentials-provider (sudo/provider)}))
@@ -18,11 +19,15 @@
 
 ;; TODO: implement "restart" action for running command
 (defn interpret [rds action]
-  (log/info "Invoking " action)
+  (log/infof "Invoking %s" action)
   (let [consider (plan/attempt (databases rds) action)]
     (if (= (first consider) :skip)
       (log/infof "Skipping: %s" (second consider))
-      (let [{:keys [ErrorResponse] :as result} (aws/invoke rds action)]
+      (let [{:keys [ErrorResponse] :as result}
+            (if-let [cmd (and (= :shell-command (:op action))
+                              (get-in action [:request :cmd]))]
+              (shell/bash cmd)
+              (aws/invoke rds action))]
         (if ErrorResponse
           (do
             (log/error ErrorResponse)
@@ -59,6 +64,8 @@
   (evaluate-plan rds [(op/modify "temp-mitosis-alpha"
                                  {:BackupRetentionPeriod 1
                                   :PreferredMaintenanceWindow "sat:10:00-sat:11:00"})])
+
+  (interpret rds (op/shell-command "echo restart"))
 
   ;; check plan
   (let [state (databases rds)]
