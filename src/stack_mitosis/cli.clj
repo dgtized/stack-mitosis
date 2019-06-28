@@ -29,7 +29,7 @@
   (concat ["Flight plan:"] (map r/explain plan)))
 
 (defn process [options]
-  (let [rds interpreter/rds
+  (let [rds (interpreter/client)
         plan (plan/replace-tree (interpreter/databases rds)
                                 (:source options) (:target options)
                                 :restart (:restart options))]

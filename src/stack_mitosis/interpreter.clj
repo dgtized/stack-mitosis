@@ -12,7 +12,9 @@
             [stack-mitosis.shell :as shell]))
 
 ;; TODO: thread this client to all that use it
-(def rds (aws/client {:api :rds :credentials-provider (sudo/provider)}))
+(defn client
+  []
+  (aws/client {:api :rds :credentials-provider (sudo/provider)}))
 
 (defn databases
   [rds]
@@ -71,6 +73,7 @@
   (map plan/attempt (reductions predict/predict state operations) operations))
 
 (comment
+  (def rds (client))
   (time (evaluate-plan rds (plan/make-test-env)))
   (-> (predict/state [] (plan/make-test-env))
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
