@@ -24,6 +24,13 @@
   [rds id]
   (aws/invoke rds (op/describe id)))
 
+(defn- invoke!
+  [rds action]
+  (if-let [cmd (and (= :shell-command (:op action))
+                    (get-in action [:request :cmd]))]
+    (shell/bash cmd)
+    (aws/invoke rds action)))
+
 (defn- wait-for-action
   [rds action]
   (let [id (r/db-id action)
@@ -40,25 +47,21 @@
       (log/info msg)
       ret)))
 
-;; TODO: implement "restart" action for running command
 (defn interpret [rds action]
   (log/infof "Invoking %s" action)
   (let [consider (plan/attempt (databases rds) action)]
     (if (= (first consider) :skip)
       (log/infof "Skipping: %s" (second consider))
-      (let [{:keys [ErrorResponse] :as result}
-            (if-let [cmd (and (= :shell-command (:op action))
-                              (get-in action [:request :cmd]))]
-              (shell/bash cmd)
-              (aws/invoke rds action))]
-        (if ErrorResponse
+      (let [result (invoke! rds action)]
+        (if-let [error-resp (:ErrorResponse result)]
           (do
-            (log/error ErrorResponse)
+            (log/error error-resp)
             result)
           (do
             (log/info result)
             (when (op/blocking-operation? action)
-              (wait-for-action rds action))))))))
+              (wait-for-action rds action))
+            result))))))
 
 (defn evaluate-plan
   [rds operations]
