@@ -1,7 +1,9 @@
 (ns stack-mitosis.cli
   (:require [clojure.tools.cli :as cli]
             [stack-mitosis.interpreter :as interpreter]
-            [stack-mitosis.planner :as plan]))
+            [stack-mitosis.planner :as plan]
+            [stack-mitosis.request :as r]
+            [clojure.string :as str]))
 
 ;; maybe allow specifying mfa token / role arn for sudo?
 (def cli-options
@@ -22,18 +24,17 @@
       :else
       options)))
 
+(defn flight-plan
+  [plan]
+  (concat ["Flight plan:"] (map r/explain plan)))
+
 (defn process [options]
   (let [rds interpreter/rds
         plan (plan/replace-tree (interpreter/databases rds)
                                 (:source options) (:target options)
                                 :restart (:restart options))]
     (cond (:plan options)
-          (do
-            (println "Flight plan:")
-            (doseq [{:keys [op request]} plan]
-              (if-let [db-id (:DBInstanceIdentifier request)]
-                (printf "%-30s %s\n\t%s\n" op db-id (dissoc request :DBInstanceIdentifier))
-                (printf "%s\n\t%s\n" op request))))
+          (println (str/join "\n" (flight-plan plan)))
           :else
           (interpreter/evaluate-plan rds plan))))
 

@@ -12,3 +12,10 @@
 (defn new-id
   [op]
   (get-in op [:request :NewDBInstanceIdentifier]))
+
+(defn explain
+  [{:keys [op request] :as action}]
+  (if-let [db-id (db-id action)]
+    (format "%-30s %s\n\t%s" op db-id (dissoc request :DBInstanceIdentifier))
+    (format "%s\n\t%s" op request)))
+
