@@ -8,7 +8,9 @@
   []
   (print "Enter MFA Token: ")
   (flush)
-  (str (edn/read-string (read-line))))
+  (let [line (read-line)]
+    (println)
+    (str (edn/read-string line))))
 
 (defn load-role
   [filename]
