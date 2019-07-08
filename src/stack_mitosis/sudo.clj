@@ -18,15 +18,18 @@
        edn/read-string))
 
 ;; not eligible for auto-refresh as it prompts for mfa token from stdin
-(defn assume-mfa-role [{:keys [session-name role_arn mfa_serial duration]
-                        :or {session-name "sudo" duration (* 4 60 60)}}]
+(defn assume-mfa-role
+  [{:keys [session-name role_arn mfa_serial duration token]
+    :or {session-name "sudo"
+         duration (* 4 60 60)
+         token (token-code)}}]
   (aws/invoke (aws/client {:api :sts})
               {:op      :AssumeRole
                :request {:RoleArn role_arn
                          :RoleSessionName session-name
                          :DurationSeconds duration
                          :SerialNumber mfa_serial
-                         :TokenCode (token-code)}}))
+                         :TokenCode token}}))
 
 (defn credential-provider [token]
   (when-let [error (:ErrorResponse token)]
