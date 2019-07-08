@@ -18,13 +18,14 @@
        edn/read-string))
 
 ;; not eligible for auto-refresh as it prompts for mfa token from stdin
-(defn assume-mfa-role [session-name target-role duration]
+(defn assume-mfa-role [{:keys [session-name role_arn mfa_serial duration]
+                        :or {session-name "sudo" duration (* 4 60 60)}}]
   (aws/invoke (aws/client {:api :sts})
               {:op      :AssumeRole
-               :request {:RoleArn (:role_arn target-role)
+               :request {:RoleArn role_arn
                          :RoleSessionName session-name
                          :DurationSeconds duration
-                         :SerialNumber (:mfa_serial target-role)
+                         :SerialNumber mfa_serial
                          :TokenCode (token-code)}}))
 
 (defn credential-provider [token]
@@ -43,9 +44,7 @@
   (deref current-provider))
 
 (defn sudo-provider []
-  ;; resources/role.edn contains :mfa_serial & :role_arn
-  (let [target-role (load-role)
-        token (assume-mfa-role "sudo" target-role (* 4 60 60))
+  (let [token (assume-mfa-role (load-role))
         provider (credential-provider token)]
     (reset! current-provider provider)
     provider))
