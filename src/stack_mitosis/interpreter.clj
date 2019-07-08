@@ -28,7 +28,7 @@
   [rds action]
   (if-let [cmd (and (= :shell-command (:op action))
                     (get-in action [:request :cmd]))]
-    (shell/bash cmd)
+    (shell/bash cmd) ;; TODO print output info and error handling?
     (aws/invoke rds action)))
 
 (defn- wait-for-action

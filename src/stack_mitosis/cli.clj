@@ -6,7 +6,9 @@
             [clojure.string :as str]
             [stack-mitosis.sudo :as sudo]))
 
-;; maybe allow specifying mfa token / role arn for sudo?
+;; TODO: add max-timeout for actions
+;; TODO: show attempt info like skipped steps in flight plan?
+;; TODO: options to copy-tree instead of replace
 (def cli-options
   [["-s" "--source SRC" "Root identifier of database tree to copy from"]
    ["-t" "--target DST" "Root identifier of database tree to copy over"]
@@ -32,6 +34,7 @@
 
 (defn process [options]
   (when-let [creds (:credentials options)]
+    (println "Assuming role") ;; TODO: print role arn after loading role?
     (sudo/sudo-provider (sudo/load-role creds)))
   (let [rds (interpreter/client)
         plan (plan/replace-tree (interpreter/databases rds)

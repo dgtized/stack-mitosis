@@ -4,6 +4,15 @@
             [cognitect.aws.client.api :as aws]
             [cognitect.aws.credentials :as credentials]))
 
+;; TODO: error handling?
+;; Assuming role
+;; Enter MFA Token: ****
+
+;; Execution error (NumberFormatException) at stack-mitosis.sudo/token-code (sudo.clj:13).
+;; Invalid number: ****
+
+;; Full report at:
+;; /tmp/clojure-4647431240127922895.edn
 (defn token-code
   []
   (print "Enter MFA Token: ")
