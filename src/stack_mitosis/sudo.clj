@@ -6,7 +6,8 @@
 
 (defn token-code
   []
-  (println "Enter MFA Token: ")
+  (print "Enter MFA Token: ")
+  (flush)
   (str (edn/read-string (read-line))))
 
 (defn load-role
