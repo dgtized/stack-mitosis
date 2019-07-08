@@ -11,7 +11,7 @@
 
 (defn load-role
   []
-  {:post [(every? (set (keys %)) [:mfa_serial :role_arn])]}
+  {:post [(every? (set (keys %)) [:mfa-serial :role-arn])]}
   (->> "role.edn"
        io/resource
        slurp
@@ -19,17 +19,17 @@
 
 ;; not eligible for auto-refresh as it prompts for mfa token from stdin
 (defn assume-mfa-role
-  [{:keys [session-name role_arn mfa_serial duration token]
+  [{:keys [session-name role-arn mfa-serial duration token]
     :or {session-name "sudo"
          duration (* 4 60 60)
          token (token-code)}}]
-  {:pre [(some? mfa_serial) (some? role_arn)]}
+  {:pre [(some? mfa-serial) (some? role-arn)]}
   (aws/invoke (aws/client {:api :sts})
-              {:op      :AssumeRole
-               :request {:RoleArn role_arn
+              {:op :AssumeRole
+               :request {:RoleArn role-arn
                          :RoleSessionName session-name
                          :DurationSeconds duration
-                         :SerialNumber mfa_serial
+                         :SerialNumber mfa-serial
                          :TokenCode token}}))
 
 (defn credential-provider [token]
