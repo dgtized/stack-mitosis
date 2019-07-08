@@ -9,6 +9,14 @@
   (println "Enter MFA Token: ")
   (str (edn/read-string (read-line))))
 
+(defn load-role
+  []
+  {:post [(every? #{:mfa_serial :role_arn} (keys %))]}
+  (->> "role.edn"
+       io/resource
+       slurp
+       edn/read-string))
+
 ;; not eligible for auto-refresh as it prompts for mfa token from stdin
 (defn assume-mfa-role [session-name target-role duration]
   (aws/invoke (aws/client {:api :sts})
@@ -36,7 +44,7 @@
 
 (defn sudo-provider []
   ;; resources/role.edn contains :mfa_serial & :role_arn
-  (let [target-role (edn/read-string (slurp (io/resource "role.edn")))
+  (let [target-role (load-role)
         token (assume-mfa-role "sudo" target-role (* 4 60 60))
         provider (credential-provider token)]
     (reset! current-provider provider)
