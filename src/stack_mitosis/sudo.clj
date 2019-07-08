@@ -4,6 +4,11 @@
             [cognitect.aws.client.api :as aws]
             [cognitect.aws.credentials :as credentials]))
 
+(defn token-code
+  []
+  (println "Enter MFA Token: ")
+  (str (edn/read-string (read-line))))
+
 ;; not eligible for auto-refresh as it prompts for mfa token from stdin
 (defn assume-mfa-role [session-name target-role duration]
   (aws/invoke (aws/client {:api :sts})
@@ -12,7 +17,7 @@
                          :RoleSessionName session-name
                          :DurationSeconds duration
                          :SerialNumber (:mfa_serial target-role)
-                         :TokenCode (str (edn/read-string (read-line)))}}))
+                         :TokenCode (token-code)}}))
 
 (defn credential-provider [token]
   (when-let [error (:ErrorResponse token)]
