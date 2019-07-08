@@ -11,10 +11,9 @@
   (str (edn/read-string (read-line))))
 
 (defn load-role
-  []
+  [filename]
   {:post [(every? (set (keys %)) [:mfa-serial :role-arn])]}
-  (->> "role.edn"
-       io/resource
+  (->> (or filename (io/resource "role.edn"))
        slurp
        edn/read-string))
 
@@ -48,8 +47,8 @@
 (defn provider []
   (deref current-provider))
 
-(defn sudo-provider []
-  (let [token (assume-mfa-role (load-role))
+(defn sudo-provider [role]
+  (let [token (assume-mfa-role role)
         provider (credential-provider token)]
     (reset! current-provider provider)
     provider))
@@ -64,7 +63,7 @@
   (keys (aws/ops sts))
   (aws/doc sts :AssumeRole)
 
-  (def sudo (sudo-provider))
+  (def sudo (sudo-provider (load-role "resources/role.edn")))
   ;; make a client using the assumed role credentials provider
   (def iam-with-assumed-role (aws/client {:api :iam :credentials-provider sudo}))
   (def sts-with-assumed-role (aws/client {:api :sts :credentials-provider sudo}))

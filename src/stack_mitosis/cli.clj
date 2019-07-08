@@ -3,13 +3,15 @@
             [stack-mitosis.interpreter :as interpreter]
             [stack-mitosis.planner :as plan]
             [stack-mitosis.request :as r]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [stack-mitosis.sudo :as sudo]))
 
 ;; maybe allow specifying mfa token / role arn for sudo?
 (def cli-options
   [["-s" "--source SRC" "Root identifier of database tree to copy from"]
    ["-t" "--target DST" "Root identifier of database tree to copy over"]
-   [nil "--restart CMD", "Blocking script to restart application."]
+   [nil "--restart CMD" "Blocking script to restart application."]
+   ["-c" "--credentials FILENAME" "Credentials file in edn for iam assume-role"]
    ["-p" "--plan", "Display expected flightplan for operation."]
    ["-h" "--help"]])
 
@@ -29,6 +31,8 @@
   (concat ["Flight plan:"] (map r/explain plan)))
 
 (defn process [options]
+  (when-let [creds (:credentials options)]
+    (sudo/sudo-provider (sudo/load-role creds)))
   (let [rds (interpreter/client)
         plan (plan/replace-tree (interpreter/databases rds)
                                 (:source options) (:target options)
@@ -52,4 +56,6 @@
                         "--restart" "./restart.sh" "production"]))
   (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
                         "--plan" "--restart" "'./service-restart.sh'"]))
+  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
+                        "--plan" "--credentials" "resources/role.edn"]))
   (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"])))
