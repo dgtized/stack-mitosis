@@ -11,7 +11,7 @@
 
 (defn load-role
   []
-  {:post [(every? #{:mfa_serial :role_arn} (keys %))]}
+  {:post [(every? (set (keys %)) [:mfa_serial :role_arn])]}
   (->> "role.edn"
        io/resource
        slurp
@@ -23,6 +23,7 @@
     :or {session-name "sudo"
          duration (* 4 60 60)
          token (token-code)}}]
+  {:pre [(some? mfa_serial) (some? role_arn)]}
   (aws/invoke (aws/client {:api :sts})
               {:op      :AssumeRole
                :request {:RoleArn role_arn
