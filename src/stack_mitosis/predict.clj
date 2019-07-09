@@ -42,16 +42,17 @@
 
 (defmethod predict :PromoteReadReplica
   [instances op]
-  {:pre [(lookup/exists? instances (r/db-id op))
-         (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id op)))]}
-  (let [child (r/db-id op)
-        parent (lookup/parent instances child)]
-    (letfn [(promote [db]
-              (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
-                     (dissoc (:request op) :DBInstanceIdentifier :ApplyImmediately)))]
-      (-> instances
-          (update (lookup/position instances parent) detach child)
-          (update (lookup/position instances child) promote)))))
+  {:pre [(lookup/exists? instances (r/db-id op))]}
+  (if-not (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id op)))
+    instances
+    (let [child (r/db-id op)
+          parent (lookup/parent instances child)]
+      (letfn [(promote [db]
+                (merge (dissoc db :ReadReplicaSourceDBInstanceIdentifier)
+                       (dissoc (:request op) :DBInstanceIdentifier :ApplyImmediately)))]
+        (-> instances
+            (update (lookup/position instances parent) detach child)
+            (update (lookup/position instances child) promote))))))
 
 (defmethod predict :ModifyDBInstance
   [instances op]

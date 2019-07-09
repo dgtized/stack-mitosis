@@ -36,8 +36,8 @@
                       {:op :PromoteReadReplica
                        :request {:DBInstanceIdentifier "leaf"
                                  :BackupRetentionPeriod 1}})))
-    (is (thrown-with-msg? java.lang.AssertionError #"ReadReplicaSourceDBInstanceIdentifier"
-                          (p/predict instances (op/promote "root"))))))
+    (is (thrown-with-msg? java.lang.AssertionError #"lookup/exists?"
+                          (p/predict [] (op/promote "root"))))))
 
 (deftest create-replica
   (let [instances [{:DBInstanceIdentifier "root" :MultiAZ false}]]
