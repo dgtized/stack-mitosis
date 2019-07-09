@@ -111,7 +111,7 @@
 
 (def test-env-template
   {:DBInstanceClass "db.t3.micro"
-   :Engine "mysql"
+   :Engine "mysql" ;; "postgres"
    :StorageType "gp2"
    :AllocatedStorage 5
    :MasterUsername "root"})
