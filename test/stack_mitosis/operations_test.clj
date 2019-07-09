@@ -2,11 +2,10 @@
   (:require [stack-mitosis.operations :as op]
             [clojure.test :refer :all]))
 
-(deftest polling-operation
-  (is (= (op/describe "foo")
-         (op/polling-operation (op/create-replica "bar" "foo"))))
-  (is (= (op/describe "rename-after")
-         (op/polling-operation (op/rename "rename-before" "rename-after")))))
+(deftest blocking-operation
+  (is (op/blocking-operation? (op/create-replica "bar" "foo")))
+  (is (op/blocking-operation? (op/rename "rename-before" "rename-after")))
+  (is (not (op/blocking-operation? (op/delete "foo")))))
 
 (deftest completed?
   (let [not-found {:ErrorResponse
