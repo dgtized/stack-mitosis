@@ -15,6 +15,7 @@
 
 (comment
   (bash "(>&2 echo 5) && echo 6")
+  (bash ":; echo foo")
   (bash "'echo quoted'")
   (bash "false")
   (bash "true"))
