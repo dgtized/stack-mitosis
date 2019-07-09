@@ -22,8 +22,8 @@
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
     (is (= [(op/create-replica "source" "temp-target")
-            (op/enable-backups "temp-target")
             (op/promote "temp-target")
+            (op/enable-backups "temp-target")
             (op/create-replica "temp-target" "temp-a")
             (op/enable-backups "temp-a")
             (op/create-replica "temp-target" "temp-b")
@@ -59,8 +59,8 @@
                    {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
                    {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]]
     (is (= [(op/create-replica "production" "temp-staging")
-            (op/enable-backups "temp-staging")
             (op/promote "temp-staging")
+            (op/enable-backups "temp-staging")
             (op/create-replica "temp-staging" "temp-staging-replica")
             (op/rename "staging-replica" "old-staging-replica")
             (op/rename "staging" "old-staging")

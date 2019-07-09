@@ -29,8 +29,8 @@
                            (list-tree instances target))
         root-id (:DBInstanceIdentifier root)]
     (into [(op/create-replica source root-id)
-           (op/enable-backups root-id)
-           (op/promote root-id)]
+           (op/promote root-id)
+           (op/enable-backups root-id)] ;; postgres only allows backups after promotion
           (mapcat
            (fn [instance]
              (into [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
