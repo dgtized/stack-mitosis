@@ -77,8 +77,8 @@
 
 (comment
   (def rds (client))
-  (time (evaluate-plan rds (plan/make-test-env)))
-  (-> (predict/state [] (plan/make-test-env))
+  (time (evaluate-plan rds (plan/make-test-env plan/test-env-template)))
+  (-> (predict/state [] (plan/make-test-env plan/test-env-template))
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
 
   (interpret rds (op/shell-command "echo restart"))
