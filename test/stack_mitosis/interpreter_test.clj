@@ -22,13 +22,13 @@
                        (op/shell-command "true")]))
         "early exit")
     (is (= {:output
-            ["  exit: 0"
-             "  exit: 0"]
+            ["1" "  exit: 0"
+             "2" "  exit: 0"]
             :logging
-            ["Invoking {:op :shell-command, :request {:cmd \"true\"}}"
-             "{:ok Executing [true] succeeded}"
-             "Invoking {:op :shell-command, :request {:cmd \"true\"}}"
-             "{:ok Executing [true] succeeded}"]}
-           (eval-plan [(op/shell-command "true")
-                       (op/shell-command "true")]))
+            ["Invoking {:op :shell-command, :request {:cmd \"echo 1\"}}"
+             "{:ok Executing [echo 1] succeeded}"
+             "Invoking {:op :shell-command, :request {:cmd \"echo 2\"}}"
+             "{:ok Executing [echo 2] succeeded}"]}
+           (eval-plan [(op/shell-command "echo 1")
+                       (op/shell-command "echo 2")]))
         "execute all")))
