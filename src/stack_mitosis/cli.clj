@@ -4,7 +4,8 @@
             [stack-mitosis.planner :as plan]
             [stack-mitosis.request :as r]
             [clojure.string :as str]
-            [stack-mitosis.sudo :as sudo]))
+            [stack-mitosis.sudo :as sudo]
+            [clojure.tools.logging :as log]))
 
 ;; TODO: add max-timeout for actions
 ;; TODO: show attempt info like skipped steps in flight plan?
@@ -34,8 +35,9 @@
 
 (defn process [options]
   (when-let [creds (:credentials options)]
-    (println "Assuming role") ;; TODO: print role arn after loading role?
-    (sudo/sudo-provider (sudo/load-role creds)))
+    (let [role (sudo/load-role creds)]
+      (log/infof "Assuming role %s" (:role-arn role))
+      (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
         plan (plan/replace-tree (interpreter/databases rds)
                                 (:source options) (:target options)
