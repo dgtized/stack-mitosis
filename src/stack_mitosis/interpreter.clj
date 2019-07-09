@@ -80,10 +80,6 @@
   (time (evaluate-plan rds (plan/make-test-env)))
   (-> (predict/state [] (plan/make-test-env))
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
-  (evaluate-plan rds [(op/delete "temp-mitosis-alpha")])
-  (evaluate-plan rds [(op/modify "temp-mitosis-alpha"
-                                 {:BackupRetentionPeriod 1
-                                  :PreferredMaintenanceWindow "sat:10:00-sat:11:00"})])
 
   (interpret rds (op/shell-command "echo restart"))
 
