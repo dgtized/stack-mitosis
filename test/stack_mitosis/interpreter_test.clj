@@ -13,18 +13,18 @@
 
 (deftest evaluate-plan
   (with-redefs [sut/databases (fn [x] [])]
-    (testing "early exit"
-      (is (= ["Invoking {:op :shell-command, :request {:cmd \"false\"}}"
-              "  exit: 1"
-              "Executing [false] failed with status 1"]
-             (eval-plan [(op/shell-command "false")
-                         (op/shell-command "true")]))))
-    (testing "execute all"
-      (is (= ["Invoking {:op :shell-command, :request {:cmd \"true\"}}"
-              "  exit: 0"
-              "{:ok Executing [true] succeeded}"
-              "Invoking {:op :shell-command, :request {:cmd \"true\"}}"
-              "  exit: 0"
-              "{:ok Executing [true] succeeded}"]
-             (eval-plan [(op/shell-command "true")
-                         (op/shell-command "true")]))))))
+    (is (= ["Invoking {:op :shell-command, :request {:cmd \"false\"}}"
+            "  exit: 1"
+            "Executing [false] failed with status 1"]
+           (eval-plan [(op/shell-command "false")
+                       (op/shell-command "true")]))
+        "early exit")
+    (is (= ["Invoking {:op :shell-command, :request {:cmd \"true\"}}"
+            "  exit: 0"
+            "{:ok Executing [true] succeeded}"
+            "Invoking {:op :shell-command, :request {:cmd \"true\"}}"
+            "  exit: 0"
+            "{:ok Executing [true] succeeded}"]
+           (eval-plan [(op/shell-command "true")
+                       (op/shell-command "true")]))
+        "execute all")))
