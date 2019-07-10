@@ -76,8 +76,9 @@
   (map plan/attempt (reductions predict/predict state operations) operations))
 
 (comment
+  (sudo/sudo-provider (sudo/load-role "resources/role.edn"))
   (def rds (client))
-  (time (evaluate-plan rds (plan/make-test-env plan/test-env-template)))
+  (time (evaluate-plan rds (plan/make-test-env (assoc plan/test-env-template :Engine "postgres"))))
   (-> (predict/state [] (plan/make-test-env plan/test-env-template))
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
 
