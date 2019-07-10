@@ -53,7 +53,8 @@
          :aws/secret-access-key (:SecretAccessKey creds)
          :aws/session-token     (:SessionToken creds)}))))
 
-(defonce current-provider (atom (credentials/default-credentials-provider)))
+(defonce current-provider
+  (atom (credentials/default-credentials-provider (aws/default-http-client))))
 
 (defn provider []
   (deref current-provider))
