@@ -1,5 +1,7 @@
 # stack-mitosis
 
+[![CircleCI](https://circleci.com/gh/dgtized/stack-mitosis.svg?style=svg)](https://circleci.com/gh/dgtized/stack-mitosis)
+
 Clone and redeploy an AWS RDS instance to propagate production dataset to
 downstream environments like staging. This allows staging to maintain data
 parity with production in a throw-away environment.
