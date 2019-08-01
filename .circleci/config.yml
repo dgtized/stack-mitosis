@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.442
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - clojure-v1-dependencies-{{ checksum "deps.edn" }}
+            - clojure-v1-dependencies-
+
+      - run: clojure -Spath
+      - run: clojure -Atest
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: clojure-v1-dependencies-{{ checksum "deps.edn" }}
