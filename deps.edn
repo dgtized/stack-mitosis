@@ -1,19 +1,19 @@
 {:deps
  {org.clojure/clojure         {:mvn/version "1.10.1"}
   org.clojure/core.async      {:mvn/version "0.4.500"}
-  com.cognitect.aws/api       {:mvn/version "0.8.345"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.586"}
+  com.cognitect.aws/api       {:mvn/version "0.8.352"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.607"}
 
   com.cognitect.aws/rds       {:mvn/version "726.2.488.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "726.2.480.0"}
-  com.cognitect.aws/sts       {:mvn/version "722.2.464.0"}
+  com.cognitect.aws/iam       {:mvn/version "736.2.493.0"}
+  com.cognitect.aws/sts       {:mvn/version "741.2.504.0"}
 
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
   ;; logging
-  org.clojure/tools.logging   {:mvn/version "0.5.0-alpha.1"}
+  org.clojure/tools.logging   {:mvn/version "0.5.0"}
   log4j/log4j {:mvn/version"1.2.17"
                :exclusions [javax.mail/mail
                             javax.jms/jms
