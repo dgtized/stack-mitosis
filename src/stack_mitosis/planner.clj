@@ -114,6 +114,7 @@
    :Engine "mysql" ;; "postgres"
    :StorageType "gp2"
    :AllocatedStorage 5
+   :PubliclyAccessible false
    :MasterUsername "root"})
 
 (defn make-test-env [template]
