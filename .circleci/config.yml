@@ -17,7 +17,9 @@ jobs:
       - run: clojure -Spath
       - run: bin/ci
       - store_test_results:
-          path: test-results
+          path: test-results/kaocha
+      - store_artifacts:
+          path: test-results/coverage
 
       - save_cache:
           paths:
