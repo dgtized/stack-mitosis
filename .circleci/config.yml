@@ -15,7 +15,10 @@ jobs:
             - clojure-v1-dependencies-
 
       - run: clojure -Spath
-      - run: clojure -Atest
+      - run: mkdir -p test-results/kaocha
+      - run: clojure -Akaocha --plugin kaocha.plugin/junit-xml --junit-xml-file test-results/kaocha/results.xml
+      - store_test_results:
+          path: test-results
 
       - save_cache:
           paths:
