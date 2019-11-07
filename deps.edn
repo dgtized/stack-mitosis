@@ -1,14 +1,14 @@
 {:deps
  {org.clojure/clojure         {:mvn/version "1.10.1"}
   org.clojure/core.async      {:mvn/version "0.4.500"}
-  com.cognitect.aws/api       {:mvn/version "0.8.352"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.607"}
+  com.cognitect.aws/api       {:mvn/version "0.8.391"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.664"}
 
-  com.cognitect.aws/rds       {:mvn/version "726.2.488.0"}
+  com.cognitect.aws/rds       {:mvn/version "758.2.552.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "736.2.493.0"}
-  com.cognitect.aws/sts       {:mvn/version "741.2.504.0"}
+  com.cognitect.aws/iam       {:mvn/version "746.2.533.0"}
+  com.cognitect.aws/sts       {:mvn/version "747.2.533.0"}
 
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
