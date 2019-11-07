@@ -57,8 +57,6 @@
     ))
 
 (comment
-  (println (parse-args ["--source" "production" "--target" "staging"
-                        "--restart" "./restart.sh" "production"]))
   (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
                         "--plan" "--restart" "'./service-restart.sh'"]))
   (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
