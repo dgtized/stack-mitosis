@@ -36,8 +36,7 @@
          :main-opts ["-m" "cognitect.test-runner" "--exclude" ":aws"]}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-554"}
-                        lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}}
-           :main-opts ["-m" "kaocha.runner" "--config-file test/tests.edn"]}
+                        lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}}}
   ;; clj -Acoverage
   :coverage {:extra-deps {cloverage {:mvn/version "RELEASE"}}
              :main-opts ["-m" "cloverage.coverage" "-p" "src"]}}}
