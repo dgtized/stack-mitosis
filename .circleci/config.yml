@@ -15,8 +15,7 @@ jobs:
             - clojure-v1-dependencies-
 
       - run: clojure -Spath
-      - run: mkdir -p test-results/kaocha
-      - run: bin/kaocha --plugin cloverage --plugin kaocha.plugin/junit-xml --junit-xml-file test-results/kaocha/results.xml --cov-output test-results/coverage
+      - run: bin/ci
       - store_test_results:
           path: test-results
 
