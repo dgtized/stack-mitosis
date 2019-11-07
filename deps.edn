@@ -34,6 +34,10 @@
          :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
                                                  :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}
          :main-opts ["-m" "cognitect.test-runner" "--exclude" ":aws"]}
+  :kaocha {:extra-paths ["test"]
+           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-554"}
+                        lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}
+                        lambdaisland/kaocha-cloverage {:mvn/version "0.0-41"}}}
   ;; clj -Acoverage
   :coverage {:extra-deps {cloverage {:mvn/version "RELEASE"}}
              :main-opts ["-m" "cloverage.coverage" "-p" "src"]}}}
