@@ -29,3 +29,7 @@ then delete the `old-` prefixed tree.
         --credentials resources/role.edn
         [--plan]
 
+# Testing
+
+    bin/kaocha # basic unit tests
+    bin/kaocha --plugin cloverage # with coverage output
