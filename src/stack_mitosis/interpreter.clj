@@ -1,15 +1,14 @@
 (ns stack-mitosis.interpreter
-  (:require [clojure.string :as str]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [cognitect.aws.client.api :as aws]
-            [stack-mitosis.lookup :as lookup]
+            [stack-mitosis.example-environment :as example]
             [stack-mitosis.operations :as op]
             [stack-mitosis.planner :as plan]
             [stack-mitosis.predict :as predict]
-            [stack-mitosis.sudo :as sudo]
-            [stack-mitosis.wait :as wait]
             [stack-mitosis.request :as r]
-            [stack-mitosis.shell :as shell]))
+            [stack-mitosis.shell :as shell]
+            [stack-mitosis.sudo :as sudo]
+            [stack-mitosis.wait :as wait]))
 
 ;; TODO: thread this client to all that use it
 (defn client
@@ -78,8 +77,8 @@
 (comment
   (sudo/sudo-provider (sudo/load-role "resources/role.edn"))
   (def rds (client))
-  (time (evaluate-plan rds (plan/make-test-env (assoc plan/test-env-template :Engine "postgres"))))
-  (-> (predict/state [] (plan/make-test-env plan/test-env-template))
+  (time (evaluate-plan rds (example/create (assoc example/template :Engine "postgres"))))
+  (-> (predict/state [] (example/create example/template))
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
 
   (interpret rds (op/shell-command "echo restart"))
@@ -94,7 +93,7 @@
 
   (filter #(re-find #"mitosis" %) (map :DBInstanceIdentifier (databases rds)))
   (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha")))
-  (time (evaluate-plan rds (plan/cleanup-test-env)))
+  (time (evaluate-plan rds (example/destroy)))
   )
 
 (comment
