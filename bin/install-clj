@@ -7,4 +7,8 @@ chmod +x linux-install-$CLJ_VERSION.sh
 ./linux-install-$CLJ_VERSION.sh -p clj
 rm linux-install-$CLJ_VERSION.sh
 cp -v clj/bin/{clj,clojure} bin
-bin/clojure -Stree
+
+if [[ $1 == '--verify' ]]; then
+    java -version
+    bin/clojure -Stree
+fi
