@@ -9,7 +9,8 @@
 
 ;; TODO: add max-timeout for actions
 ;; TODO: show attempt info like skipped steps in flight plan?
-;; TODO: options to copy-tree instead of replace
+;; TODO: add operation to copy-tree instead of replace
+;; TODO: add operation to refresh replicas for a tree
 (def cli-options
   [["-s" "--source SRC" "Root identifier of database tree to copy from"]
    ["-t" "--target DST" "Root identifier of database tree to copy over"]
