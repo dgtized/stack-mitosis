@@ -14,7 +14,6 @@ jobs:
             - clojure-v1-dependencies-{{ checksum "deps.edn" }}
             - clojure-v1-dependencies-
 
-      - run: clojure -Spath
       - run: bin/ci
       - store_test_results:
           path: test-results/kaocha
