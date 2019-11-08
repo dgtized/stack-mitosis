@@ -18,6 +18,7 @@
   [(op/create (merge {:DBInstanceIdentifier "mitosis-root"
                       :MasterUserPassword (helpers/generate-password)}
                      template))
+   (op/create-replica "mitosis-root" "mitosis-replica")
    (op/create (merge {:DBInstanceIdentifier "mitosis-alpha"
                       :MasterUserPassword (helpers/generate-password)}
                      template))
