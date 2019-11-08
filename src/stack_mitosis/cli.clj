@@ -31,7 +31,9 @@
 
 (defn flight-plan
   [plan]
-  (concat ["Flight plan:"] (map r/explain plan)))
+  (->> (map r/explain plan)
+       (concat ["Flight plan:"])
+       (str/join "\n")))
 
 (defn process [options]
   (when-let [creds (:credentials options)]
@@ -43,7 +45,7 @@
                                 (:source options) (:target options)
                                 :restart (:restart options))]
     (cond (:plan options)
-          (println (str/join "\n" (flight-plan plan)))
+          (println (flight-plan plan))
           :else
           (interpreter/evaluate-plan rds plan))))
 
