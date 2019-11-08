@@ -60,6 +60,8 @@
     provider))
 
 (comment
+  ;; Make sure AWS_CONFIG_FILE, AWS_CREDENTIAL_PROFILES_FILE are both set in
+  ;; environment or the appropriate aws key and secret are present.
   (def iam (aws/client {:api :iam}))
   (def sts (aws/client {:api :sts}))
   (keys (aws/ops iam))
