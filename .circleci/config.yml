@@ -20,6 +20,7 @@ jobs:
           path: test-results/kaocha
       - store_artifacts:
           path: test-results/coverage
+          destination: coverage
 
       - save_cache:
           paths:
