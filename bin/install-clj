@@ -1,0 +1,10 @@
+#!/bin/bash -ex
+
+CLJ_VERSION="1.10.1.483"
+# https://clojure.org/guides/getting_started#_installation_on_linux
+curl -O https://download.clojure.org/install/linux-install-$CLJ_VERSION.sh
+chmod +x linux-install-$CLJ_VERSION.sh
+./linux-install-$CLJ_VERSION.sh -p clj
+rm linux-install-$CLJ_VERSION.sh
+cp -v clj/bin/{clj,clojure} bin
+bin/clojure -Stree

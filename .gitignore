@@ -1,3 +1,5 @@
 .nrepl-port
 target/
 test-results/
+/bin/clojure
+/clj/
