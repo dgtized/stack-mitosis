@@ -37,14 +37,14 @@
         (if-let [new-id (r/new-id action)]
           [new-id #(and (op/missing? (describe rds id))
                         (op/completed? (describe rds new-id)))]
-          [id #(op/completed? (describe rds id))])]
-    (let [started (. System (nanoTime))
-          ret (wait/poll-until completed-fn {:delay 60000 :max-attempts 60})
-          msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
-          status (-> (describe rds result-id) :DBInstances first :DBInstanceStatus)
-          msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
-      (log/info msg)
-      ret)))
+          [id #(op/completed? (describe rds id))])
+        started (. System (nanoTime))
+        ret (wait/poll-until completed-fn {:delay 60000 :max-attempts 60})
+        msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
+        status (-> (describe rds result-id) :DBInstances first :DBInstanceStatus)
+        msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
+    (log/info msg)
+    ret))
 
 (defn interpret [rds action]
   (log/infof "Invoking %s" action)

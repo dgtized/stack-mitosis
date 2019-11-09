@@ -38,7 +38,7 @@
                          :TokenCode token}}))
 
 (defn credential-provider [token]
-  (when-let [error (:ErrorResponse token)]
+  (when (:ErrorResponse token)
     (throw (ex-info "Invalid token" token)))
   (reify credentials/CredentialsProvider
     (fetch [_]
