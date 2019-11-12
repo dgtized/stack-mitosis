@@ -28,7 +28,7 @@
             (op/enable-backups "temp-a")
             (op/create-replica "temp-target" "temp-b")
             (op/create-replica "temp-b" "temp-c")]
-           (plan/copy-tree instances "source" "target" (partial plan/transform "temp"))))))
+           (plan/copy-tree instances "source" "target" (partial plan/transform (partial plan/aliased "temp")))))))
 
 (deftest rename-tree
   (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}

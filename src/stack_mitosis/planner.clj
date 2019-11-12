@@ -52,11 +52,11 @@
        (map op/delete)))
 
 (defn transform
-  [prefix instance]
+  [alias-fn instance]
   (-> instance
-      (update :DBInstanceIdentifier (partial aliased prefix))
+      (update :DBInstanceIdentifier alias-fn)
       ;; what about children identifiers?
-      (update-if [:ReadReplicaSourceDBInstanceIdentifier] (partial aliased prefix))))
+      (update-if [:ReadReplicaSourceDBInstanceIdentifier] alias-fn)))
 
 (defn replace-tree
   [instances source target & {:keys [restart]}]
@@ -64,7 +64,7 @@
   ;; predict to update that db for calculating next set of operations by
   ;; applying computation thus far to the initial instances
   ;; TODO something something sequence monad
-  (let [copy (copy-tree instances source target (partial transform "temp"))
+  (let [copy (copy-tree instances source target (partial transform (partial aliased "temp")))
 
         a (predict/state instances copy)
         rename-old (rename-tree a target (partial aliased "old"))
