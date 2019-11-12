@@ -8,7 +8,8 @@
             [stack-mitosis.request :as r]
             [stack-mitosis.shell :as shell]
             [stack-mitosis.sudo :as sudo]
-            [stack-mitosis.wait :as wait]))
+            [stack-mitosis.wait :as wait]
+            [clojure.string :as str]))
 
 ;; TODO: thread this client to all that use it
 (defn client
@@ -86,6 +87,11 @@
   ;; check plan
   (let [state (databases rds)]
     (check-plan state (plan/replace-tree state "mitosis-root" "mitosis-alpha")))
+
+  ;; create a copy of mitosis-root tree
+  (let [state (databases rds)]
+    (->> (partial plan/transform #(str/replace % "root" "copy"))
+         (plan/copy-tree state "mitosis-root" "mitosis-root")))
 
   ;; TODO: move attempt into planning, ie we should skip steps that already happen even in planning
   ;; change wait mechanics to poll all?
