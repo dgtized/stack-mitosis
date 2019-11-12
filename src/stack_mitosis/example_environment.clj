@@ -27,7 +27,8 @@
    ])
 
 (defn destroy []
-  (conj (plan/delete-tree (predict/state [] (create template)) "mitosis-alpha")
-        (op/delete "mitosis-root")))
+  (let [state (predict/state [] (create template))]
+    (conj (plan/delete-tree state "mitosis-alpha")
+          (plan/delete-tree state "mitosis-root"))))
 
 
