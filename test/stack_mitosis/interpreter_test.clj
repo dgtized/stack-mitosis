@@ -3,7 +3,8 @@
             [clojure.test :refer :all]
             [clojure.tools.logging.test :as tlog]
             [stack-mitosis.interpreter :as sut]
-            [stack-mitosis.operations :as op]))
+            [stack-mitosis.operations :as op]
+            [cognitect.aws.client.api :as aws]))
 
 (defn- eval-plan [ops]
   (tlog/with-log
@@ -11,8 +12,20 @@
       {:output (str/split-lines r)
        :logging (map :message (tlog/the-log))})))
 
+(defn- mock-invoke
+  [instances]
+  (fn [& _] {:DBInstances instances}))
+
+(deftest databases
+  (with-redefs [aws/invoke (mock-invoke [{:DBInstanceIdentifier "a"}])]
+    (is (= [{:DBInstanceIdentifier "a"}]
+           (sut/databases identity))))
+  (with-redefs [aws/invoke (mock-invoke [])]
+    (is (thrown-with-msg? java.lang.AssertionError #"Assert failed"
+                          (sut/databases identity)))))
+
 (deftest evaluate-plan
-  (with-redefs [sut/databases (fn [x] [])]
+  (with-redefs [aws/invoke (mock-invoke [{:DBInstanceIdentifier "a"}])]
     (is (= {:output
             ["  exit: 1"]
             :logging
