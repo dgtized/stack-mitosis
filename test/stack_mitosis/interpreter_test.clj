@@ -8,9 +8,12 @@
 
 (defn- eval-plan [ops]
   (tlog/with-log
-    (let [r (with-out-str (sut/evaluate-plan nil ops))]
-      {:output (str/split-lines r)
-       :logging (map :message (tlog/the-log))})))
+    (let [capture (new java.io.StringWriter)]
+      (binding [*out* capture]
+        (let [result (sut/evaluate-plan nil ops)]
+          {:output (str/split-lines (str capture))
+           :logging (map :message (tlog/the-log))
+           :last-result result})))))
 
 (defn- mock-invoke
   [instances]
@@ -30,7 +33,9 @@
             ["  exit: 1"]
             :logging
             ["Invoking {:op :shell-command, :request {:cmd \"false\"}}"
-             "Executing [false] failed with status 1"]}
+             "Executing [false] failed with status 1"]
+            :last-result
+            {:ErrorResponse "Executing [false] failed with status 1"}}
            (eval-plan [(op/shell-command "false")
                        (op/shell-command "true")]))
         "early exit")
@@ -41,7 +46,9 @@
             ["Invoking {:op :shell-command, :request {:cmd \"echo 1\"}}"
              "{:ok Executing [echo 1] succeeded}"
              "Invoking {:op :shell-command, :request {:cmd \"echo 2\"}}"
-             "{:ok Executing [echo 2] succeeded}"]}
+             "{:ok Executing [echo 2] succeeded}"]
+            :last-result
+            {:ok "Executing [echo 2] succeeded"}}
            (eval-plan [(op/shell-command "echo 1")
                        (op/shell-command "echo 2")]))
         "execute all")))
