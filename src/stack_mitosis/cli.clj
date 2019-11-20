@@ -50,7 +50,7 @@
               true)
           :else
           (let [last-action (interpreter/evaluate-plan rds plan)]
-            (contains? last-action :ok)))))
+            (not (contains? last-action :ErrorResponse))))))
 
 (defn -main [& args]
   (let [{:keys [ok exit-msg] :as options} (parse-args args)]
