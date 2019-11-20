@@ -66,10 +66,14 @@
 
 (defn evaluate-plan
   [rds operations]
-  (doseq [action operations
-          :let [result (interpret rds action)]
-          :while (not (:ErrorResponse result))]
-    result))
+  (loop [[action & ops] operations]
+    (let [result (interpret rds action)]
+      (cond (empty? ops) ;; all operations complete
+            result
+            (:ErrorResponse result) ;; exit early on failure
+            result
+            :else
+            (recur ops)))))
 
 (defn check-plan
   "Check plan against current state before evaluating."
@@ -84,6 +88,8 @@
       (plan/replace-tree "mitosis-root" "mitosis-alpha"))
 
   (interpret rds (op/shell-command "echo restart"))
+  (evaluate-plan rds [(op/shell-command "true") (op/shell-command "false")
+                      (op/shell-command "true")])
 
   ;; check plan
   (let [state (databases rds)]
