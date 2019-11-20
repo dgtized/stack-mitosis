@@ -46,17 +46,18 @@
                                 (:source options) (:target options)
                                 :restart (:restart options))]
     (cond (:plan options)
-          (println (flight-plan plan))
+          (do (println (flight-plan plan))
+              true)
           :else
-          (interpreter/evaluate-plan rds plan))))
+          (let [last-action (interpreter/evaluate-plan rds plan)]
+            (contains? last-action :ok)))))
 
 (defn -main [& args]
   (let [{:keys [ok exit-msg] :as options} (parse-args args)]
     (when exit-msg
       (println exit-msg)
       (System/exit (if ok 0 1)))
-    (process options)
-    (System/exit 0)
+    (System/exit (if (process options) 0 1))
     ))
 
 (comment
