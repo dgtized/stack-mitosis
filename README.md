@@ -8,10 +8,12 @@ parity with production in a throw-away environment.
 
 ## Example
 
-Given an environment like:
+Given an environment where both staging and production have a database and a replica:
 
-Production Application <-> `mitosis-production` -> `mitosis-production-replica`
-Staging Application <-> `mitosis-staging` -> `mitosis-staging-replica`
+```
+Production Application: mitosis-production -> mitosis-production-replica
+Staging Application: mitosis-staging -> mitosis-staging-replica
+```
 
 Stack mitosis will clone `mitosis-production` into a new tree
 `temp-mitosis-staging` -> `temp-mitosis-staging-replica`. It will then rename
