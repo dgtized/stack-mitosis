@@ -26,9 +26,11 @@ then delete the `old-` prefixed tree.
 # Credentials
 
 Stack mitosis uses [aws-api](https://github.com/cognitect-labs/aws-api) to
-interact with AWS. That uses the same credentials preferences as the AWS Java
-client. However, stack-mitosis also supports using STS and prompting for a MFA
-token to authorize use of a limited role for the duration of the operation.
+interact with AWS. That uses the same [credentials
+preferences](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html)
+as the AWS Java client. However, stack-mitosis also supports using STS and
+prompting for a MFA token to authorize use of a limited role for the duration of
+the operation.
 
 In order to support that the following environment variables need to be present;
 `AWS_CONFIG_FILE`, `AWS_CREDENTIAL_PROFILES_FILE` should be set to specify any
