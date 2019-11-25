@@ -12,10 +12,15 @@
   (update db :ReadReplicaDBInstanceIdentifiers
           (partial remove #(= % child-id))))
 
-(defmulti predict (fn [instances op] (get op :op)))
+(defmulti predict
+  "Predict contents of instances db after applying operation to instances.
+
+      (predict [instances op] _) => instances'
+  "
+  (fn [_ op] (get op :op)))
 
 (defmethod predict :shell-command
-  [instances op]
+  [instances _]
   ;; no-op identity
   instances)
 

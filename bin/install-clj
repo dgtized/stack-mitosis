@@ -1,0 +1,21 @@
+#!/bin/bash -ex
+
+# Installs bin/clojure to bootstrap tools.deps installing on Jenkins
+# Use --verify to print dependencies
+
+# TODO: OSX install instructions? However this is primarily for running CI on a
+# unix based Jenkins install, so may not need to be cross platform, so long as
+# the appropriate platform already includes a clojure tools.deps install.
+
+CLJ_VERSION="1.10.1.489"
+# https://clojure.org/guides/getting_started#_installation_on_linux
+curl -O https://download.clojure.org/install/linux-install-$CLJ_VERSION.sh
+chmod +x linux-install-$CLJ_VERSION.sh
+./linux-install-$CLJ_VERSION.sh -p clj
+rm linux-install-$CLJ_VERSION.sh
+cp -v clj/bin/{clj,clojure} bin
+
+if [[ $1 == '--verify' ]]; then
+    java -version
+    bin/clojure -Stree
+fi

@@ -1,1 +1,7 @@
 .nrepl-port
+target/
+test-results/
+/bin/clojure
+/clj/
+/.cpcache/
+/resources/role.edn

@@ -1,14 +1,14 @@
 {:deps
  {org.clojure/clojure         {:mvn/version "1.10.1"}
-  org.clojure/core.async      {:mvn/version "0.4.500"}
+  org.clojure/core.async      {:mvn/version "0.5.527"}
   com.cognitect.aws/api       {:mvn/version "0.8.391"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.664"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.670"}
 
-  com.cognitect.aws/rds       {:mvn/version "758.2.552.0"}
+  com.cognitect.aws/rds       {:mvn/version "770.2.568.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "746.2.533.0"}
-  com.cognitect.aws/sts       {:mvn/version "747.2.533.0"}
+  com.cognitect.aws/iam       {:mvn/version "770.2.568.0"}
+  com.cognitect.aws/sts       {:mvn/version "770.2.568.0"}
 
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
@@ -32,12 +32,18 @@
   ;; clj -Atest
   :test {:extra-paths ["test"]
          :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                 :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}
+                                                 :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
          :main-opts ["-m" "cognitect.test-runner" "--exclude" ":aws"]}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-554"}
                         lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}
                         lambdaisland/kaocha-cloverage {:mvn/version "0.0-41"}}}
+
+  ;; clj -Aclj-kondo --lint src
+  :clj-kondo
+  {:extra-deps {clj-kondo {:mvn/version "RELEASE"}}
+   :main-opts ["-m" "clj-kondo.main"]}
+
   ;; clj -Acoverage
   :coverage {:extra-deps {cloverage {:mvn/version "RELEASE"}}
              :main-opts ["-m" "cloverage.coverage" "-p" "src"]}}}

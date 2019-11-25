@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.442
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.483
 
     working_directory: ~/repo
 
@@ -14,12 +14,12 @@ jobs:
             - clojure-v1-dependencies-{{ checksum "deps.edn" }}
             - clojure-v1-dependencies-
 
-      - run: clojure -Spath
       - run: bin/ci
       - store_test_results:
           path: test-results/kaocha
       - store_artifacts:
           path: test-results/coverage
+          destination: coverage
 
       - save_cache:
           paths:

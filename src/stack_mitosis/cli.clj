@@ -9,7 +9,8 @@
 
 ;; TODO: add max-timeout for actions
 ;; TODO: show attempt info like skipped steps in flight plan?
-;; TODO: options to copy-tree instead of replace
+;; TODO: add operation to copy-tree instead of replace
+;; TODO: add operation to refresh replicas for a tree
 (def cli-options
   [["-s" "--source SRC" "Root identifier of database tree to copy from"]
    ["-t" "--target DST" "Root identifier of database tree to copy over"]
@@ -31,7 +32,9 @@
 
 (defn flight-plan
   [plan]
-  (concat ["Flight plan:"] (map r/explain plan)))
+  (->> (map r/explain plan)
+       (concat ["Flight plan:"])
+       (str/join "\n")))
 
 (defn process [options]
   (when-let [creds (:credentials options)]
@@ -43,17 +46,18 @@
                                 (:source options) (:target options)
                                 :restart (:restart options))]
     (cond (:plan options)
-          (println (str/join "\n" (flight-plan plan)))
+          (do (println (flight-plan plan))
+              true)
           :else
-          (interpreter/evaluate-plan rds plan))))
+          (let [last-action (interpreter/evaluate-plan rds plan)]
+            (not (contains? last-action :ErrorResponse))))))
 
 (defn -main [& args]
   (let [{:keys [ok exit-msg] :as options} (parse-args args)]
     (when exit-msg
       (println exit-msg)
       (System/exit (if ok 0 1)))
-    (process options)
-    (System/exit 0)
+    (System/exit (if (process options) 0 1))
     ))
 
 (comment

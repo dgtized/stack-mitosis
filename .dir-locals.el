@@ -1,4 +1,5 @@
 ;;; Directory Local Variables
 ;;; For more information see (info "(emacs) Directory Variables")
 
-((nil . ((cider-clojure-cli-global-options . "-A:kaocha"))))
+((nil . ((cider-clojure-cli-global-options . "-A:kaocha")
+         (kaocha-runner-extra-configuration . "{:config-file \"test/tests.edn\"}"))))
