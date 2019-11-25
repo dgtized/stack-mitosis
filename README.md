@@ -23,6 +23,12 @@ prefixed clones back to `mitosis-staging` and `mitosis-staging-replica`.
 stack-mitosis will restart the staging application using a provided script, and
 then delete the `old-` prefixed tree.
 
+# Install
+
+After installing a JDK, follow the [clojure install
+instructions](https://clojure.org/guides/getting_started) for your environment
+to ensure `clj` and `clojure` are in path.
+
 # Credentials
 
 Stack mitosis uses [aws-api](https://github.com/cognitect-labs/aws-api) to
