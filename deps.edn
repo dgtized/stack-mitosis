@@ -1,14 +1,14 @@
 {:deps
  {org.clojure/clojure         {:mvn/version "1.10.1"}
-  org.clojure/core.async      {:mvn/version "0.5.527"}
-  com.cognitect.aws/api       {:mvn/version "0.8.391"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.670"}
+  org.clojure/core.async      {:mvn/version "0.6.532"}
+  com.cognitect.aws/api       {:mvn/version "0.8.408"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.692"}
 
-  com.cognitect.aws/rds       {:mvn/version "770.2.568.0"}
+  com.cognitect.aws/rds       {:mvn/version "780.2.584.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "770.2.568.0"}
-  com.cognitect.aws/sts       {:mvn/version "770.2.568.0"}
+  com.cognitect.aws/iam       {:mvn/version "773.2.575.0"}
+  com.cognitect.aws/sts       {:mvn/version "773.2.578.0"}
 
   org.clojure/algo.monads     {:mvn/version "0.1.6"}
 
@@ -35,7 +35,7 @@
                                                  :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
          :main-opts ["-m" "cognitect.test-runner" "--exclude" ":aws"]}
   :kaocha {:extra-paths ["test"]
-           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-554"}
+           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-565"}
                         lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}
                         lambdaisland/kaocha-cloverage {:mvn/version "0.0-41"}}}
 
