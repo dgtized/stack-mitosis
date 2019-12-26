@@ -18,7 +18,7 @@
 
 (defn databases
   [rds]
-  {:post [(not (empty? %))]}
+  {:post [(seq %)]}
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
 (defn describe
