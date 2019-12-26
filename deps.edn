@@ -29,11 +29,7 @@
   :outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
              :main-opts ["-m" "depot.outdated.main"]}
 
-  ;; clj -Atest
-  :test {:extra-paths ["test"]
-         :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                 :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
-         :main-opts ["-m" "cognitect.test-runner" "--exclude" ":aws"]}
+  ;; clj -A:kaocha -m kaocha.runner --config-file test/tests.edn
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-565"}
                         lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}
