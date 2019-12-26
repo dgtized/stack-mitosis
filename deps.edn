@@ -10,8 +10,6 @@
   com.cognitect.aws/iam       {:mvn/version "773.2.575.0"}
   com.cognitect.aws/sts       {:mvn/version "773.2.578.0"}
 
-  org.clojure/algo.monads     {:mvn/version "0.1.6"}
-
   ;; logging
   org.clojure/tools.logging   {:mvn/version "0.5.0"}
   log4j/log4j {:mvn/version"1.2.17"
