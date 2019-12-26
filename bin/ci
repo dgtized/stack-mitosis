@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
+set -exuo pipefail
+
 mkdir -p test-results/{kaocha,coverage}
 bin/kaocha --plugin cloverage \
            --cov-output test-results/coverage \
            --plugin kaocha.plugin/junit-xml \
            --junit-xml-file test-results/kaocha/results.xml
 
+clj -Aclj-kondo --lint src
