@@ -1,0 +1,186 @@
+#+Title: Stack Mitosis
+#+Author: Charles Comstock
+#+Date: 5/13/2019
+#+Email: dgtized@gmail.com
+#+EPRESENT_FRAME_LEVEL: 2
+
+* Problem
+** Staging Environments
+
+   Staging environments allow
+   - QA
+   - Operations
+   - Developers
+
+   to verify changes in a sandbox environment
+   before applying those changes to production.
+
+   How do we compare against production data?
+   How can we generalize this across multiple services?
+
+** Database Replication
+
+   [[file:environments.png]]
+
+** Maintaining production/staging parity
+
+ Periodically;
+
+ - Create =temp-staging= replica of production
+ - Create =temp-staging-replica= replica of =temp-staging=
+ - Promote =temp-staging=
+ - Rename =staging=, =staging-replica= to =old-staging=, =old-staging-replica=
+ - Rename =temp-staging=, =temp-staging-replica= to =staging=, =staging-replica=
+ - Redeploy staging application
+ - Delete =old-staging=, =old-staging-replica=
+
+** Copying production to staging
+
+   [[file:copying.png]]
+
+** Issues
+
+ - Each operation takes quite a while (5 to 20 minutes+)
+ - Mixture of blocking and asynchronous operations
+ - MySQL can have replicas of replicas
+ - PostGres can only have a root and one replica
+
+* Compilers & Disassembly
+** Compilers
+
+   Translate form high level description to low level operations.
+
+   C -> Assembly
+   Java -> Java Bytecode
+   Elm -> Javascript
+
+** Disassembly
+
+Show us the output of this translation:
+
+#+begin_src lisp
+  $ sbcl
+  (defun fact (x) (if (= x 1) x (* (fact (decf x)) x)))
+  (fact 5) ;; => 25
+  (disassemble 'fact)
+#+end_src
+** Assembly
+
+#+begin_verse
+; CB1:    MOV RCX, [R13+96]            ; no-arg-parsing entry point
+                                       ; thread.binding-stack-pointer
+; CB5:    MOV [RBP-8], RCX
+; CB9:    MOV RDX, [RBP-16]
+; CBD:    MOV EDI, 2
+; CC2:    CALL QWORD PTR [#x21B000E0]  ; GENERIC-=
+; CC9:    JEQ L1
+; CCB:    MOV RDX, [RBP-16]
+; CCF:    MOV EDI, 2
+; CD4:    CALL QWORD PTR [#x21B000B0]  ; GENERIC--
+; CDB:    MOV [RBP-16], RDX
+; CDF:    SUB RSP, 16
+; CE3:    MOV ECX, 2
+; CE8:    MOV [RSP], RBP
+; CEC:    MOV RBP, RSP
+; CEF:    MOV EAX, #x204FE578          ; #<FDEFN FACT>
+; CF4:    CALL RAX
+; CF6:    CMOVB RSP, RBX
+; CFA:    MOV RDI, [RBP-16]
+; CFE:    CALL QWORD PTR [#x21B000B8]  ; GENERIC-*
+; D05: L0 MOV RSP, RBP
+; D08:    CLC
+; D09:    POP RBP
+; D0A:    RET
+; D0B: L1 MOV RDX, [RBP-16]
+; D0F:    JMP L0
+; D11:    BREAK 15                     ; Invalid argument count trap
+
+#+end_verse
+
+** Emacs Lisp ByteCode
+
+   #+begin_verse
+byte code for fact:
+  args: (x)
+0       varref    x
+1       constant  1
+2       eqlsign
+3       goto-if-nil 1
+6       varref    x
+7       return
+8:1     constant  fact
+9       varref    x
+10      sub1
+11      dup
+12      varset    x
+13      call      1
+14      varref    x
+15      mult
+16      return
+   #+end_verse
+
+** Summary
+
+   CPU Instructions are an API to the CPU
+
+* Stack Mitosis
+
+
+** Question
+
+   Can we compile high level descriptions of our infrastructure
+   transformation to the RDS API?
+
+** RDS API
+
+ - CreateDBInstance
+ - CreateDBInstanceReplica
+ - PromoteReadReplica
+ - ModifyDBInstance
+ - DeleteDBInstance
+
+** Compiling to API calls
+
+ - copy-tree: copy a replication graph and promote it
+ - delete-tree
+ - rename-tree
+ - replace-tree: copy-tree, rename, rename, redeploy, delete-tree
+
+ State changing operations need to interpret and predict outcome from
+ operations.
+
+** Demo
+
+** Limitations & Todo
+
+ - Parallelize renames, sibling db creation, and deletes
+ - More Testing & Error handling
+ - Command Line Interface
+
+* Questions?
+
+* Graphs
+
+   #+begin_src dot :exports results :results output graphics :file environments.png
+     digraph environments {
+       rankdir=LR; node [shape=box]
+       production -> "production-replica"
+       staging -> "staging-replica"
+     }
+   #+end_src
+
+   #+RESULTS:
+   [[file:environments.png]]
+
+   #+begin_src dot :file copying.png
+   digraph copying {
+       rankdir=LR; node [shape=box]
+       production -> "production-replica"
+       production -> "temp-staging"
+       "temp-staging" -> "temp-staging-replica"
+       staging -> "staging-replica"
+   }
+   #+end_src
+
+   #+RESULTS:
+   [[file:copying.png]]
