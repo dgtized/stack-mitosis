@@ -1,10 +1,5 @@
 (ns stack-mitosis.operations)
 
-(defn tags
-  [arn]
-  {:op :ListTagsForResource
-   :request {:ResourceName arn}})
-
 (defn delete
   [id]
   {:op :DeleteDBInstance
@@ -46,6 +41,15 @@
 (defn describe [id]
   {:op :DescribeDBInstances
    :request {:DBInstanceIdentifier id}})
+
+(defn tags [db-arn]
+  {:op :ListTagsForResource
+   :request {:ResourceName db-arn}})
+
+(defn add-tags [db-arn tags]
+  {:op :AddTagsToResource
+   :request {:ResourceName db-arn
+             :Tags tags}})
 
 (defn shell-command [cmd]
   {:op :shell-command

@@ -118,6 +118,7 @@
   (aws/doc rds :ModifyDBInstance)
   (aws/doc rds :DeleteDBInstance)
   (aws/doc rds :ListTagsForResource)
+  (aws/doc rds :AddTagsToResource)
 
   (def instances (databases rds))
 
@@ -139,4 +140,5 @@
   (wait/poll-until #(op/completed? (aws/invoke rds (op/describe example-id)))
                    {:delay 100 :max-attempts 5})
 
-  (aws/invoke rds (op/tags "")))
+  (:TagList (aws/invoke rds (op/tags (:DBInstanceArn (last instances)))))
+  )
