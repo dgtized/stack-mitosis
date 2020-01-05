@@ -2,9 +2,9 @@
  {org.clojure/clojure         {:mvn/version "1.10.1"}
   org.clojure/core.async      {:mvn/version "0.6.532"}
   com.cognitect.aws/api       {:mvn/version "0.8.408"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.692"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.699"}
 
-  com.cognitect.aws/rds       {:mvn/version "780.2.584.0"}
+  com.cognitect.aws/rds       {:mvn/version "784.2.595.0"}
 
   ;; for STS refresh
   com.cognitect.aws/iam       {:mvn/version "773.2.575.0"}
