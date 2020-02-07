@@ -28,10 +28,12 @@
    :request options})
 
 (defn create-replica
-  [source replica]
-  {:op :CreateDBInstanceReadReplica
-   :request {:SourceDBInstanceIdentifier source
-             :DBInstanceIdentifier replica}})
+  ([source replica] (create-replica source replica {}))
+  ([source replica attributes]
+   {:op :CreateDBInstanceReadReplica
+    :request (merge attributes
+                    {:SourceDBInstanceIdentifier source
+                     :DBInstanceIdentifier replica})}))
 
 (defn promote
   [id]
