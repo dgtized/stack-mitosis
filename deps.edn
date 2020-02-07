@@ -1,13 +1,13 @@
 {:deps
  {org.clojure/clojure         {:mvn/version "1.10.1"}
-  org.clojure/core.async      {:mvn/version "0.6.532"}
-  com.cognitect.aws/api       {:mvn/version "0.8.408"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.699"}
+  org.clojure/core.async      {:mvn/version "0.7.559"}
+  com.cognitect.aws/api       {:mvn/version "0.8.423"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.714"}
 
-  com.cognitect.aws/rds       {:mvn/version "784.2.595.0"}
+  com.cognitect.aws/rds       {:mvn/version "788.2.609.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "773.2.575.0"}
+  com.cognitect.aws/iam       {:mvn/version "788.2.609.0"}
   com.cognitect.aws/sts       {:mvn/version "773.2.578.0"}
 
   ;; logging
@@ -29,7 +29,7 @@
 
   ;; clj -A:kaocha -m kaocha.runner --config-file test/tests.edn
   :kaocha {:extra-paths ["test"]
-           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-565"}
+           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-590"}
                         lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}
                         lambdaisland/kaocha-cloverage {:mvn/version "0.0-41"}}}
 
