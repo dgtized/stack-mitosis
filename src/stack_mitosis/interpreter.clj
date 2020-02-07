@@ -1,15 +1,16 @@
 (ns stack-mitosis.interpreter
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [cognitect.aws.client.api :as aws]
             [stack-mitosis.example-environment :as example]
+            [stack-mitosis.lookup :as lookup]
             [stack-mitosis.operations :as op]
             [stack-mitosis.planner :as plan]
             [stack-mitosis.predict :as predict]
             [stack-mitosis.request :as r]
             [stack-mitosis.shell :as shell]
             [stack-mitosis.sudo :as sudo]
-            [stack-mitosis.wait :as wait]
-            [clojure.string :as str]))
+            [stack-mitosis.wait :as wait]))
 
 ;; TODO: thread this client to all that use it
 (defn client
@@ -20,6 +21,17 @@
   [rds]
   {:post [(seq %)]}
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
+
+(defn copy-tags
+  [rds instances target]
+  (let [tree (plan/list-tree instances target)]
+    (map (fn [resource-name]
+           (let [instance (lookup/by-id instances resource-name)
+                 arn (:DBInstanceArn instance)
+                 db-id (:DBInstanceIdentifier instance)]
+             {:DBInstanceIdentifier db-id
+              :Tags (:TagList (aws/invoke rds (op/tags arn)))}))
+         tree)))
 
 (defn describe
   [rds id]
@@ -141,4 +153,6 @@
                    {:delay 100 :max-attempts 5})
 
   (:TagList (aws/invoke rds (op/tags (:DBInstanceArn (last instances)))))
+
+  (copy-tags rds instances (:DBInstanceIdentifier (last instances)))
   )
