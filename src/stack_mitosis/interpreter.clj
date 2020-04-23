@@ -22,7 +22,8 @@
   {:post [(seq %)]}
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
-(defn copy-tags
+(defn clone-tags
+  "List of instances in replication tree with Tags for each instance"
   [rds instances target]
   (let [tree (plan/list-tree instances target)]
     (map (fn [resource-name]
@@ -154,5 +155,5 @@
 
   (:TagList (aws/invoke rds (op/tags (:DBInstanceArn (last instances)))))
 
-  (copy-tags rds instances (:DBInstanceIdentifier (last instances)))
+  (clone-tags rds instances (:DBInstanceIdentifier (last instances)))
   )
