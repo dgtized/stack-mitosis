@@ -24,6 +24,11 @@
                      template))
    (op/create-replica "mitosis-demo" "mitosis-demo-replica")
    #_(op/create-replica "mitosis-demo-replica" "mitosis-demo-alternate")
+
+   (op/add-tags "mitosis-prod" [(op/kv "Service" "Mitosis") (op/kv "Env" "prod-mitosis")])
+   (op/add-tags "mitosis-prod-replica" [(op/kv "Service" "Mitosis") (op/kv "Env" "prod-mitosis")])
+   (op/add-tags "mitosis-demo" [(op/kv "Service" "Mitosis") (op/kv "Env" "demo-mitosis")])
+   (op/add-tags "mitosis-demo-replica" [(op/kv "Service" "Mitosis") (op/kv "Env" "demo-mitosis")])
    ])
 
 (defn destroy []

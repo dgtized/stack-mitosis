@@ -119,6 +119,7 @@
   ;; improve wait mechanics for rename and other modify actions
 
   (filter #(re-find #"mitosis" %) (map :DBInstanceIdentifier (databases rds)))
+  (time (evaluate-plan rds (example/create example/template)))
   (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha")))
   (time (evaluate-plan rds (example/destroy)))
   )
@@ -156,5 +157,6 @@
 
   (:TagList (aws/invoke rds (op/tags (:DBInstanceArn (last instances)))))
 
-  (clone-tags rds instances (:DBInstanceIdentifier (last instances)))
+  (clone-tags rds instances "mitosis-demo")
+  (time (evaluate-plan rds [(op/add-tags "mitosis-demo" [(op/kv "Service" "Mitosis")])]))
   )
