@@ -36,15 +36,17 @@
        (concat ["Flight plan:"])
        (str/join "\n")))
 
-(defn process [options]
+(defn process
+  [{:keys [source target restart] :as options}]
   (when-let [creds (:credentials options)]
     (let [role (sudo/load-role creds)]
       (log/infof "Assuming role %s" (:role-arn role))
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
-        plan (plan/replace-tree (interpreter/databases rds)
-                                (:source options) (:target options)
-                                :restart (:restart options))]
+        instances (interpreter/databases rds)
+        tags (interpreter/clone-tags rds instances target)
+        plan (plan/replace-tree instances source target
+                                :restart restart :tags tags)]
     (cond (:plan options)
           (do (println (flight-plan plan))
               true)
