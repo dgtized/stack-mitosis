@@ -56,7 +56,7 @@
         ;; Attributes requiring custom rules to extract from original and
         ;; translate to key for clone-replica request
         (merge (into {}
-                     (remove (fn [[k v]] (or (nil? v) (and (seq? v) (empty? v))))
+                     (remove (fn [[_ v]] (or (nil? v) (and (seq? v) (empty? v))))
                              {:VpcSecurityGroupIds (map :VpcSecurityGroupId (:VpcSecurityGroups original))
                               :EnablePerformanceInsights (:PerformanceInsightsEnabled original)
                               :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)

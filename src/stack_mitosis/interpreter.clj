@@ -1,5 +1,6 @@
 (ns stack-mitosis.interpreter
-  (:require [clojure.string :as str]
+  (:require [clojure.data]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [cognitect.aws.client.api :as aws]
             [stack-mitosis.example-environment :as example]
