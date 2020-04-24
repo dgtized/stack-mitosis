@@ -6,7 +6,7 @@
 
 (def template
   {:DBInstanceClass "db.t3.micro"
-   :Engine "mysql" ;; "postgres"
+   :Engine "postgres" ;;"mysql"
    :StorageType "gp2"
    :AllocatedStorage 5
    :PubliclyAccessible false
@@ -15,20 +15,20 @@
 (defn create [template]
   ;; mysql allows replicas of replicas, postgres does not
   ;; create & create replica of a fresh instance take ~6 minutes
-  [(op/create (merge {:DBInstanceIdentifier "mitosis-root"
+  [(op/create (merge {:DBInstanceIdentifier "mitosis-prod"
                       :MasterUserPassword (helpers/generate-password)}
                      template))
-   (op/create-replica "mitosis-root" "mitosis-replica")
-   (op/create (merge {:DBInstanceIdentifier "mitosis-alpha"
+   (op/create-replica "mitosis-prod" "mitosis-prod-replica")
+   (op/create (merge {:DBInstanceIdentifier "mitosis-demo"
                       :MasterUserPassword (helpers/generate-password)}
                      template))
-   (op/create-replica "mitosis-alpha" "mitosis-beta")
-   #_(op/create-replica "mitosis-beta" "mitosis-gamma")
+   (op/create-replica "mitosis-demo" "mitosis-demo-replica")
+   #_(op/create-replica "mitosis-demo-replica" "mitosis-demo-alternate")
    ])
 
 (defn destroy []
   (let [state (predict/state [] (create template))]
-    (conj (plan/delete-tree state "mitosis-alpha")
-          (plan/delete-tree state "mitosis-root"))))
+    (conj (plan/delete-tree state "mitosis-demo")
+          (plan/delete-tree state "mitosis-prod"))))
 
 
