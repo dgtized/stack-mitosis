@@ -53,6 +53,9 @@
    :request {:ResourceName db-arn
              :Tags tags}})
 
+(defn kv [key value]
+  {:Key key :Value value})
+
 (defn shell-command [cmd]
   {:op :shell-command
    :request {:cmd cmd}})

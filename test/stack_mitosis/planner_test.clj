@@ -107,4 +107,15 @@
            (plan/attempt [{:DBInstanceIdentifier "x"}]
                          (op/rename "x" "x"))))
     ;; should rename of missing instance or duplicate instance error?
+    )
+
+  (testing "add-tags"
+    (let [tags [(op/kv :k :v)]]
+      (is (= [:skip (op/add-tags "x" tags)]
+             (plan/attempt [] (op/add-tags "x" tags)))
+          "skips if instance is missing")
+      (is (= [:ok (op/add-tags "y" tags)]
+             (plan/attempt [{:DBInstanceIdentifier "x" :DBInstanceArn "y"}]
+                           (op/add-tags "x" tags)))
+          "translates from instance id to arn if available"))
     ))

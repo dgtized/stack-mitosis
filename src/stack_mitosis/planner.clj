@@ -88,7 +88,9 @@
 (defn no-changes [id]
   (format "Instance '%s' already applied modifications." id))
 
-(defn attempt [instances {:keys [op] :as action}]
+(defn attempt
+  "filter for actions that have already happened and hydrate tag operations with correct ARN"
+  [instances {:keys [op] :as action}]
   (cond
     (and (= op :CreateDBInstance)
          (lookup/by-id instances (r/db-id action)))
@@ -107,4 +109,10 @@
                [diff-a diff-b _] (clojure.data/diff current predicted)]
            (and (empty? diff-a) (empty? diff-b))))
     [:skip (no-changes (r/db-id action))]
+    ;; translate tags from a instance identifier to the new ARN
+    (= op :AddTagsToResource)
+    (let [{:keys [ResourceName Tags]} (:request action)]
+      (if-let [db-arn (:DBInstanceArn (lookup/by-id instances ResourceName))]
+        [:ok (op/add-tags db-arn Tags)]
+        [:skip action]))
     :else [:ok action]))

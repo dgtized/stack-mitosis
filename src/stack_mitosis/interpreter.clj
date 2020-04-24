@@ -63,9 +63,9 @@
 
 (defn interpret [rds action]
   (log/infof "Invoking %s" action)
-  (let [consider (plan/attempt (databases rds) action)]
-    (if (= (first consider) :skip)
-      (log/infof "Skipping: %s" (second consider))
+  (let [[plan action] (plan/attempt (databases rds) action)]
+    (if (= plan :skip)
+      (log/infof "Skipping: %s" action)
       (let [result (invoke! rds action)]
         (if-let [error-resp (:ErrorResponse result)]
           (do
