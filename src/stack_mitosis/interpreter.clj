@@ -160,9 +160,10 @@
   (clone-tags rds instances "mitosis-demo")
   (time (evaluate-plan rds [(op/add-tags "mitosis-demo" [(op/kv "Service" "Mitosis")])]))
 
-  (clojure.data/diff
-   (lookup/by-id instances "mitosis-prod")
-   (lookup/by-id instances "mitosis-demo"))
+  (let [instances (databases rds)]
+    (clojure.data/diff
+     (lookup/by-id instances "mitosis-prod")
+     (lookup/by-id instances "mitosis-demo")))
 
   ;; note that *changing* security groups uses :VpcSecurityGroupIds, not :VpcSecurityGroups
   (time (evaluate-plan rds [(op/modify "mitosis-demo" {:VpcSecurityGroupIds ["sg-abcdef"]})]))
