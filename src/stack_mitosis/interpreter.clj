@@ -23,15 +23,16 @@
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
 (defn clone-tags
-  "List of instances in replication tree with Tags for each instance"
+  "List of add-tag operations for each instance in a tree by DBInstanceIdentifier."
   [rds instances target]
   (let [tree (plan/list-tree instances target)]
     (map (fn [resource-name]
            (let [instance (lookup/by-id instances resource-name)
                  arn (:DBInstanceArn instance)
                  db-id (:DBInstanceIdentifier instance)]
-             {:DBInstanceIdentifier db-id
-              :Tags (:TagList (aws/invoke rds (op/tags arn)))}))
+             ;; we store the operation as an add-tags on instance-id, so it can
+             ;; be translated to arn at time of invocation.
+             (op/add-tags db-id (:TagList (aws/invoke rds (op/tags arn))))))
          tree)))
 
 (defn describe
