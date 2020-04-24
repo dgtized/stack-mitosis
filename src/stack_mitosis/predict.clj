@@ -24,6 +24,11 @@
   ;; no-op identity
   instances)
 
+(defmethod predict :AddTagsToResource
+  [instances _]
+  ;; no-op identity to instances (tags are set as side-effect)
+  instances)
+
 (defmethod predict :CreateDBInstance
   [instances op]
   {:pre [((complement lookup/exists?) instances (r/db-id op))]

@@ -57,7 +57,8 @@
 (deftest replace-tree
   (let [instances [{:DBInstanceIdentifier "production"}
                    {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
-                   {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]]
+                   {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]
+        add-tag (op/add-tags "staging" [(op/kv "Env" "Staging")])]
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
             (op/enable-backups "temp-staging")
@@ -66,10 +67,24 @@
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
             (op/rename "temp-staging" "staging")
+            (op/delete "old-staging-replica")
+            (op/delete "old-staging")]
+           (plan/replace-tree instances "production" "staging")))
+
+    (is (= [(op/create-replica "production" "temp-staging")
+            (op/promote "temp-staging")
+            (op/enable-backups "temp-staging")
+            (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/rename "staging-replica" "old-staging-replica")
+            (op/rename "staging" "old-staging")
+            (op/rename "temp-staging-replica" "staging-replica")
+            (op/rename "temp-staging" "staging")
+            add-tag
             (op/shell-command "./restart.sh")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" "staging" :restart "./restart.sh")))))
+           (plan/replace-tree instances "production" "staging"
+                              :restart "./restart.sh" :tags [add-tag])))))
 
 (deftest attempt
   (let [instances [{:DBInstanceIdentifier "a"}
