@@ -35,7 +35,8 @@
   ;; do all of those separate?
   [original]
   (let [attributes-to-clone
-        [:CopyTagsToSnapshot
+        [:Port
+         :CopyTagsToSnapshot
          :MonitoringRoleArn
          :MonitoringInterval
          :PubliclyAccessible
