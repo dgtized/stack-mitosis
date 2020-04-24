@@ -120,7 +120,11 @@
 
   (filter #(re-find #"mitosis" %) (map :DBInstanceIdentifier (databases rds)))
   (time (evaluate-plan rds (example/create example/template)))
-  (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-prod" "mitosis-demo")))
+  (time (evaluate-plan rds
+                       (let [instances (databases rds)
+                             tags (clone-tags rds instances "mitosis-demo")]
+                         (plan/replace-tree instances "mitosis-prod" "mitosis-demo"
+                                            :tags tags))))
   (time (evaluate-plan rds (example/destroy)))
   )
 
