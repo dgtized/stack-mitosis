@@ -31,6 +31,8 @@
 (defn clone-replica-attributes
   "Creates a list of additional attributes to clone from original instance into
   the newly created replica instance."
+  ;; TODO can't copy maintenance or backup window until after creation, so maybe
+  ;; do all of those separate?
   [original]
   (let [attributes-to-clone
         [:CopyTagsToSnapshot
