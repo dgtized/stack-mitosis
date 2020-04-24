@@ -15,13 +15,13 @@
     (is (= [:a :b :c :d] (plan/list-tree [a b c d] :a)))))
 
 (deftest copy-tree
-  (let [instances [{:DBInstanceIdentifier "source"}
-                   {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
+  (let [instances [{:DBInstanceIdentifier "source" :Iops 1000}
+                   {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"] :Iops 500}
                    {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
-    (is (= [(op/create-replica "source" "temp-target")
+    (is (= [(op/create-replica "source" "temp-target" {:Iops 500})
             (op/promote "temp-target")
             (op/enable-backups "temp-target")
             (op/create-replica "temp-target" "temp-a")

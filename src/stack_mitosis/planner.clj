@@ -28,13 +28,14 @@
   (let [[root & tree] (map (comp transform (partial lookup/by-id instances))
                            (list-tree instances target))
         root-id (:DBInstanceIdentifier root)]
-    (into [(op/create-replica source root-id)
+    (into [(op/create-replica source root-id (lookup/clone-replica-attributes root))
            (op/promote root-id)
            (op/enable-backups root-id)] ;; postgres only allows backups after promotion
           (mapcat
            (fn [instance]
              (into [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
-                                       (:DBInstanceIdentifier instance))]
+                                       (:DBInstanceIdentifier instance)
+                                       (lookup/clone-replica-attributes instance))]
                    ;; enable-backups for any replicas with children
                    (when (seq (:ReadReplicaDBInstanceIdentifiers instance))
                      [(op/enable-backups (:DBInstanceIdentifier instance))])))
