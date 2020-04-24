@@ -99,7 +99,7 @@
   (def rds (client))
   (time (evaluate-plan rds (example/create (assoc example/template :Engine "postgres"))))
   (-> (predict/state [] (example/create example/template))
-      (plan/replace-tree "mitosis-root" "mitosis-alpha"))
+      (plan/replace-tree "mitosis-prod" "mitosis-demo"))
 
   (interpret rds (op/shell-command "echo restart"))
   (evaluate-plan rds [(op/shell-command "true") (op/shell-command "false")
@@ -107,12 +107,12 @@
 
   ;; check plan
   (let [state (databases rds)]
-    (check-plan state (plan/replace-tree state "mitosis-root" "mitosis-alpha")))
+    (check-plan state (plan/replace-tree state "mitosis-prod" "mitosis-demo")))
 
-  ;; create a copy of mitosis-root tree
+  ;; create a copy of mitosis-prod tree
   (let [state (databases rds)]
     (->> (partial plan/transform #(str/replace % "root" "copy"))
-         (plan/copy-tree state "mitosis-root" "mitosis-root")))
+         (plan/copy-tree state "mitosis-prod" "mitosis-prod")))
 
   ;; TODO: move attempt into planning, ie we should skip steps that already happen even in planning
   ;; change wait mechanics to poll all?
@@ -120,7 +120,7 @@
 
   (filter #(re-find #"mitosis" %) (map :DBInstanceIdentifier (databases rds)))
   (time (evaluate-plan rds (example/create example/template)))
-  (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-root" "mitosis-alpha")))
+  (time (evaluate-plan rds (plan/replace-tree (databases rds) "mitosis-prod" "mitosis-demo")))
   (time (evaluate-plan rds (example/destroy)))
   )
 

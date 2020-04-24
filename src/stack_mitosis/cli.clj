@@ -63,8 +63,8 @@
     ))
 
 (comment
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
+  (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"
                         "--plan" "--restart" "'./service-restart.sh'"]))
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
+  (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"
                         "--plan" "--credentials" "resources/role.edn"]))
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"])))
+  (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"])))
