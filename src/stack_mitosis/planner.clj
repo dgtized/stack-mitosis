@@ -115,5 +115,6 @@
     (let [{:keys [ResourceName Tags]} (:request action)]
       (if-let [db-arn (:DBInstanceArn (lookup/by-id instances ResourceName))]
         [:ok (op/add-tags db-arn Tags)]
+        ;; TODO better messaging on skip action, instance is missing
         [:skip action]))
     :else [:ok action]))
