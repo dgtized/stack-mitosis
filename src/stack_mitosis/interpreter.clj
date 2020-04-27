@@ -33,6 +33,7 @@
        (list-tags rds instances target)))
 
 (defn list-tags
+  "Mapping of db-id to tags list for each instance in a tree."
   [rds instances target]
   (let [tree (plan/list-tree instances target)]
     (->> tree
@@ -168,7 +169,7 @@
 
   (:TagList (aws/invoke rds (op/tags (:DBInstanceArn (last instances)))))
 
-  (clone-tags rds instances "mitosis-demo")
+  (list-tags rds instances "mitosis-demo")
   (time (evaluate-plan rds [(op/add-tags "mitosis-demo" [(op/kv "Service" "Mitosis")])]))
 
   (let [instances (databases rds)]
