@@ -26,15 +26,22 @@
 (defn clone-tags
   "List of add-tag operations for each instance in a tree by DBInstanceIdentifier."
   [rds instances target]
+  (map (fn [[db-id tags]]
+         ;; we store the operation as an add-tags on instance-id, so it can
+         ;; be translated to arn at time of invocation.
+         (op/add-tags db-id tags))
+       (list-tags rds instances target)))
+
+(defn list-tags
+  [rds instances target]
   (let [tree (plan/list-tree instances target)]
-    (map (fn [resource-name]
-           (let [instance (lookup/by-id instances resource-name)
-                 arn (:DBInstanceArn instance)
-                 db-id (:DBInstanceIdentifier instance)]
-             ;; we store the operation as an add-tags on instance-id, so it can
-             ;; be translated to arn at time of invocation.
-             (op/add-tags db-id (:TagList (aws/invoke rds (op/tags arn))))))
-         tree)))
+    (->> tree
+         (map (fn [resource-name]
+                (let [instance (lookup/by-id instances resource-name)
+                      arn (:DBInstanceArn instance)
+                      db-id (:DBInstanceIdentifier instance)]
+                  [db-id (:TagList (aws/invoke rds (op/tags arn)))])))
+         (into {}))))
 
 (defn describe
   [rds id]
