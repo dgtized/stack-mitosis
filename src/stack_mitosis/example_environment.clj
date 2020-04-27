@@ -33,7 +33,7 @@
 
 (defn destroy []
   (let [state (predict/state [] (create template))]
-    (conj (plan/delete-tree state "mitosis-demo")
-          (plan/delete-tree state "mitosis-prod"))))
+    (concat (plan/delete-tree state "mitosis-demo")
+            (plan/delete-tree state "mitosis-prod"))))
 
 
