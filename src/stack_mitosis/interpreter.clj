@@ -23,15 +23,6 @@
   {:post [(seq %)]}
   (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
 
-(defn clone-tags
-  "List of add-tag operations for each instance in a tree by DBInstanceIdentifier."
-  [rds instances target]
-  (map (fn [[db-id tags]]
-         ;; we store the operation as an add-tags on instance-id, so it can
-         ;; be translated to arn at time of invocation.
-         (op/add-tags db-id tags))
-       (list-tags rds instances target)))
-
 (defn list-tags
   "Mapping of db-id to tags list for each instance in a tree."
   [rds instances target]
@@ -43,6 +34,15 @@
                       db-id (:DBInstanceIdentifier instance)]
                   [db-id (:TagList (aws/invoke rds (op/tags arn)))])))
          (into {}))))
+
+(defn clone-tags
+  "List of add-tag operations for each instance in a tree by DBInstanceIdentifier."
+  [rds instances target]
+  (map (fn [[db-id tags]]
+         ;; we store the operation as an add-tags on instance-id, so it can
+         ;; be translated to arn at time of invocation.
+         (op/add-tags db-id tags))
+       (list-tags rds instances target)))
 
 (defn describe
   [rds id]
