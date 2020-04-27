@@ -20,15 +20,20 @@
                    {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
-                   {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
-    (is (= [(op/create-replica "source" "temp-target" {:Iops 500})
+                   {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]
+        tags-target [(op/kv "k" "target")]
+        tags-b [(op/kv "k" "b")]]
+    (is (= [(op/create-replica "source" "temp-target" {:Iops 500 :Tags tags-target})
             (op/promote "temp-target")
             (op/enable-backups "temp-target")
             (op/create-replica "temp-target" "temp-a")
             (op/enable-backups "temp-a")
-            (op/create-replica "temp-target" "temp-b")
+            (op/create-replica "temp-target" "temp-b" {:Tags tags-b})
             (op/create-replica "temp-b" "temp-c")]
-           (plan/copy-tree instances "source" "target" (partial plan/transform (partial plan/aliased "temp")))))))
+           (plan/copy-tree instances "source" "target"
+                           (partial plan/aliased "temp")
+                           :tags {"target" tags-target
+                                  "b" tags-b})))))
 
 (deftest rename-tree
   (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
