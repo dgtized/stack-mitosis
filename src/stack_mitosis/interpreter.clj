@@ -98,7 +98,6 @@
 (comment
   (sudo/sudo-provider (sudo/load-role "resources/role.edn"))
   (def rds (client))
-  (time (evaluate-plan rds (example/create (assoc example/template :Engine "postgres"))))
   (-> (predict/state [] (example/create example/template))
       (plan/replace-tree "mitosis-prod" "mitosis-demo"))
 
