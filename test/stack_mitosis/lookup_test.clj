@@ -1,6 +1,7 @@
 (ns stack-mitosis.lookup-test
   (:require [stack-mitosis.lookup :as lookup]
-            [clojure.test :refer :all]))
+            [clojure.test :refer :all]
+            [stack-mitosis.operations :as op]))
 
 (deftest by-id
   (let [instance {:DBInstanceIdentifier :foo}]
@@ -22,12 +23,14 @@
                   :PerformanceInsightsEnabled false
                   :IAMDatabaseAuthenticationEnabled false
                   :StorageType "io1"
-                  :DBInstanceArn "abcdef"}]
+                  :DBInstanceArn "abcdef"}
+        tags [(op/kv "k" "v")]]
     (is (= {:StorageType "io1"
             :Iops 100
             :VpcSecurityGroupIds ["sg-abcd"]
             :EnablePerformanceInsights false
             :EnableIAMDatabaseAuthentication false}
-           (lookup/clone-replica-attributes instance)))
-    (is (= {:Iops 100}
-           (lookup/clone-replica-attributes {:Iops 100})))))
+           (lookup/clone-replica-attributes instance [])))
+    (is (= {:Iops 100
+            :Tags tags}
+           (lookup/clone-replica-attributes {:Iops 100} tags)))))

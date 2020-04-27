@@ -28,12 +28,17 @@
   (get (by-id instances db-id)
        :ReadReplicaDBInstanceIdentifiers))
 
+(defn nil-or-empty? [v]
+  (or (nil? v)
+      (and (or (seq? v) (vector? v))
+           (empty? v))))
+
 (defn clone-replica-attributes
   "Creates a list of additional attributes to clone from original instance into
   the newly created replica instance."
   ;; TODO can't copy maintenance or backup window until after creation, so maybe
   ;; do all of those separate?
-  [original]
+  [original tags]
   (let [attributes-to-clone
         [:Port
          :CopyTagsToSnapshot
@@ -49,19 +54,22 @@
          :ProcessorFeatures
          :Iops
          :StorageType
-         :MultiAZ]]
+         :MultiAZ]
+
+        translated-attributes
+        {:Tags tags
+         :VpcSecurityGroupIds (map :VpcSecurityGroupId (:VpcSecurityGroups original))
+         :EnablePerformanceInsights (:PerformanceInsightsEnabled original)
+         :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)
+         ;; TODO map for names on original
+         ;; :DBParameterGroupName
+         ;; :OptionGroupName
+         ;; :DBSubnetGroupName
+         }]
     (-> original
         ;; copy as-is with no translation
         (select-keys attributes-to-clone)
         ;; Attributes requiring custom rules to extract from original and
         ;; translate to key for clone-replica request
-        (merge (into {}
-                     (remove (fn [[_ v]] (or (nil? v) (and (seq? v) (empty? v))))
-                             {:VpcSecurityGroupIds (map :VpcSecurityGroupId (:VpcSecurityGroups original))
-                              :EnablePerformanceInsights (:PerformanceInsightsEnabled original)
-                              :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)
-                              ;; TODO map for names on original
-                              ;; :DBParameterGroupName
-                              ;; :OptionGroupName
-                              ;; :DBSubnetGroupName
-                              }))))))
+        (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
+                                translated-attributes))))))

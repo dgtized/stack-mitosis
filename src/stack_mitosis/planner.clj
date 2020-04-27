@@ -24,18 +24,20 @@
 ;; postgres does not allow replica of replica, so need to promote before
 ;; replicating children
 (defn copy-tree
-  [instances source target transform]
+  [instances source target transform & {:keys [tags] :or {tags {}}}]
   (let [[root & tree] (map (comp transform (partial lookup/by-id instances))
                            (list-tree instances target))
-        root-id (:DBInstanceIdentifier root)]
-    (into [(op/create-replica source root-id (lookup/clone-replica-attributes root))
+        root-id (:DBInstanceIdentifier root)
+        root-attrs (lookup/clone-replica-attributes root (get tags root-id))]
+    (into [(op/create-replica source root-id root-attrs)
            (op/promote root-id)
            (op/enable-backups root-id)] ;; postgres only allows backups after promotion
           (mapcat
            (fn [instance]
              (into [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
                                        (:DBInstanceIdentifier instance)
-                                       (lookup/clone-replica-attributes instance))]
+                                       (lookup/clone-replica-attributes instance
+                                                                        (get tags (:DBInstanceIdentifier instance))))]
                    ;; enable-backups for any replicas with children
                    (when (seq (:ReadReplicaDBInstanceIdentifiers instance))
                      [(op/enable-backups (:DBInstanceIdentifier instance))])))
