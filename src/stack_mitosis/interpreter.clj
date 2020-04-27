@@ -119,8 +119,8 @@
 
   ;; create a copy of mitosis-prod tree
   (let [state (databases rds)]
-    (->> (partial plan/transform #(str/replace % "root" "copy"))
-         (plan/copy-tree state "mitosis-prod" "mitosis-prod")))
+    (->> (partial plan/transform #(str/replace % "demo" "temp"))
+         (plan/copy-tree state "mitosis-prod" "mitosis-demo")))
 
   ;; TODO: move attempt into planning, ie we should skip steps that already happen even in planning
   ;; change wait mechanics to poll all?
