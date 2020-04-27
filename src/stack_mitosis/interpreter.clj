@@ -159,16 +159,9 @@
   (wait/poll-until #(op/completed? (aws/invoke rds (op/describe example-id)))
                    {:delay 100 :max-attempts 5})
 
-  (:TagList (aws/invoke rds (op/tags (:DBInstanceArn (last instances)))))
-
   (list-tags rds instances "mitosis-demo")
-  (time (evaluate-plan rds [(op/add-tags "mitosis-demo" [(op/kv "Service" "Mitosis")])]))
 
   (let [instances (databases rds)]
     (clojure.data/diff
      (lookup/by-id instances "mitosis-prod")
-     (lookup/by-id instances "mitosis-demo")))
-
-  ;; note that *changing* security groups uses :VpcSecurityGroupIds, not :VpcSecurityGroups
-  (time (evaluate-plan rds [(op/modify "mitosis-demo" {:VpcSecurityGroupIds ["sg-abcdef"]})]))
-  )
+     (lookup/by-id instances "mitosis-demo"))))
