@@ -44,7 +44,7 @@
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
         instances (interpreter/databases rds)
-        tags (interpreter/clone-tags rds instances target)
+        tags (interpreter/list-tags rds instances target)
         plan (plan/replace-tree instances source target
                                 :restart restart :tags tags)]
     (cond (:plan options)

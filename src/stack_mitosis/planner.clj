@@ -64,12 +64,14 @@
        (map op/delete)))
 
 (defn replace-tree
-  [instances source target & {:keys [restart tags] :or {tags []}}]
+  [instances source target & {:keys [restart tags] :or {tags {}}}]
   ;; actions in copy, rename & delete change the local instances db, so use
   ;; predict to update that db for calculating next set of operations by
   ;; applying computation thus far to the initial instances
   ;; TODO something something sequence monad
-  (let [copy (copy-tree instances source target (partial aliased "temp"))
+  (let [copy (copy-tree instances source target
+                        (partial aliased "temp")
+                        :tags tags)
 
         a (predict/state instances copy)
         rename-old (rename-tree a target (partial aliased "old"))
@@ -77,7 +79,7 @@
         b (predict/state instances (concat copy rename-old))
         rename-temp (rename-tree b (aliased "temp" target) #(str/replace % "temp-" ""))
 
-        restart-cmds (concat tags (when restart [(op/shell-command restart)]))
+        restart-cmds (when restart [(op/shell-command restart)])
 
         c (predict/state instances (concat copy rename-old rename-temp restart-cmds))
         delete (delete-tree c (aliased "old" target))]
