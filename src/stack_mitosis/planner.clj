@@ -44,9 +44,9 @@
            tree))))
 
 (defn rename-tree
-  [instances source transform]
+  [instances source alias-fn]
   (let [tree (topo instances (list-tree instances source))]
-    (map op/rename tree (map transform tree))))
+    (map op/rename tree (map alias-fn tree))))
 
 (defn delete-tree
   [instances root]
