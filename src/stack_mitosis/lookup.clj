@@ -53,9 +53,7 @@
          ;; :UseDefaultProcessorFeatures ; just copy features directly?
          :Iops
          :StorageType
-         :MultiAZ
-         ;; :PreSignedUrl ; not sure where this is in describe status?
-         ]
+         :MultiAZ]
 
         translated-attributes
         {:Tags tags
