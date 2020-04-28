@@ -44,13 +44,17 @@
            (op/enable-backups root-id (lookup/created-replica-attributes root))]
           (mapcat
            (fn [instance]
-             (into [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
-                                       (:DBInstanceIdentifier instance)
-                                       (lookup/clone-replica-attributes instance
-                                                                        (get alias-tags (:DBInstanceIdentifier instance))))]
-                   ;; enable-backups for any replicas with children
-                   (when (seq (:ReadReplicaDBInstanceIdentifiers instance))
-                     [(op/enable-backups (:DBInstanceIdentifier instance))])))
+             [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
+                                 (:DBInstanceIdentifier instance)
+                                 (lookup/clone-replica-attributes instance
+                                                                  (get alias-tags (:DBInstanceIdentifier instance))))
+              (op/modify (:DBInstanceIdentifier instance)
+                         (merge
+                          (lookup/created-replica-attributes instance)
+                          ;; enable-backups for any replicas with children
+                          (if (seq (:ReadReplicaDBInstanceIdentifiers instance))
+                            {:BackupRetentionPeriod 1}
+                            {})))])
            tree))))
 
 (defn rename-tree

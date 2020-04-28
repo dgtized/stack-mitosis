@@ -27,9 +27,11 @@
             (op/promote "temp-target")
             (op/enable-backups "temp-target")
             (op/create-replica "temp-target" "temp-a")
-            (op/enable-backups "temp-a")
+            (op/modify "temp-a" {:BackupRetentionPeriod 1})
             (op/create-replica "temp-target" "temp-b" {:Tags tags-b})
-            (op/create-replica "temp-b" "temp-c")]
+            (op/modify "temp-b" {})
+            (op/create-replica "temp-b" "temp-c")
+            (op/modify "temp-c" {})]
            (plan/copy-tree instances "source" "target"
                            (partial plan/aliased "temp")
                            :tags {"target" tags-target
@@ -60,14 +62,16 @@
            (plan/delete-tree instances "target")))))
 
 (deftest replace-tree
-  (let [instances [{:DBInstanceIdentifier "production"}
-                   {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
-                   {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]
+  (let [instances
+        [{:DBInstanceIdentifier "production"}
+         {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
+         {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]
         tags [(op/kv "Env" "Staging")]]
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
-            (op/enable-backups "temp-staging")
+            (op/enable-backups "temp-staging" {})
             (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/modify "temp-staging-replica" {})
             (op/rename "staging-replica" "old-staging-replica")
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
@@ -76,10 +80,32 @@
             (op/delete "old-staging")]
            (plan/replace-tree instances "production" "staging")))
 
+    (is (= [(op/create-replica "production" "temp-staging")
+            (op/promote "temp-staging")
+            (op/enable-backups "temp-staging"
+                               {:PreferredMaintenanceWindow "tue:05:05-tue:05:35"})
+            (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/modify "temp-staging-replica"
+                       {:PreferredMaintenanceWindow "tue:04:05-tue:04:35"})
+            (op/rename "staging-replica" "old-staging-replica")
+            (op/rename "staging" "old-staging")
+            (op/rename "temp-staging-replica" "staging-replica")
+            (op/rename "temp-staging" "staging")
+            (op/delete "old-staging-replica")
+            (op/delete "old-staging")]
+           (plan/replace-tree
+            [{:DBInstanceIdentifier "production"}
+             {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
+              :PreferredMaintenanceWindow "tue:05:05-tue:05:35"}
+             {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
+              :PreferredMaintenanceWindow "tue:04:05-tue:04:35"}]
+            "production" "staging")))
+
     (is (= [(op/create-replica "production" "temp-staging" {:Tags tags})
             (op/promote "temp-staging")
-            (op/enable-backups "temp-staging")
+            (op/enable-backups "temp-staging" {})
             (op/create-replica "temp-staging" "temp-staging-replica" {:Tags tags})
+            (op/modify "temp-staging-replica" {})
             (op/rename "staging-replica" "old-staging-replica")
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
