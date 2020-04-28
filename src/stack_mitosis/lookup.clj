@@ -94,7 +94,9 @@
   need to be applied after."
   [original]
   (let [translated-attributes
-        {:DBSubnetGroupName (:DBSubnetGroupName (:DBSubnetGroup original))
+        {;; Triggers "The specified DB instance is already in the target DB subnet group"
+         ;; probably need to detect if changing? disabling for now
+         ;; :DBSubnetGroupName (:DBSubnetGroupName (:DBSubnetGroup original))
          ;; first synchronized db parameter group name
          :DBParameterGroupName
          (->> original

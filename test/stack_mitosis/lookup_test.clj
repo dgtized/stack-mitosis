@@ -52,6 +52,6 @@
     (is (= {:PreferredBackupWindow "06:35-07:05"
             :PreferredMaintenanceWindow "tue:06:05-tue:06:35"
             :DBParameterGroupName "default.postgres9.6"
-            :DBSubnetGroupName "subnet-group"
+            ;; :DBSubnetGroupName "subnet-group"
             }
            (lookup/created-replica-attributes instance)))))
