@@ -36,8 +36,6 @@
 (defn clone-replica-attributes
   "Creates a list of additional attributes to clone from original instance into
   the newly created replica instance."
-  ;; TODO can't copy maintenance or backup window until after creation, so maybe
-  ;; do all of those separate?
   [original tags]
   (let [attributes-to-clone
         [:Port
@@ -73,3 +71,16 @@
         ;; translate to key for clone-replica request
         (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
                                 translated-attributes))))))
+
+(defn created-replica-attributes
+  "List of additional attributes to apply after creation.
+
+  Some parameters are not available at time of creation, so they need to be
+  applied after."
+  [original]
+  (select-keys original
+               [:PreferredMaintenanceWindow
+                :PreferredBackupWindow
+                ;; :AllocatedStorage
+                ;; :MaxAllocatedStorage
+                ]))

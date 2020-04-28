@@ -19,8 +19,10 @@
   (modify old {:NewDBInstanceIdentifier new}))
 
 (defn enable-backups
-  [id]
-  (modify id {:BackupRetentionPeriod 1}))
+  ([id]
+   (enable-backups id {}))
+  ([id attributes]
+   (modify id (merge attributes {:BackupRetentionPeriod 1}))))
 
 (defn create
   [options]

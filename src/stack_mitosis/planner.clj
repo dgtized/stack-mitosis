@@ -40,7 +40,8 @@
         root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))]
     (into [(op/create-replica source root-id root-attrs)
            (op/promote root-id)
-           (op/enable-backups root-id)] ;; postgres only allows backups after promotion
+           ;; postgres only allows backups after promotion
+           (op/enable-backups root-id (lookup/created-replica-attributes root))]
           (mapcat
            (fn [instance]
              (into [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
@@ -84,7 +85,6 @@
         c (predict/state instances (concat copy rename-old rename-temp restart-cmds))
         delete (delete-tree c (aliased "old" target))]
     (concat copy rename-old rename-temp restart-cmds delete)))
-
 
 (defn duplicate-instance [id]
   (format "Instance '%s' already exists" id))
