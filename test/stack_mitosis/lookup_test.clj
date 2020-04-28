@@ -19,7 +19,15 @@
 (deftest replica-attrs
   (let [instance {:DBInstanceIdentifier "a"
                   :Iops 100
-                  :VpcSecurityGroups [{:VpcSecurityGroupId "sg-abcd" :Status "available"}]
+                  :VpcSecurityGroups
+                  [{:VpcSecurityGroupId "sg-abcd"
+                    :Status "active"}]
+                  :DBParameterGroups
+                  [{:DBParameterGroupName "default.postgres9.6"
+                    :ParameterApplyStatus "in-sync"}]
+                  :OptionGroupMemberships
+                  [{:OptionGroupName "default:postgres-9-6"
+                    :Status "in-sync"}]
                   :PerformanceInsightsEnabled false
                   :IAMDatabaseAuthenticationEnabled false
                   :StorageType "io1"
@@ -30,6 +38,8 @@
     (is (= {:StorageType "io1"
             :Iops 100
             :VpcSecurityGroupIds ["sg-abcd"]
+            :DBParameterGroupName "default.postgres9.6"
+            :OptionGroupName "default:postgres-9-6"
             :EnablePerformanceInsights false
             :EnableIAMDatabaseAuthentication false}
            (lookup/clone-replica-attributes instance [])))

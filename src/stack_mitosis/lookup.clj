@@ -46,23 +46,48 @@
          :AutoMinorVersionUpgrade
          :DBInstanceClass
          :PerformanceInsightsKMSKeyId
+         ;; :DeletionProtection ; must be false for repeated invocation
          :KmsKeyId
          :PerformanceInsightsRetentionPeriod
-         :EnableCloudwatchLogsExports
+         ;; :SourceRegion ; not applicable?
          :ProcessorFeatures
+         ;; :UseDefaultProcessorFeatures ; just copy features directly?
          :Iops
          :StorageType
-         :MultiAZ]
+         :MultiAZ
+         ;; :PreSignedUrl ; not sure where this is in describe status?
+         ]
 
         translated-attributes
         {:Tags tags
-         :VpcSecurityGroupIds (map :VpcSecurityGroupId (:VpcSecurityGroups original))
          :EnablePerformanceInsights (:PerformanceInsightsEnabled original)
          :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)
+         :EnableCloudwatchLogsExports (:EnabledCloudwatchLogsExports original)
+
+         ;; all active security groups ids
+         :VpcSecurityGroupIds
+         (->> original
+              :VpcSecurityGroups
+              (filter (fn [group] (= (:Status group) "active")))
+              (map :VpcSecurityGroupId))
+
+         ;; first synchronized db parameter group name
+         :DBParameterGroupName
+         (->> original
+              :DBParameterGroups
+              (some (fn [group]
+                      (and (= (:ParameterApplyStatus group) "in-sync")
+                           (:DBParameterGroupName group)))))
+         ;; first synchronized option group name
+         :OptionGroupName
+         (->> original
+              :OptionGroupMemberships
+              (some (fn [group]
+                      (and (= (:Status group) "in-sync")
+                           (:OptionGroupName group)))))
          ;; TODO map for names on original
-         ;; :DBParameterGroupName
-         ;; :OptionGroupName
          ;; :DBSubnetGroupName
+         ;; :DomainMemberships -> :Domain, :DomainIAMRoleName
          }]
     (-> original
         ;; copy as-is with no translation
@@ -83,4 +108,5 @@
                 :PreferredBackupWindow
                 ;; :AllocatedStorage
                 ;; :MaxAllocatedStorage
+                ;; DBInstancePort
                 ]))
