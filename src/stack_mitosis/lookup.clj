@@ -106,6 +106,7 @@
     (-> original
         (select-keys [:PreferredMaintenanceWindow
                       :PreferredBackupWindow
+                      ;; TODO ?
                       ;; :AllocatedStorage
                       ;; :MaxAllocatedStorage
                       ])
