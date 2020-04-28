@@ -71,13 +71,6 @@
               (filter (fn [group] (= (:Status group) "active")))
               (map :VpcSecurityGroupId))
 
-         ;; first synchronized db parameter group name
-         :DBParameterGroupName
-         (->> original
-              :DBParameterGroups
-              (some (fn [group]
-                      (and (= (:ParameterApplyStatus group) "in-sync")
-                           (:DBParameterGroupName group)))))
          ;; first synchronized option group name
          :OptionGroupName
          (->> original
@@ -100,12 +93,25 @@
 (defn created-replica-attributes
   "List of additional attributes to apply after creation.
 
-  Some parameters are not available at time of creation, so they need to be
-  applied after."
+  Some parameters are not available or applicable at time of creation, so they
+  need to be applied after."
   [original]
-  (select-keys original
-               [:PreferredMaintenanceWindow
-                :PreferredBackupWindow
-                ;; :AllocatedStorage
-                ;; :MaxAllocatedStorage
-                ]))
+  (let [translated-attributes
+        {;; first synchronized db parameter group name
+         :DBParameterGroupName
+         (->> original
+              :DBParameterGroups
+              (some (fn [group]
+                      (and (= (:ParameterApplyStatus group) "in-sync")
+                           (:DBParameterGroupName group)))))
+         }]
+    (-> original
+        (select-keys [:PreferredMaintenanceWindow
+                      :PreferredBackupWindow
+                      ;; :AllocatedStorage
+                      ;; :MaxAllocatedStorage
+                      ])
+        ;; Attributes requiring custom rules to extract from original and
+        ;; translate to key for modify-db request
+        (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
+                                translated-attributes))))))

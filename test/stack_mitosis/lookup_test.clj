@@ -40,7 +40,6 @@
             :StorageType "io1"
             :Iops 100
             :VpcSecurityGroupIds ["sg-abcd"]
-            :DBParameterGroupName "default.postgres9.6"
             :OptionGroupName "default:postgres-9-6"
             :EnablePerformanceInsights false
             :EnableIAMDatabaseAuthentication false}
@@ -49,5 +48,7 @@
             :Tags tags}
            (lookup/clone-replica-attributes {:Iops 100} tags)))
     (is (= {:PreferredBackupWindow "06:35-07:05"
-            :PreferredMaintenanceWindow "tue:06:05-tue:06:35"}
+            :PreferredMaintenanceWindow "tue:06:05-tue:06:35"
+            :DBParameterGroupName "default.postgres9.6"
+            }
            (lookup/created-replica-attributes instance)))))
