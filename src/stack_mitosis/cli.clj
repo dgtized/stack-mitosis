@@ -32,7 +32,11 @@
 
 (defn flight-plan
   [plan]
-  (->> (map r/explain plan)
+  (->> plan
+       (map (fn [[step-plan reason]]
+              (case step-plan
+                :ok (r/explain reason)
+                :skip (format "Skipping: %s" reason))))
        (concat ["Flight plan:"])
        (str/join "\n")))
 
@@ -48,7 +52,7 @@
         plan (plan/replace-tree instances source target
                                 :restart restart :tags tags)]
     (cond (:plan options)
-          (do (println (flight-plan plan))
+          (do (println (flight-plan (interpreter/check-plan instances plan)))
               true)
           :else
           (let [last-action (interpreter/evaluate-plan rds plan)]
