@@ -32,10 +32,12 @@
                   :IAMDatabaseAuthenticationEnabled false
                   :StorageType "io1"
                   :DBInstanceArn "abcdef"
+                  :Endpoint {:Port 9999}
                   :PreferredBackupWindow "06:35-07:05"
                   :PreferredMaintenanceWindow "tue:06:05-tue:06:35"}
         tags [(op/kv "k" "v")]]
-    (is (= {:StorageType "io1"
+    (is (= {:Port 9999
+            :StorageType "io1"
             :Iops 100
             :VpcSecurityGroupIds ["sg-abcd"]
             :DBParameterGroupName "default.postgres9.6"

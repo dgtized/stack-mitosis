@@ -38,8 +38,7 @@
   the newly created replica instance."
   [original tags]
   (let [attributes-to-clone
-        [:Port
-         :CopyTagsToSnapshot
+        [:CopyTagsToSnapshot
          :MonitoringRoleArn
          :MonitoringInterval
          :PubliclyAccessible
@@ -63,6 +62,7 @@
          :EnablePerformanceInsights (:PerformanceInsightsEnabled original)
          :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)
          :EnableCloudwatchLogsExports (:EnabledCloudwatchLogsExports original)
+         :Port (:Port (:Endpoint original))
 
          ;; all active security groups ids
          :VpcSecurityGroupIds
@@ -108,5 +108,4 @@
                 :PreferredBackupWindow
                 ;; :AllocatedStorage
                 ;; :MaxAllocatedStorage
-                ;; DBInstancePort
                 ]))
