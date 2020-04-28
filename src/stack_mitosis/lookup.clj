@@ -77,7 +77,6 @@
                       (and (= (:Status group) "in-sync")
                            (:OptionGroupName group)))))
          ;; TODO map for names on original
-         ;; :DBSubnetGroupName
          ;; :DomainMemberships -> :Domain, :DomainIAMRoleName
          }]
     (-> original
@@ -95,7 +94,8 @@
   need to be applied after."
   [original]
   (let [translated-attributes
-        {;; first synchronized db parameter group name
+        {:DBSubnetGroupName (:DBSubnetGroupName (:DBSubnetGroup original))
+         ;; first synchronized db parameter group name
          :DBParameterGroupName
          (->> original
               :DBParameterGroups
