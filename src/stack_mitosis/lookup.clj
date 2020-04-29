@@ -35,7 +35,10 @@
 
 (defn clone-replica-attributes
   "Creates a list of additional attributes to clone from original instance into
-  the newly created replica instance."
+  the newly created replica instance.
+
+  https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstanceReadReplica.html
+  has more information on these attributes."
   [original tags]
   (let [attributes-to-clone
         [:CopyTagsToSnapshot
@@ -91,7 +94,10 @@
   "List of additional attributes to apply after creation.
 
   Some parameters are not available or applicable at time of creation, so they
-  need to be applied after."
+  need to be applied after.
+
+  https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_ModifyDBInstance.html
+  has more information on these attributes."
   [original]
   (let [translated-attributes
         {;; Triggers "The specified DB instance is already in the target DB subnet group"
