@@ -1,8 +1,8 @@
    #+begin_src dot :exports results :results output graphics :file img/starting.png
      digraph environments {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "mitosis-demo" [style=filled,fillcolor=lightblue]
        "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
        "mitosis-prod" -> "mitosis-prod-replica"
@@ -15,12 +15,12 @@
 
    #+begin_src dot :file img/copying-1.png
    digraph copying {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "mitosis-demo" [style=filled,fillcolor=lightblue]
        "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
-       "temp-mitosis-demo" [style=filled,fillcolor=yellow]
+       "temp-mitosis-demo" [style=filled,fillcolor=wheat]
        "mitosis-prod" -> "mitosis-prod-replica"
        "mitosis-prod" -> "temp-mitosis-demo"
        "mitosis-demo" -> "mitosis-demo-replica"
@@ -32,9 +32,9 @@
 
    #+begin_src dot :file img/promote-1.png
    digraph copying {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "mitosis-demo" [style=filled,fillcolor=lightblue]
        "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
        "temp-mitosis-demo" [style=filled,fillcolor=lightgreen]
@@ -49,9 +49,9 @@
 
    #+begin_src dot :file img/copying-2.png
    digraph copying {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "mitosis-demo" [style=filled,fillcolor=lightblue]
        "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
        "temp-mitosis-demo" [style=filled,fillcolor=lightgreen]
@@ -67,9 +67,9 @@
 
    #+begin_src dot :file img/rename-1.png
    digraph copying {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "old-mitosis-demo" [style=filled,fillcolor=lightblue]
        "old-mitosis-demo-replica" [style=filled,fillcolor=lightblue]
        "temp-mitosis-demo" [style=filled,fillcolor=lightgreen]
@@ -85,9 +85,9 @@
 
    #+begin_src dot :file img/rename-2.png
    digraph copying {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "old-mitosis-demo" [style=filled,fillcolor=lightblue]
        "old-mitosis-demo-replica" [style=filled,fillcolor=lightblue]
        "mitosis-demo" [style=filled,fillcolor=lightgreen]
@@ -103,9 +103,9 @@
 
    #+begin_src dot :exports results :results output graphics :file img/final.png
      digraph environments {
-       rankdir=LR; node [shape=box]
-       "mitosis-prod" [style=filled,fillcolor=yellow]
-       "mitosis-prod-replica" [style=filled,fillcolor=yellow]
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
        "mitosis-demo" [style=filled,fillcolor=lightgreen]
        "mitosis-demo-replica" [style=filled,fillcolor=lightgreen]
        "mitosis-prod" -> "mitosis-prod-replica"
