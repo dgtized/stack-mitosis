@@ -83,10 +83,10 @@
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
             (op/enable-backups "temp-staging"
-                               {:PreferredMaintenanceWindow "tue:05:05-tue:05:35"})
+                               {:PreferredMaintenanceWindow "tue:02:00-tue:03:00"})
             (op/create-replica "temp-staging" "temp-staging-replica")
             (op/modify "temp-staging-replica"
-                       {:PreferredMaintenanceWindow "tue:04:05-tue:04:35"})
+                       {:PreferredMaintenanceWindow "tue:03:00-tue:04:00"})
             (op/rename "staging-replica" "old-staging-replica")
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
@@ -94,11 +94,12 @@
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
            (plan/replace-tree
-            [{:DBInstanceIdentifier "production"}
+            [{:DBInstanceIdentifier "production"
+              :PreferredMaintenanceWindow "tue:01:00-tue:02:00"}
              {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
-              :PreferredMaintenanceWindow "tue:05:05-tue:05:35"}
+              :PreferredMaintenanceWindow "tue:02:00-tue:03:00"}
              {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
-              :PreferredMaintenanceWindow "tue:04:05-tue:04:35"}]
+              :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
             "production" "staging")))
 
     (is (= [(op/create-replica "production" "temp-staging" {:Tags tags})
