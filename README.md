@@ -8,7 +8,9 @@ data parity with production in a throw-away environment.
 
 ## Process
 
-Given an environment where both `mitosis-prod` and `mitosis-demo` have a database and a replica:
+Suppose for testing or sales purposes it is necessary to maintain an independent application stack with it's own database, which needs to periodically refresh data from the production database. To simplify the illustration, this will focus on the changes to the [AWS RDS](https://aws.amazon.com/rds/) database replication graphs, and omit the application and other services it may depend on. 
+
+Consider two independent application stacks, production and demo, with primary databases `mitosis-prod` and `mitosis-demo` respectively. Each stack has a replication graph where a primary database is followed by one replica, ie `mitosis-prod` replicates to `mitosis-prod-replica` and `mitosis-demo` replicates to `mitosis-demo-replica`.
 
 ![img](doc/img/starting.png)
 
