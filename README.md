@@ -12,15 +12,15 @@ Given an environment where both `mitosis-prod` and `mitosis-demo` have a databas
 
 ![img](doc/img/starting.png)
 
-Stack mitosis will clone `mitosis-prod` into a new replica `temp-mitosis-demo`.
+Stack mitosis will clone `mitosis-prod` into a new replica `temp-mitosis-demo`. The newly created replica will have the same data as `mitosis-prod`, but will copy instance attributes like tags, VPC security groups, and db parameter groups from the original `mitosis-demo`.
 
 ![img](doc/img/copying-1.png)
 
-It then promotes `temp-mitosis-demo` to disconnect from the replication graph of `mitosis-prod`.
+It then promotes `temp-mitosis-demo` to disconnect from the replication graph of `mitosis-prod`, and enables backups so it can act as a replication source.
 
 ![img](doc/img/promote-1.png)
 
-Once `temp-mitosis-demo` is an independent replication graph, create a new replica of it called `temp-mitosis-demo-replica`. 
+Once `temp-mitosis-demo` is an independent replication graph, create a new replica of it called `temp-mitosis-demo-replica`, which will have identical data to `temp-mitosis-demo`, but instance attributes copied from `mitosis-demo-replica`.
 
 ![img](doc/img/copying-2.png)
 
@@ -28,13 +28,11 @@ It will then rename the existing `mitosis-demo` graph to prefix with `old-`.
 
 ![img](doc/img/rename-1.png)
 
-Once that is complete, it's safe to rename the `temp-`
-prefixed clones back to `mitosis-demo` and `mitosis-staging-demo`.
+Once that is complete, it's safe to rename the `temp-` prefixed clones back to `mitosis-demo` and `mitosis-staging-demo`.
 
 ![img](doc/img/rename-2.png)
 
-stack-mitosis will restart the demo application using a provided script, and
-then delete the `old-` prefixed replication graph.
+ However, as this is a DNS swap, the application is likely still connected to the original `old-mitosis-demo`. By specifying a restart script, stack-mitosis can force the demo application to restart, and connect to the newly created `mitosis-demo` with fresh data from production. Once it has restarted the application successfully, it deletes the `old-` prefixed database instances from the original demo replication graph.
 
 ![img](doc/img/final.png)
 
