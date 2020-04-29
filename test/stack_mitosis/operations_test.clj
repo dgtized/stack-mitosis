@@ -1,11 +1,29 @@
 (ns stack-mitosis.operations-test
   (:require [stack-mitosis.operations :as op]
+            [clojure.tools.logging.test :as test-log]
             [clojure.test :refer :all]))
 
 (deftest blocking-operation
   (is (op/blocking-operation? (op/create-replica "bar" "foo")))
   (is (op/blocking-operation? (op/rename "rename-before" "rename-after")))
   (is (not (op/blocking-operation? (op/delete "foo")))))
+
+(deftest transition-to
+  (test-log/with-log
+    (is (= :in-progress (op/transition-to {})))
+    (is (test-log/logged? 'stack-mitosis.operations :error
+                          "Unknown or missing db instance status from {}")))
+  (test-log/with-log
+    (is (= :in-progress (op/transition-to {:DBInstanceStatus nil})))
+    (is (test-log/logged? 'stack-mitosis.operations :error
+                          "Unknown or missing db instance status from {:DBInstanceStatus nil}")))
+  (test-log/with-log
+    (is (= :in-progress (op/transition-to {:DBInstanceStatus ""})))
+    (is (test-log/logged? 'stack-mitosis.operations :error
+                          "Unknown or missing db instance status from {:DBInstanceStatus }")))
+  (is (= :done (op/transition-to {:DBInstanceStatus "available"})))
+  (is (= :failed (op/transition-to {:DBInstanceStatus "failed"})))
+  (is (= :in-progress (op/transition-to {:DBInstanceStatus "modifying"}))))
 
 (deftest completed?
   (let [not-found {:ErrorResponse
