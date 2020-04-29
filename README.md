@@ -36,6 +36,9 @@ Once that is complete, it's safe to rename the `temp-` prefixed clones back to `
 
 ![img](doc/img/final.png)
 
+Note that this replication graph is a simple case, the tool supports replacing
+arbitrarily complex replication graphs.
+
 # Install
 
 After installing a JDK, follow the [clojure install
