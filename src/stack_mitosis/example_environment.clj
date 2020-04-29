@@ -41,7 +41,11 @@
               {:DBPortNumber 5431
                :PreferredMaintenanceWindow "mon:07:30-mon:08:00"
                :EnableIAMDatabaseAuthentication false
-               :EnablePerformanceInsights true})
+               ;; https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PerfInsights.html
+               ;; disabled for mysql on db.t3.micro and other t2/t3 instance classes
+               ;; Performance Insights not supported for this configuration, please disable this feature (mysql?)
+               ;; :EnablePerformanceInsights true
+               })
    ])
 
 (defn destroy []
