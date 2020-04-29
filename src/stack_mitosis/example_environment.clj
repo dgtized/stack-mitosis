@@ -29,6 +29,19 @@
    (op/add-tags "mitosis-prod-replica" [(op/kv "Service" "Mitosis") (op/kv "Env" "prod-mitosis")])
    (op/add-tags "mitosis-demo" [(op/kv "Service" "Mitosis") (op/kv "Env" "demo-mitosis")])
    (op/add-tags "mitosis-demo-replica" [(op/kv "Service" "Mitosis") (op/kv "Env" "demo-mitosis")])
+
+   ;; Changes *only* for the target environment to clone to verify they propagate
+   (op/modify "mitosis-demo"
+              {:DBPortNumber 5430
+               :PreferredMaintenanceWindow "tue:07:02-tue:08:00"
+               :PreferredBackupWindow "05:30-06:20"
+               :EnableIAMDatabaseAuthentication true
+               })
+   (op/modify "mitosis-demo-replica"
+              {:DBPortNumber 5431
+               :PreferredMaintenanceWindow "mon:07:30-mon:08:00"
+               :EnableIAMDatabaseAuthentication false
+               :EnablePerformanceInsights true})
    ])
 
 (defn destroy []
