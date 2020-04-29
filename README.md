@@ -38,7 +38,7 @@ Once that is complete, it's safe to rename the `temp-` prefixed clones back to `
 
 ![img](doc/img/final.png)
 
-Note that this replication graph is a simple case, it supports replacing arbitrarily complex replication graphs on RDS and has been verified against mysql and postgres database engines.
+Note that this replication graph is a simple case, but it supports replacing arbitrarily complex replication graphs on RDS and has been verified with mysql and postgres database engines. The postgres engine on RDS only allows multiple replicas of a single primary, but the Mysql engine on RDS allows cascading replicas of replicas. See the AWS documentation for [working with RDS read replicas](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html) for more information on these limitations.
 
 # Install
 
