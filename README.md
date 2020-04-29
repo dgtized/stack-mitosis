@@ -2,26 +2,41 @@
 
 [![CircleCI](https://circleci.com/gh/dgtized/stack-mitosis.svg?style=svg)](https://circleci.com/gh/dgtized/stack-mitosis)
 
-Clone and redeploy an AWS RDS instance to propagate production dataset to
-downstream environments like staging. This allows staging to maintain data
-parity with production in a throw-away environment.
+Clone and redeploy an AWS RDS instance to propagate a production dataset to
+downstream environments like staging or demo. This allows staging to maintain
+data parity with production in a throw-away environment.
 
-## Example
+## Process
 
-Given an environment where both staging and production have a database and a replica:
+Given an environment where both `mitosis-prod` and `mitosis-demo` have a database and a replica:
 
-```
-Production Application: mitosis-production -> mitosis-production-replica
-Staging Application: mitosis-staging -> mitosis-staging-replica
-```
+![img](doc/img/starting.png)
 
-Stack mitosis will clone `mitosis-production` into a new tree
-`temp-mitosis-staging` -> `temp-mitosis-staging-replica`. It will then rename
-the existing staging db to prefix with `old-` and then rename the `temp-`
-prefixed clones back to `mitosis-staging` and `mitosis-staging-replica`.
+Stack mitosis will clone `mitosis-prod` into a new replica `temp-mitosis-demo`.
 
-stack-mitosis will restart the staging application using a provided script, and
-then delete the `old-` prefixed tree.
+![img](doc/img/copying-1.png)
+
+It then promotes `temp-mitosis-demo` to disconnect from the replication graph of `mitosis-prod`.
+
+![img](doc/img/promote-1.png)
+
+Once `temp-mitosis-demo` is an independent replication graph, create a new replica of it called `temp-mitosis-demo-replica`. 
+
+![img](doc/img/copying-2.png)
+
+It will then rename the existing `mitosis-demo` graph to prefix with `old-`.
+
+![img](doc/img/rename-1.png)
+
+Once that is complete, it's safe to rename the `temp-`
+prefixed clones back to `mitosis-demo` and `mitosis-staging-demo`.
+
+![img](doc/img/rename-2.png)
+
+stack-mitosis will restart the demo application using a provided script, and
+then delete the `old-` prefixed replication graph.
+
+![img](doc/img/final.png)
 
 # Install
 
