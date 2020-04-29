@@ -75,6 +75,39 @@ Hopefully in the future this can be parsed directly from the `AWS_CONFIG` file.
         --credentials resources/role.edn
         [--plan]
 
+## Flight Plan
+
+The `--plan` flag will give a flight plan showing the expected list of API calls it's planning on executing against the Amazon API. 
+
+```
+$ clj -m stack-mitosis.cli --source mitosis-prod --target mitosis-demo --plan
+Flight plan:
+:CreateDBInstanceReadReplica   temp-mitosis-demo
+        {:Port 5430, :DBInstanceClass "db.t3.micro", :Tags [{:Key "Service", :Value "Mitosis"}], :OptionGroupName "default:mysql-5-7", :SourceDBInstanceIdentifier "mitosis-prod", :StorageType "gp2", :MultiAZ false}
+:PromoteReadReplica            temp-mitosis-demo
+        {}
+:ModifyDBInstance              temp-mitosis-demo
+        {:ApplyImmediately true, :PreferredMaintenanceWindow "tue:07:02-tue:08:00", :PreferredBackupWindow "05:30-06:20", :DBParameterGroupName "default.mysql5.7", :BackupRetentionPeriod 1}
+:CreateDBInstanceReadReplica   temp-mitosis-demo-replica
+        {:Port 5431, :DBInstanceClass "db.t3.micro", :Tags [{:Key "Service", :Value "Mitosis"} {:Key "IsReplica", :Value "true"}], :OptionGroupName "default:mysql-5-7", :SourceDBInstanceIdentifier "temp-mitosis-demo", :StorageType "gp2", :MultiAZ false}
+:ModifyDBInstance              temp-mitosis-demo-replica
+        {:ApplyImmediately true, :PreferredMaintenanceWindow "mon:07:30-mon:08:00", :PreferredBackupWindow "06:40-07:10", :DBParameterGroupName "default.mysql5.7"}
+:ModifyDBInstance              mitosis-demo-replica
+        {:ApplyImmediately true, :NewDBInstanceIdentifier "old-mitosis-demo-replica"}
+:ModifyDBInstance              mitosis-demo
+        {:ApplyImmediately true, :NewDBInstanceIdentifier "old-mitosis-demo"}
+:ModifyDBInstance              temp-mitosis-demo-replica
+        {:ApplyImmediately true, :NewDBInstanceIdentifier "mitosis-demo-replica"}
+:ModifyDBInstance              temp-mitosis-demo
+        {:ApplyImmediately true, :NewDBInstanceIdentifier "mitosis-demo"}
+:DeleteDBInstance              old-mitosis-demo-replica
+        {:SkipFinalSnapshot true}
+:DeleteDBInstance              old-mitosis-demo
+        {:SkipFinalSnapshot true}
+```
+
+Note that for many cases, even if the clone process is interrupted, the flight plan will show steps it will try to execute again, and steps it will skip because it has detected that the instance has already been created or modified to the right attribute values. In other words, it tries to pickup where it left-off if there is a failure.
+
 # Testing
 
     bin/kaocha # basic unit tests
