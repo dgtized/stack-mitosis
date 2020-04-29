@@ -80,14 +80,16 @@
       "moving-to-vpc" "rebooting" "renaming" "resetting-master-credentials"
       "starting" "stopping" "storage-optimization" "upgrading"}
     :in-progress
+
     #{"failed" "inaccessible-encryption-credentials" "incompatible-credentials"
       "incompatible-network" "incompatible-option-group"
       "incompatible-parameters" "incompatible-restore" "restore-error"
       "storage-full"}
     :failed
+
     #{"stopped" "available"}
     :done
-    ;; unknown or missing
+
     (do
       (log/error "Unknown or missing db instance status from" state)
       :in-progress)
