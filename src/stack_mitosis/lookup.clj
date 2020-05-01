@@ -90,7 +90,7 @@
         (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
                                 translated-attributes))))))
 
-(defn created-replica-attributes
+(defn post-create-replica-attributes
   "List of additional attributes to apply after creation.
 
   Some parameters are not available or applicable at time of creation, so they

@@ -54,4 +54,4 @@
             :DBParameterGroupName "default.postgres9.6"
             ;; :DBSubnetGroupName "subnet-group"
             }
-           (lookup/created-replica-attributes instance)))))
+           (lookup/post-create-replica-attributes instance)))))
