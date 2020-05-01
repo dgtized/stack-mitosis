@@ -1,0 +1,137 @@
+   #+begin_src dot :exports results :results output graphics :file img/starting.png
+     digraph environments {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+       "mitosis-demo" [style=filled,fillcolor=lightblue]
+       "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "mitosis-demo" -> "mitosis-demo-replica"
+     }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/starting.png]]
+
+   #+begin_src dot :file img/copying-1.png
+   digraph copying {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-demo" [style=filled,fillcolor=lightblue]
+       "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
+       subgraph cluster {
+         style=filled
+         color=lightgrey
+         "mitosis-prod" [style=filled,fillcolor=wheat]
+         "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+         "temp-mitosis-demo" [style=filled,fillcolor=wheat]
+         label="new replica from production"
+       }
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "mitosis-prod" -> "temp-mitosis-demo"
+       "mitosis-demo" -> "mitosis-demo-replica"
+   }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/copying-1.png]]
+
+   #+begin_src dot :file img/promote-1.png
+   digraph copying {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+       "mitosis-demo" [style=filled,fillcolor=lightblue]
+       "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
+       "temp-mitosis-demo" [style=filled,fillcolor=lightgreen]
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "temp-mitosis-demo"
+       "mitosis-demo" -> "mitosis-demo-replica"
+   }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/promote-1.png]]
+
+   #+begin_src dot :file img/copying-2.png
+   digraph copying {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+       "mitosis-demo" [style=filled,fillcolor=lightblue]
+       "mitosis-demo-replica" [style=filled,fillcolor=lightblue]
+       subgraph cluster {
+         style=filled
+         color=lightgrey
+         label="create replica of temp demo"
+         "temp-mitosis-demo" [style=filled,fillcolor=lightgreen]
+         "temp-mitosis-demo-replica" [style=filled,fillcolor=lightgreen]
+       }
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "temp-mitosis-demo" -> "temp-mitosis-demo-replica"
+       "mitosis-demo" -> "mitosis-demo-replica"
+   }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/copying-2.png]]
+
+   #+begin_src dot :file img/rename-1.png
+   digraph copying {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+       subgraph cluster {
+         style=filled
+         color=lightgrey
+         label="renamed to old demo"
+         "old-mitosis-demo" [style=filled,fillcolor=lightblue]
+         "old-mitosis-demo-replica" [style=filled,fillcolor=lightblue]
+       }
+       "temp-mitosis-demo" [style=filled,fillcolor=lightgreen]
+       "temp-mitosis-demo-replica" [style=filled,fillcolor=lightgreen]
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "temp-mitosis-demo" -> "temp-mitosis-demo-replica"
+       "old-mitosis-demo" -> "old-mitosis-demo-replica"
+   }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/rename-1.png]]
+
+   #+begin_src dot :file img/rename-2.png
+   digraph copying {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+       "old-mitosis-demo" [style=filled,fillcolor=lightblue]
+       "old-mitosis-demo-replica" [style=filled,fillcolor=lightblue]
+       subgraph cluster {
+         style=filled
+         color=lightgrey
+         label="renamed to new demo"
+         "mitosis-demo" [style=filled,fillcolor=lightgreen]
+         "mitosis-demo-replica" [style=filled,fillcolor=lightgreen]
+       }
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "mitosis-demo" -> "mitosis-demo-replica"
+       "old-mitosis-demo" -> "old-mitosis-demo-replica"
+   }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/rename-2.png]]
+
+   #+begin_src dot :exports results :results output graphics :file img/final.png
+     digraph environments {
+       rankdir=LR; node [shape=box,fontsize=10]
+       "mitosis-prod" [style=filled,fillcolor=wheat]
+       "mitosis-prod-replica" [style=filled,fillcolor=wheat]
+       "mitosis-demo" [style=filled,fillcolor=lightgreen]
+       "mitosis-demo-replica" [style=filled,fillcolor=lightgreen]
+       "mitosis-prod" -> "mitosis-prod-replica"
+       "mitosis-demo" -> "mitosis-demo-replica"
+     }
+   #+end_src
+
+   #+RESULTS:
+   [[file:img/final.png]]

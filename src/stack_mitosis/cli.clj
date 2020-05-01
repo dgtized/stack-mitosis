@@ -32,21 +32,27 @@
 
 (defn flight-plan
   [plan]
-  (->> (map r/explain plan)
+  (->> plan
+       (map (fn [[step-plan reason]]
+              (case step-plan
+                :ok (r/explain reason)
+                :skip (format "Skipping: %s" reason))))
        (concat ["Flight plan:"])
        (str/join "\n")))
 
-(defn process [options]
+(defn process
+  [{:keys [source target restart] :as options}]
   (when-let [creds (:credentials options)]
     (let [role (sudo/load-role creds)]
       (log/infof "Assuming role %s" (:role-arn role))
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
-        plan (plan/replace-tree (interpreter/databases rds)
-                                (:source options) (:target options)
-                                :restart (:restart options))]
+        instances (interpreter/databases rds)
+        tags (interpreter/list-tags rds instances target)
+        plan (plan/replace-tree instances source target
+                                :restart restart :tags tags)]
     (cond (:plan options)
-          (do (println (flight-plan plan))
+          (do (println (flight-plan (interpreter/check-plan instances plan)))
               true)
           :else
           (let [last-action (interpreter/evaluate-plan rds plan)]
@@ -61,8 +67,8 @@
     ))
 
 (comment
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
+  (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"
                         "--plan" "--restart" "'./service-restart.sh'"]))
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"
+  (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"
                         "--plan" "--credentials" "resources/role.edn"]))
-  (process (parse-args ["--source" "mitosis-root" "--target" "mitosis-alpha"])))
+  (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"])))

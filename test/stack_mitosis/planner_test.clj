@@ -15,20 +15,27 @@
     (is (= [:a :b :c :d] (plan/list-tree [a b c d] :a)))))
 
 (deftest copy-tree
-  (let [instances [{:DBInstanceIdentifier "source"}
-                   {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
+  (let [instances [{:DBInstanceIdentifier "source" :Iops 1000}
+                   {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"] :Iops 500}
                    {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
-                   {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]]
-    (is (= [(op/create-replica "source" "temp-target")
+                   {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]
+        tags-target [(op/kv "k" "target")]
+        tags-b [(op/kv "k" "b")]]
+    (is (= [(op/create-replica "source" "temp-target" {:Iops 500 :Tags tags-target})
             (op/promote "temp-target")
             (op/enable-backups "temp-target")
             (op/create-replica "temp-target" "temp-a")
-            (op/enable-backups "temp-a")
-            (op/create-replica "temp-target" "temp-b")
-            (op/create-replica "temp-b" "temp-c")]
-           (plan/copy-tree instances "source" "target" (partial plan/transform (partial plan/aliased "temp")))))))
+            (op/modify "temp-a" {:BackupRetentionPeriod 1})
+            (op/create-replica "temp-target" "temp-b" {:Tags tags-b})
+            (op/modify "temp-b" {})
+            (op/create-replica "temp-b" "temp-c")
+            (op/modify "temp-c" {})]
+           (plan/copy-tree instances "source" "target"
+                           (partial plan/aliased "temp")
+                           :tags {"target" tags-target
+                                  "b" tags-b})))))
 
 (deftest rename-tree
   (let [instances [{:DBInstanceIdentifier "root" :ReadReplicaDBInstanceIdentifiers ["a" "b"]}
@@ -55,13 +62,51 @@
            (plan/delete-tree instances "target")))))
 
 (deftest replace-tree
-  (let [instances [{:DBInstanceIdentifier "production"}
-                   {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
-                   {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]]
+  (let [instances
+        [{:DBInstanceIdentifier "production"}
+         {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
+         {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]
+        tags [(op/kv "Env" "Staging")]]
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
-            (op/enable-backups "temp-staging")
+            (op/enable-backups "temp-staging" {})
             (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/modify "temp-staging-replica" {})
+            (op/rename "staging-replica" "old-staging-replica")
+            (op/rename "staging" "old-staging")
+            (op/rename "temp-staging-replica" "staging-replica")
+            (op/rename "temp-staging" "staging")
+            (op/delete "old-staging-replica")
+            (op/delete "old-staging")]
+           (plan/replace-tree instances "production" "staging")))
+
+    (is (= [(op/create-replica "production" "temp-staging")
+            (op/promote "temp-staging")
+            (op/enable-backups "temp-staging"
+                               {:PreferredMaintenanceWindow "tue:02:00-tue:03:00"})
+            (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/modify "temp-staging-replica"
+                       {:PreferredMaintenanceWindow "tue:03:00-tue:04:00"})
+            (op/rename "staging-replica" "old-staging-replica")
+            (op/rename "staging" "old-staging")
+            (op/rename "temp-staging-replica" "staging-replica")
+            (op/rename "temp-staging" "staging")
+            (op/delete "old-staging-replica")
+            (op/delete "old-staging")]
+           (plan/replace-tree
+            [{:DBInstanceIdentifier "production"
+              :PreferredMaintenanceWindow "tue:01:00-tue:02:00"}
+             {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
+              :PreferredMaintenanceWindow "tue:02:00-tue:03:00"}
+             {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
+              :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
+            "production" "staging")))
+
+    (is (= [(op/create-replica "production" "temp-staging" {:Tags tags})
+            (op/promote "temp-staging")
+            (op/enable-backups "temp-staging" {})
+            (op/create-replica "temp-staging" "temp-staging-replica" {:Tags tags})
+            (op/modify "temp-staging-replica" {})
             (op/rename "staging-replica" "old-staging-replica")
             (op/rename "staging" "old-staging")
             (op/rename "temp-staging-replica" "staging-replica")
@@ -69,7 +114,10 @@
             (op/shell-command "./restart.sh")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" "staging" :restart "./restart.sh")))))
+           (plan/replace-tree instances "production" "staging"
+                              :restart "./restart.sh"
+                              :tags {"staging" tags
+                                     "staging-replica" tags})))))
 
 (deftest attempt
   (let [instances [{:DBInstanceIdentifier "a"}
@@ -107,4 +155,15 @@
            (plan/attempt [{:DBInstanceIdentifier "x"}]
                          (op/rename "x" "x"))))
     ;; should rename of missing instance or duplicate instance error?
+    )
+
+  (testing "add-tags"
+    (let [tags [(op/kv :k :v)]]
+      (is (= [:skip (op/add-tags "x" tags)]
+             (plan/attempt [] (op/add-tags "x" tags)))
+          "skips if instance is missing")
+      (is (= [:ok (op/add-tags "y" tags)]
+             (plan/attempt [{:DBInstanceIdentifier "x" :DBInstanceArn "y"}]
+                           (op/add-tags "x" tags)))
+          "translates from instance id to arn if available"))
     ))

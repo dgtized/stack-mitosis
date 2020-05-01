@@ -1,19 +1,17 @@
 {:deps
  {org.clojure/clojure         {:mvn/version "1.10.1"}
-  org.clojure/core.async      {:mvn/version "0.5.527"}
-  com.cognitect.aws/api       {:mvn/version "0.8.391"}
-  com.cognitect.aws/endpoints {:mvn/version "1.1.11.670"}
+  org.clojure/core.async      {:mvn/version "1.1.587"}
+  com.cognitect.aws/api       {:mvn/version "0.8.456"}
+  com.cognitect.aws/endpoints {:mvn/version "1.1.11.753"}
 
-  com.cognitect.aws/rds       {:mvn/version "770.2.568.0"}
+  com.cognitect.aws/rds       {:mvn/version "794.2.642.0"}
 
   ;; for STS refresh
-  com.cognitect.aws/iam       {:mvn/version "770.2.568.0"}
-  com.cognitect.aws/sts       {:mvn/version "770.2.568.0"}
-
-  org.clojure/algo.monads     {:mvn/version "0.1.6"}
+  com.cognitect.aws/iam       {:mvn/version "788.2.609.0"}
+  com.cognitect.aws/sts       {:mvn/version "773.2.578.0"}
 
   ;; logging
-  org.clojure/tools.logging   {:mvn/version "0.5.0"}
+  org.clojure/tools.logging   {:mvn/version "1.1.0"}
   log4j/log4j {:mvn/version"1.2.17"
                :exclusions [javax.mail/mail
                             javax.jms/jms
@@ -21,7 +19,7 @@
                             com.sun.jmx/jmxri]}
 
   ;; command line
-  org.clojure/tools.cli       {:mvn/version "0.4.2"}
+  org.clojure/tools.cli       {:mvn/version "1.0.194"}
   }
  :paths ["src" "resources"]
  :aliases
@@ -29,15 +27,11 @@
   :outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
              :main-opts ["-m" "depot.outdated.main"]}
 
-  ;; clj -Atest
-  :test {:extra-paths ["test"]
-         :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                 :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
-         :main-opts ["-m" "cognitect.test-runner" "--exclude" ":aws"]}
+  ;; clj -A:kaocha -m kaocha.runner --config-file test/tests.edn
   :kaocha {:extra-paths ["test"]
-           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-554"}
+           :extra-deps {lambdaisland/kaocha {:mvn/version "1.0-612"}
                         lambdaisland/kaocha-junit-xml {:mvn/version "0.0-70"}
-                        lambdaisland/kaocha-cloverage {:mvn/version "0.0-41"}}}
+                        lambdaisland/kaocha-cloverage {:mvn/version "1.0-45"}}}
 
   ;; clj -Aclj-kondo --lint src
   :clj-kondo

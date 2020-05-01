@@ -11,6 +11,13 @@
 (defn aliased [prefix name]
   (str prefix "-" name))
 
+(defn transform-instance
+  [alias-fn instance]
+  (-> instance
+      (update :DBInstanceIdentifier alias-fn)
+      ;; what about children identifiers?
+      (update-if [:ReadReplicaSourceDBInstanceIdentifier] alias-fn)))
+
 (defn list-tree
   [instances root]
   (bfs-tree-seq (partial lookup/replicas instances) root))
@@ -24,26 +31,39 @@
 ;; postgres does not allow replica of replica, so need to promote before
 ;; replicating children
 (defn copy-tree
-  [instances source target transform]
-  (let [[root & tree] (map (comp transform (partial lookup/by-id instances))
+  [instances source target alias-fn & {:keys [tags]}]
+  (let [alias-tags
+        (->> tags
+             (map (fn [[db-id instance-tags]] [(alias-fn db-id) instance-tags]))
+             (into {}))
+        [root & tree] (map (comp (partial transform-instance alias-fn)
+                                 (partial lookup/by-id instances))
                            (list-tree instances target))
-        root-id (:DBInstanceIdentifier root)]
-    (into [(op/create-replica source root-id)
+        root-id (:DBInstanceIdentifier root)
+        root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))]
+    (into [(op/create-replica source root-id root-attrs)
            (op/promote root-id)
-           (op/enable-backups root-id)] ;; postgres only allows backups after promotion
+           ;; postgres only allows backups after promotion
+           (op/enable-backups root-id (lookup/post-create-replica-attributes root))]
           (mapcat
            (fn [instance]
-             (into [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
-                                       (:DBInstanceIdentifier instance))]
-                   ;; enable-backups for any replicas with children
-                   (when (seq (:ReadReplicaDBInstanceIdentifiers instance))
-                     [(op/enable-backups (:DBInstanceIdentifier instance))])))
+             [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
+                                 (:DBInstanceIdentifier instance)
+                                 (lookup/clone-replica-attributes instance
+                                                                  (get alias-tags (:DBInstanceIdentifier instance))))
+              (op/modify (:DBInstanceIdentifier instance)
+                         (merge
+                          (lookup/post-create-replica-attributes instance)
+                          ;; enable-backups for any replicas with children
+                          (if (seq (:ReadReplicaDBInstanceIdentifiers instance))
+                            {:BackupRetentionPeriod 1}
+                            {})))])
            tree))))
 
 (defn rename-tree
-  [instances source transform]
+  [instances source alias-fn]
   (let [tree (topo instances (list-tree instances source))]
-    (map op/rename tree (map transform tree))))
+    (map op/rename tree (map alias-fn tree))))
 
 (defn delete-tree
   [instances root]
@@ -51,20 +71,15 @@
        (topo instances)
        (map op/delete)))
 
-(defn transform
-  [alias-fn instance]
-  (-> instance
-      (update :DBInstanceIdentifier alias-fn)
-      ;; what about children identifiers?
-      (update-if [:ReadReplicaSourceDBInstanceIdentifier] alias-fn)))
-
 (defn replace-tree
-  [instances source target & {:keys [restart]}]
+  [instances source target & {:keys [restart tags] :or {tags {}}}]
   ;; actions in copy, rename & delete change the local instances db, so use
   ;; predict to update that db for calculating next set of operations by
   ;; applying computation thus far to the initial instances
   ;; TODO something something sequence monad
-  (let [copy (copy-tree instances source target (partial transform (partial aliased "temp")))
+  (let [copy (copy-tree instances source target
+                        (partial aliased "temp")
+                        :tags tags)
 
         a (predict/state instances copy)
         rename-old (rename-tree a target (partial aliased "old"))
@@ -72,12 +87,11 @@
         b (predict/state instances (concat copy rename-old))
         rename-temp (rename-tree b (aliased "temp" target) #(str/replace % "temp-" ""))
 
-        shell-command (when restart [(op/shell-command restart)])
+        restart-cmds (when restart [(op/shell-command restart)])
 
-        c (predict/state instances (concat copy rename-old rename-temp shell-command))
+        c (predict/state instances (concat copy rename-old rename-temp restart-cmds))
         delete (delete-tree c (aliased "old" target))]
-    (concat copy rename-old rename-temp shell-command delete)))
-
+    (concat copy rename-old rename-temp restart-cmds delete)))
 
 (defn duplicate-instance [id]
   (format "Instance '%s' already exists" id))
@@ -88,7 +102,9 @@
 (defn no-changes [id]
   (format "Instance '%s' already applied modifications." id))
 
-(defn attempt [instances {:keys [op] :as action}]
+(defn attempt
+  "filter for actions that have already happened and hydrate tag operations with correct ARN"
+  [instances {:keys [op] :as action}]
   (cond
     (and (= op :CreateDBInstance)
          (lookup/by-id instances (r/db-id action)))
@@ -107,4 +123,11 @@
                [diff-a diff-b _] (clojure.data/diff current predicted)]
            (and (empty? diff-a) (empty? diff-b))))
     [:skip (no-changes (r/db-id action))]
+    ;; translate tags from a instance identifier to the new ARN
+    (= op :AddTagsToResource)
+    (let [{:keys [ResourceName Tags]} (:request action)]
+      (if-let [db-arn (:DBInstanceArn (lookup/by-id instances ResourceName))]
+        [:ok (op/add-tags db-arn Tags)]
+        ;; TODO better messaging on skip action, instance is missing
+        [:skip action]))
     :else [:ok action]))

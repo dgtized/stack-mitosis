@@ -1,9 +1,5 @@
-(ns stack-mitosis.operations)
-
-(defn tags
-  [arn]
-  {:op :ListTagsForResource
-   :request {:ResourceName arn}})
+(ns stack-mitosis.operations
+  (:require [clojure.tools.logging :as log]))
 
 (defn delete
   [id]
@@ -24,8 +20,10 @@
   (modify old {:NewDBInstanceIdentifier new}))
 
 (defn enable-backups
-  [id]
-  (modify id {:BackupRetentionPeriod 1}))
+  ([id]
+   (enable-backups id {}))
+  ([id attributes]
+   (modify id (merge attributes {:BackupRetentionPeriod 1}))))
 
 (defn create
   [options]
@@ -33,10 +31,12 @@
    :request options})
 
 (defn create-replica
-  [source replica]
-  {:op :CreateDBInstanceReadReplica
-   :request {:SourceDBInstanceIdentifier source
-             :DBInstanceIdentifier replica}})
+  ([source replica] (create-replica source replica {}))
+  ([source replica attributes]
+   {:op :CreateDBInstanceReadReplica
+    :request (merge attributes
+                    {:SourceDBInstanceIdentifier source
+                     :DBInstanceIdentifier replica})}))
 
 (defn promote
   [id]
@@ -46,6 +46,18 @@
 (defn describe [id]
   {:op :DescribeDBInstances
    :request {:DBInstanceIdentifier id}})
+
+(defn tags [db-arn]
+  {:op :ListTagsForResource
+   :request {:ResourceName db-arn}})
+
+(defn add-tags [db-arn tags]
+  {:op :AddTagsToResource
+   :request {:ResourceName db-arn
+             :Tags tags}})
+
+(defn kv [key value]
+  {:Key key :Value value})
 
 (defn shell-command [cmd]
   {:op :shell-command
@@ -61,23 +73,26 @@
 
   From https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html"
   [state]
-  (condp contains? (get state :DBInstanceStatus)
+  (condp contains? (:DBInstanceStatus state)
     #{"backing-up" "backtracking" "configuring-enhanced-monitoring"
       "configuring-iam-database-auth" "configuring-log-exports"
       "converting-to-vpc" "creating" "deleting" "maintenance" "modifying"
       "moving-to-vpc" "rebooting" "renaming" "resetting-master-credentials"
       "starting" "stopping" "storage-optimization" "upgrading"}
     :in-progress
+
     #{"failed" "inaccessible-encryption-credentials" "incompatible-credentials"
       "incompatible-network" "incompatible-option-group"
       "incompatible-parameters" "incompatible-restore" "restore-error"
       "storage-full"}
     :failed
+
     #{"stopped" "available"}
     :done
-    ;; unknown or missing
-    nil
-    :failed
+
+    (do
+      (log/error "Unknown or missing db instance status from" state)
+      :in-progress)
     ))
 
 (defn completed?
