@@ -31,7 +31,7 @@
 ;; postgres does not allow replica of replica, so need to promote before
 ;; replicating children
 (defn copy-tree
-  [instances source target alias-fn & {:keys [tags] :or {tags {}}}]
+  [instances source target alias-fn & {:keys [tags]}]
   (let [alias-tags
         (->> tags
              (map (fn [[db-id instance-tags]] [(alias-fn db-id) instance-tags]))
