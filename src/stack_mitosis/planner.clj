@@ -32,7 +32,10 @@
 ;; replicating children
 (defn copy-tree
   [instances source target alias-fn & {:keys [tags] :or {tags {}}}]
-  (let [alias-tags (into {} (map (fn [[k v]] [(alias-fn k) v]) tags))
+  (let [alias-tags
+        (->> tags
+             (map (fn [[db-id instance-tags]] [(alias-fn db-id) instance-tags]))
+             (into {}))
         [root & tree] (map (comp (partial transform-instance alias-fn)
                                  (partial lookup/by-id instances))
                            (list-tree instances target))
