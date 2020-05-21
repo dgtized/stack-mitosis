@@ -76,7 +76,7 @@
         ret (wait/poll-until completed-fn {:delay 60000 :max-attempts 60})
         msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
         status (-> (describe rds result-id) :DBInstances first :DBInstanceStatus)
-        msg (format "Completed after : %.2fs with status %s" (/ msecs 1000) status)]
+        msg (format "Completed after %.2fs with status %s" (/ msecs 1000) status)]
     (log/info msg)
     ret))
 
