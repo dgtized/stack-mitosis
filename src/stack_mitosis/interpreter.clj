@@ -39,6 +39,16 @@
   {:post [(seq %)]}
   (:DBInstances (invoke-logged! rds {:op :DescribeDBInstances})))
 
+(defn verify-databases-exist
+  [instances identifiers]
+  (let [missing-ids (remove (partial lookup/exists? instances) identifiers)]
+    (if (seq missing-ids)
+      (do
+        (log/error "Database(s) do not exist in region: "
+                   (str/join ", " missing-ids))
+        false)
+      true)))
+
 (defn list-tags
   "Mapping of db-id to tags list for each instance in a tree."
   [rds instances target]

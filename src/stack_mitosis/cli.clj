@@ -5,8 +5,7 @@
             [stack-mitosis.request :as r]
             [clojure.string :as str]
             [stack-mitosis.sudo :as sudo]
-            [clojure.tools.logging :as log]
-            [stack-mitosis.lookup :as lookup]))
+            [clojure.tools.logging :as log]))
 
 ;; TODO: add max-timeout for actions
 ;; TODO: show attempt info like skipped steps in flight plan?
@@ -41,15 +40,6 @@
        (concat ["Flight plan:"])
        (str/join "\n")))
 
-(defn verify-instance-exists!
-  [instances identifiers]
-  (let [missing-ids (remove (partial lookup/exists? instances) identifiers) ]
-    (when (seq missing-ids)
-      (throw
-       (AssertionError.
-        (str "Database(s) do not exist in region: "
-             (str/join ", " missing-ids)))))))
-
 (defn process
   [{:keys [source target restart] :as options}]
   (when-let [creds (:credentials options)]
@@ -57,17 +47,17 @@
       (log/infof "Assuming role %s" (:role-arn role))
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
-        instances (interpreter/databases rds)
-        _ (verify-instance-exists! instances [source target])
-        tags (interpreter/list-tags rds instances target)
-        plan (plan/replace-tree instances source target
-                                :restart restart :tags tags)]
-    (cond (:plan options)
-          (do (println (flight-plan (interpreter/check-plan instances plan)))
-              true)
-          :else
-          (let [last-action (interpreter/evaluate-plan rds plan)]
-            (not (contains? last-action :ErrorResponse))))))
+        instances (interpreter/databases rds)]
+    (when (interpreter/verify-databases-exist instances [source target])
+      (let [tags (interpreter/list-tags rds instances target)
+            plan (plan/replace-tree instances source target
+                                    :restart restart :tags tags)]
+        (cond (:plan options)
+              (do (println (flight-plan (interpreter/check-plan instances plan)))
+                  true)
+              :else
+              (let [last-action (interpreter/evaluate-plan rds plan)]
+                (not (contains? last-action :ErrorResponse))))))))
 
 (defn -main [& args]
   (let [{:keys [ok exit-msg] :as options} (parse-args args)]
