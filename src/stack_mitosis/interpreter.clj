@@ -18,33 +18,41 @@
   []
   (aws/client {:api :rds :credentials-provider (sudo/provider)}))
 
-(defn databases
-  [rds]
-  {:post [(seq %)]}
-  (:DBInstances (aws/invoke rds {:op :DescribeDBInstances})))
-
-(defn list-tags
-  "Mapping of db-id to tags list for each instance in a tree."
-  [rds instances target]
-  (let [tree (plan/list-tree instances target)]
-    (->> tree
-         (map (fn [resource-name]
-                (let [instance (lookup/by-id instances resource-name)
-                      arn (:DBInstanceArn instance)
-                      db-id (:DBInstanceIdentifier instance)]
-                  [db-id (:TagList (aws/invoke rds (op/tags arn)))])))
-         (into {}))))
-
-(defn describe
-  [rds id]
-  (aws/invoke rds (op/describe id)))
-
 (defn- invoke!
   [rds action]
   (if-let [cmd (and (= :shell-command (:op action))
                     (get-in action [:request :cmd]))]
     (shell/bash cmd)
     (aws/invoke rds action)))
+
+(defn- invoke-logged!
+  [rds action]
+  (let [result (invoke! rds action)]
+    (if-let [error-resp (:ErrorResponse result)]
+      (do
+        (log/error error-resp)
+        result)
+      result)))
+
+(defn databases
+  [rds]
+  {:post [(seq %)]}
+  (:DBInstances (invoke-logged! rds {:op :DescribeDBInstances})))
+
+(defn list-tags
+  "Mapping of db-id to tags list for each instance in a tree."
+  [rds instances target]
+  (->> (plan/list-tree instances target)
+       (map (fn [resource-name]
+              (let [instance (lookup/by-id instances resource-name)
+                    arn (:DBInstanceArn instance)
+                    db-id (:DBInstanceIdentifier instance)]
+                [db-id (:TagList (invoke-logged! rds (op/tags arn)))])))
+       (into {})))
+
+(defn describe
+  [rds id]
+  (invoke-logged! rds (op/describe id)))
 
 (defn- wait-for-action
   [rds action]
