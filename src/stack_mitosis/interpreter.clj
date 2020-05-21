@@ -39,6 +39,7 @@
   {:post [(seq %)]}
   (:DBInstances (invoke-logged! rds {:op :DescribeDBInstances})))
 
+;; TODO: verify that "old-" database copies do not exist before running
 (defn verify-databases-exist
   [instances identifiers]
   (let [missing-ids (remove (partial lookup/exists? instances) identifiers)]
