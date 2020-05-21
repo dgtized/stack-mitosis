@@ -17,7 +17,7 @@
       (if-let [resp (pred-fn)]
         (a/>! completed resp)
         (if (< attempt max-attempts)
-          (do (log/debug "Polling Attempt " attempt)
+          (do (log/debug "Polling Attempt" attempt)
               (recur (inc attempt)))
           (a/>! completed :max-attempts))))
     completed))
