@@ -47,16 +47,17 @@
       (log/infof "Assuming role %s" (:role-arn role))
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
-        instances (interpreter/databases rds)
-        tags (interpreter/list-tags rds instances target)
-        plan (plan/replace-tree instances source target
-                                :restart restart :tags tags)]
-    (cond (:plan options)
-          (do (println (flight-plan (interpreter/check-plan instances plan)))
-              true)
-          :else
-          (let [last-action (interpreter/evaluate-plan rds plan)]
-            (not (contains? last-action :ErrorResponse))))))
+        instances (interpreter/databases rds)]
+    (when (interpreter/verify-databases-exist instances [source target])
+      (let [tags (interpreter/list-tags rds instances target)
+            plan (plan/replace-tree instances source target
+                                    :restart restart :tags tags)]
+        (cond (:plan options)
+              (do (println (flight-plan (interpreter/check-plan instances plan)))
+                  true)
+              :else
+              (let [last-action (interpreter/evaluate-plan rds plan)]
+                (not (contains? last-action :ErrorResponse))))))))
 
 (defn -main [& args]
   (let [{:keys [ok exit-msg] :as options} (parse-args args)]
