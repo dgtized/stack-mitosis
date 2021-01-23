@@ -36,8 +36,9 @@
 
 (defn databases
   [rds]
-  {:post [(seq %)]}
-  (:DBInstances (invoke-logged! rds {:op :DescribeDBInstances})))
+  ;; exclude nil, but fresh account might return empty list
+  {:post [(sequential? %)]}
+  (:DBInstances (invoke-logged! rds (op/describe))))
 
 ;; TODO: verify that "old-" database copies do not exist before running
 (defn verify-databases-exist
