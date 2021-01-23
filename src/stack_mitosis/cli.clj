@@ -8,7 +8,8 @@
             [stack-mitosis.planner :as plan]
             [stack-mitosis.policy :as policy]
             [stack-mitosis.request :as r]
-            [stack-mitosis.sudo :as sudo]))
+            [stack-mitosis.sudo :as sudo])
+  (:gen-class))
 
 ;; TODO: add max-timeout for actions
 ;; TODO: show attempt info like skipped steps in flight plan?

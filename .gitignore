@@ -8,3 +8,5 @@ test-results/
 .terraform/
 *.tfstate
 *.tfstate.backup
+/pom.xml
+/stack-mitosis.jar
