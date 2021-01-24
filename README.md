@@ -2,9 +2,12 @@
 
 [![CircleCI](https://circleci.com/gh/dgtized/stack-mitosis.svg?style=svg)](https://circleci.com/gh/dgtized/stack-mitosis)
 
-Clone and redeploy an AWS RDS instance to propagate a production dataset to
-downstream environments like staging or demo. This allows staging to maintain
-data parity with production in a throw-away environment.
+Clone an AWS RDS database to propagate production data into downstream
+environments like staging or demo. This allows disposable environments to
+maintain data parity with production.
+
+To make an analogy with git, stack-mitosis enables forked environments to
+periodically reset their database contents to match the contents of production.
 
 ## Process
 
