@@ -38,6 +38,15 @@
                     {:SourceDBInstanceIdentifier source
                      :DBInstanceIdentifier replica})}))
 
+(defn restore-snapshot
+  ([snapshot-id source target] (restore-snapshot snapshot-id source target {}))
+  ([snapshot-id source target attributes]
+   {:op :RestoreDBInstanceFromDBSnapshot
+    :request (merge attributes
+                    {:DBSnapshotIdentifier snapshot-id
+                     :DBInstanceIdentifier target})
+    :meta {:SourceDBInstanceIdentifier source}}))
+
 (defn list-snapshots
   ([target]
    {:op :DescribeDBSnapshots

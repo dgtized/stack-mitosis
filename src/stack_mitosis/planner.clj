@@ -40,11 +40,22 @@
                                  (partial lookup/by-id instances))
                            (list-tree instances target))
         root-id (:DBInstanceIdentifier root)
-        root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))]
-    (into [(op/create-replica source root-id root-attrs)
-           (op/promote root-id)
-           ;; postgres only allows backups after promotion
-           (op/enable-backups root-id (lookup/post-create-replica-attributes root))]
+
+        ;; can't rely on replication when target and source have different VPCs
+        target-vpc (->> root :DBSubnetGroup :VpcId)
+        source-instance (lookup/by-id instances source)
+        source-vpc (->> source-instance :DBSubnetGroup :VpcId)
+        same-vpc (= source-vpc target-vpc)
+
+        root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))
+        root-restore-attrs (lookup/restore-snapshot-attributes root (get alias-tags root-id))]
+    (into (if same-vpc
+            [(op/create-replica source root-id root-attrs)
+             (op/promote root-id)
+             ;; postgres only allows backups after promotion
+             (op/enable-backups root-id (lookup/post-create-replica-attributes root))]
+            [(op/restore-snapshot source-snapshot source-instance root-id root-restore-attrs)
+             (op/enable-backups root-id (lookup/post-restore-snapshot-attributes root))])
           (mapcat
            (fn [instance]
              [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
