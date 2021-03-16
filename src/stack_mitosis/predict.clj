@@ -77,6 +77,17 @@
             (update (lookup/position instances parent) detach child)
             (update (lookup/position instances child) promote))))))
 
+(defmethod predict :RestoreDBInstanceFromDBSnapshot
+  [instances op]
+  {:post [(lookup/exists? % (r/db-id op))]}
+  (let [source-id (->> op :meta :SourceDBInstanceIdentifier)
+        source-db (lookup/by-id instances source-id)]
+    (->> op
+         (:request)
+         (#(dissoc %2 %1) :DBSnapshotIdentifier)
+         (merge source-db)
+         (conj instances))))
+
 (defmethod predict :ModifyDBInstance
   [instances op]
   {:pre [(lookup/exists? instances (r/db-id op))]}
