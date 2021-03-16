@@ -82,7 +82,7 @@
 (defn blocking-operation?
   [action]
   (contains? #{:CreateDBInstance :CreateDBInstanceReadReplica
-               :PromoteReadReplica :ModifyDBInstance} (:op action)))
+               :PromoteReadReplica :ModifyDBInstance :RestoreDBInstanceFromDBSnapshot} (:op action)))
 
 (defn transition-to
   "Maps current rds status to in-progress, failed or done
