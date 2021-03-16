@@ -62,6 +62,15 @@
                 [db-id (:TagList (invoke-logged! rds (op/tags arn)))])))
        (into {})))
 
+(defn latest-snapshot
+  "Returns the latest snapshot for an instance"
+  [rds target]
+  (->> (invoke-logged! rds (op/list-snapshots target))
+       (:DBSnapshots)
+       (sort-by :SnapshotCreateTime)
+       (last)
+       (:DBSnapshotIdentifier)))
+
 (defn describe
   [rds id]
   (invoke-logged! rds (op/describe id)))

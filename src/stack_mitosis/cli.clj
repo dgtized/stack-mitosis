@@ -53,7 +53,8 @@
         instances (interpreter/databases rds)]
     (when (interpreter/verify-databases-exist instances [source target])
       (let [tags (interpreter/list-tags rds instances target)
-            plan (plan/replace-tree instances source target
+            source-snapshot (interpreter/latest-snapshot rds source)
+            plan (plan/replace-tree instances source source-snapshot target
                                     :restart restart :tags tags)]
         (cond (:plan options)
               (do (println (flight-plan (interpreter/check-plan instances plan)))

@@ -38,6 +38,11 @@
                     {:SourceDBInstanceIdentifier source
                      :DBInstanceIdentifier replica})}))
 
+(defn list-snapshots
+  ([target]
+   {:op :DescribeDBSnapshots
+    :request {:DBInstanceIdentifier target}}))
+
 (defn promote
   [id]
   {:op :PromoteReadReplica

@@ -31,7 +31,7 @@
 ;; postgres does not allow replica of replica, so need to promote before
 ;; replicating children
 (defn copy-tree
-  [instances source target alias-fn & {:keys [tags]}]
+  [instances source source-snapshot target alias-fn & {:keys [tags]}]
   (let [alias-tags
         (->> tags
              (map (fn [[db-id instance-tags]] [(alias-fn db-id) instance-tags]))
@@ -72,12 +72,12 @@
        (map op/delete)))
 
 (defn replace-tree
-  [instances source target & {:keys [restart tags] :or {tags {}}}]
+  [instances source source-snapshot target & {:keys [restart tags] :or {tags {}}}]
   ;; actions in copy, rename & delete change the local instances db, so use
   ;; predict to update that db for calculating next set of operations by
   ;; applying computation thus far to the initial instances
   ;; TODO something something sequence monad
-  (let [copy (copy-tree instances source target
+  (let [copy (copy-tree instances source source-snapshot target
                         (partial aliased "temp")
                         :tags tags)
 
