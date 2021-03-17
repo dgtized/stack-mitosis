@@ -61,6 +61,7 @@
          :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)
          :EnableCloudwatchLogsExports (:EnabledCloudwatchLogsExports original)
          :Port (:Port (:Endpoint original))
+         :DBSubnetGroupName (:DBSubnetGroupName (:DBSubnetGroup original))
 
          ;; all active security groups ids
          :VpcSecurityGroupIds
