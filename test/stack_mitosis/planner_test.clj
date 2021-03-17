@@ -21,6 +21,7 @@
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]
+        snapshot-id "rds:source-snapshot-2021-03-17"
         tags-target [(op/kv "k" "target")]
         tags-b [(op/kv "k" "b")]]
     (is (= [(op/create-replica "source" "temp-target" {:Iops 500 :Tags tags-target})
@@ -32,7 +33,7 @@
             (op/modify "temp-b" {})
             (op/create-replica "temp-b" "temp-c")
             (op/modify "temp-c" {})]
-           (plan/copy-tree instances "source" "target"
+           (plan/copy-tree instances "source" snapshot-id "target"
                            (partial plan/aliased "temp")
                            :tags {"target" tags-target
                                   "b" tags-b})))))
@@ -66,6 +67,7 @@
         [{:DBInstanceIdentifier "production"}
          {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]}
          {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"}]
+        snapshot-id "rds:production-2015-10-21"
         tags [(op/kv "Env" "Staging")]]
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
@@ -78,7 +80,7 @@
             (op/rename "temp-staging" "staging")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" "staging")))
+           (plan/replace-tree instances "production" snapshot-id "staging")))
 
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
@@ -100,7 +102,7 @@
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00"}
              {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
               :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
-            "production" "staging")))
+            "production" snapshot-id "staging")))
 
     (is (= [(op/create-replica "production" "temp-staging" {:Tags tags})
             (op/promote "temp-staging")
@@ -114,7 +116,7 @@
             (op/shell-command "./restart.sh")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" "staging"
+           (plan/replace-tree instances "production" snapshot-id "staging"
                               :restart "./restart.sh"
                               :tags {"staging" tags
                                      "staging-replica" tags})))))

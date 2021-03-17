@@ -95,4 +95,4 @@
            (sut/allow [:DeleteDBInstance]
                       (mapv fake-arn ["old-staging-replica" "old-staging"]))]}
          (sut/from-plan (example-instances)
-                        (plan/replace-tree (example-instances) "production" "staging")))))
+                        (plan/replace-tree (example-instances) "production" "snapshot-id" "staging")))))
