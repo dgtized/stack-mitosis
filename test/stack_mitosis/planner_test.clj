@@ -174,6 +174,8 @@
            (plan/attempt instances (op/create {:DBInstanceIdentifier "a"}))))
     (is (= [:skip (plan/duplicate-instance "b")]
            (plan/attempt instances (op/create-replica "a" "b"))))
+    (is (= [:skip (plan/duplicate-instance "b")]
+           (plan/attempt instances (op/restore-snapshot "c" "a" "b"))))
 
     (is (= [:skip (plan/promoted-instance "a")]
            (plan/attempt instances (op/promote "a"))))
