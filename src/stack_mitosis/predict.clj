@@ -79,8 +79,8 @@
 
 (defmethod predict :RestoreDBInstanceFromDBSnapshot
   [instances op]
-  {:post [(lookup/exists? % (r/db-id op))]}
-  (let [source-id (->> op :meta :SourceDBInstanceIdentifier)
+  {:pre [(->> op :meta :SourceDBInstance :DBInstanceIdentifier (lookup/exists? instances))]
+   :post [(lookup/exists? % (r/db-id op))]}
   (let [source-id (->> op :meta :SourceDBInstance :DBInstanceIdentifier)
         source-db (lookup/by-id instances source-id)]
     (->> op
