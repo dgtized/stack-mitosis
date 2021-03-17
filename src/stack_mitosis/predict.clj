@@ -81,6 +81,7 @@
   [instances op]
   {:post [(lookup/exists? % (r/db-id op))]}
   (let [source-id (->> op :meta :SourceDBInstanceIdentifier)
+  (let [source-id (->> op :meta :SourceDBInstance :DBInstanceIdentifier)
         source-db (lookup/by-id instances source-id)]
     (->> op
          (:request)

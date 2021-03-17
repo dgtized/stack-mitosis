@@ -45,7 +45,7 @@
     :request (merge attributes
                     {:DBSnapshotIdentifier snapshot-id
                      :DBInstanceIdentifier target})
-    :meta {:SourceDBInstanceIdentifier source}}))
+    :meta {:SourceDBInstance source}}))
 
 (defn list-snapshots
   ([target]
