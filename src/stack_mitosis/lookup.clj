@@ -190,8 +190,9 @@
   (let [attributes-to-clone ;; attributes not supported by restore-snapshot
         [:MonitoringRoleArn
          :MonitoringInterval
-         :PerformanceInsightsKMSKeyId
          ;; :KmsKeyId ;; modify_not_supported
+         :EnhancedMonitoringResourceArn
+         :PerformanceInsightsKMSKeyId
          :PerformanceInsightsRetentionPeriod]
 
         translated-attributes
