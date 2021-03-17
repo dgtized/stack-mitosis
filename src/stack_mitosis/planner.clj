@@ -124,6 +124,9 @@
     (and (= op :CreateDBInstanceReadReplica)
          (lookup/by-id instances (r/db-id action)))
     [:skip (duplicate-instance (r/db-id action))]
+    (and (= op :RestoreDBInstanceFromDBSnapshot)
+         (lookup/by-id instances (r/db-id action)))
+    [:skip (duplicate-instance (r/db-id action))]
     (and (= op :PromoteReadReplica)
          (not (:ReadReplicaSourceDBInstanceIdentifier (lookup/by-id instances (r/db-id action)))))
     [:skip (promoted-instance (r/db-id action))]
