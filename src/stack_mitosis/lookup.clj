@@ -190,10 +190,14 @@
   (let [attributes-to-clone ;; attributes not supported by restore-snapshot
         [:MonitoringRoleArn
          :MonitoringInterval
-         ;; :KmsKeyId ;; modify_not_supported
-         :EnhancedMonitoringResourceArn
          :PerformanceInsightsKMSKeyId
-         :PerformanceInsightsRetentionPeriod]
+         :PerformanceInsightsRetentionPeriod
+         :PreferredMaintenanceWindow
+         :PreferredBackupWindow
+         ;; TODO ?
+         ;; :AllocatedStorage ;; Tricky, only supports increase
+         ;; :MaxAllocatedStorage
+         ]
 
         translated-attributes
         {:EnablePerformanceInsights (:PerformanceInsightsEnabled original) ;; restore_not_supported
@@ -209,12 +213,7 @@
                       (and (= (:ParameterApplyStatus group) "in-sync")
                            (:DBParameterGroupName group)))))}]
     (-> original
-        (select-keys [:PreferredMaintenanceWindow
-                      :PreferredBackupWindow
-                      ;; TODO ?
-                      ;; :AllocatedStorage ;; Tricky, only supports increase
-                      ;; :MaxAllocatedStorage
-                      ])
+        (select-keys attributes-to-clone)
         ;; Attributes requiring custom rules to extract from original and
         ;; translate to key for modify-db request
         (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
