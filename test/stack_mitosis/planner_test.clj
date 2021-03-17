@@ -125,6 +125,29 @@
               :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
             "production" snapshot-id "staging")))
 
+    (is (= [(op/restore-snapshot snapshot-id {:DBInstanceIdentifier "production"
+                                              :PreferredMaintenanceWindow "tue:01:00-tue:02:00"
+                                              :DBSubnetGroup {:VpcId "v1"}} "temp-staging")
+            (op/enable-backups "temp-staging"
+                               {:PreferredMaintenanceWindow "tue:02:00-tue:03:00" :MonitoringInterval 60})
+            (op/create-replica "temp-staging" "temp-staging-replica")
+            (op/modify "temp-staging-replica"
+                       {:PreferredMaintenanceWindow "tue:03:00-tue:04:00"})
+            (op/rename "staging-replica" "old-staging-replica")
+            (op/rename "staging" "old-staging")
+            (op/rename "temp-staging-replica" "staging-replica")
+            (op/rename "temp-staging" "staging")
+            (op/delete "old-staging-replica")
+            (op/delete "old-staging")]
+           (plan/replace-tree
+            [{:DBInstanceIdentifier "production"
+              :PreferredMaintenanceWindow "tue:01:00-tue:02:00" :DBSubnetGroup {:VpcId "v1"}}
+             {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
+              :PreferredMaintenanceWindow "tue:02:00-tue:03:00" :MonitoringInterval 60}
+             {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
+              :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
+            "production" snapshot-id "staging")))
+
     (is (= [(op/create-replica "production" "temp-staging" {:Tags tags})
             (op/promote "temp-staging")
             (op/enable-backups "temp-staging" {})
