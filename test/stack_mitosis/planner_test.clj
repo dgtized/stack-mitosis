@@ -1,7 +1,8 @@
 (ns stack-mitosis.planner-test
   (:require [clojure.test :refer :all]
             [stack-mitosis.planner :as plan]
-            [stack-mitosis.operations :as op]))
+            [stack-mitosis.operations :as op]
+            [stack-mitosis.lookup :as lookup]))
 
 (deftest list-tree
   (let [a {:DBInstanceIdentifier :a :ReadReplicaDBInstanceIdentifiers [:b]}
@@ -21,6 +22,12 @@
                     :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
                    {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]
+        instances-different-vpc [{:DBInstanceIdentifier "source" :Iops 1000, :DBSubnetGroup {:VpcId "v1"}}
+                                 {:DBInstanceIdentifier "target" :ReadReplicaDBInstanceIdentifiers ["a" "b"] :Iops 500}
+                                 {:DBInstanceIdentifier "a" :ReadReplicaDBInstanceIdentifiers ["c"]
+                                  :ReadReplicaSourceDBInstanceIdentifier "target"}
+                                 {:DBInstanceIdentifier "b" :ReadReplicaSourceDBInstanceIdentifier "target"}
+                                 {:DBInstanceIdentifier "c" :ReadReplicaSourceDBInstanceIdentifier "b"}]
         snapshot-id "rds:source-snapshot-2021-03-17"
         tags-target [(op/kv "k" "target")]
         tags-b [(op/kv "k" "b")]]
@@ -34,6 +41,20 @@
             (op/create-replica "temp-b" "temp-c")
             (op/modify "temp-c" {})]
            (plan/copy-tree instances "source" snapshot-id "target"
+                           (partial plan/aliased "temp")
+                           :tags {"target" tags-target
+                                  "b" tags-b})))
+    (is (= [(op/restore-snapshot snapshot-id
+                                 (lookup/by-id instances-different-vpc "source")
+                                 "temp-target" {:Iops 500 :Tags tags-target})
+            (op/enable-backups "temp-target")
+            (op/create-replica "temp-target" "temp-a")
+            (op/modify "temp-a" {:BackupRetentionPeriod 1})
+            (op/create-replica "temp-target" "temp-b" {:Tags tags-b})
+            (op/modify "temp-b" {})
+            (op/create-replica "temp-b" "temp-c")
+            (op/modify "temp-c" {})]
+           (plan/copy-tree instances-different-vpc "source" snapshot-id "target"
                            (partial plan/aliased "temp")
                            :tags {"target" tags-target
                                   "b" tags-b})))))
