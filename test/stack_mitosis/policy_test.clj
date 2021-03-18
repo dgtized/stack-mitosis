@@ -47,6 +47,15 @@
             {:op :AddTagsToResource
              :arn "arn:aws:rds:us-east-1:1234567:db:bar"}]
            (sut/permissions [instance] (op/create-replica "foo" "bar"))))
+    (is (= [{:op :RestoreDBInstanceFromDBSnapshot
+             :arn ["arn:aws:rds:*:*:og:*"
+                   "arn:aws:rds:*:*:pg:*"
+                   "arn:aws:rds:*:*:subgrp:*"
+                   "arn:aws:rds:us-east-1:1234567:snapshot:foo"
+                   "arn:aws:rds:us-east-1:1234567:db:bar"]}
+            {:op :AddTagsToResource
+             :arn "arn:aws:rds:us-east-1:1234567:db:bar"}]
+           (sut/permissions [instance] (op/restore-snapshot "foo" instance "bar"))))
     (is (= [{:op :ModifyDBInstance
              :arn ["arn:aws:rds:*:*:og:*"
                    "arn:aws:rds:*:*:pg:*"

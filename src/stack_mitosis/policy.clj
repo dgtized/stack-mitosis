@@ -36,6 +36,24 @@
                  [source-arn target-arn])}
      {:op :AddTagsToResource :arn target-arn}]))
 
+(defmethod permissions :RestoreDBInstanceFromDBSnapshot
+  [instances action]
+  ;; For create replica, use the ARN from the source database
+  (let [snapshot-id (->> action :request :DBSnapshotIdentifier)
+        source-arn (->> action dbg :meta :SourceDBInstance :DBInstanceArn)
+        snapshot-arn (-> source-arn (str/split #":db:") first (str ":snapshot:" snapshot-id))
+        db-id (dbg (r/db-id action))
+        target-arn (:DBInstanceArn (lookup/by-id (predict/predict instances action) db-id))]
+    [{:op (:op action)
+      ;; TODO: can these permissions be more specific instead of wildcard?
+      ;; a) re-use the base ARN (ie region:account-id) from source
+      ;; b) generate named ARNs for each subtype used in source?
+      :arn (into [(make-arn "*" :type "og")
+                  (make-arn "*" :type "pg")
+                  (make-arn "*" :type "subgrp")]
+                 [snapshot-arn target-arn])}
+     {:op :AddTagsToResource :arn target-arn}]))
+
 (defmethod permissions :ModifyDBInstance
   [instances action]
   (let [db-id (r/db-id action)

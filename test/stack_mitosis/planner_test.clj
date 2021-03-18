@@ -126,6 +126,7 @@
             "production" snapshot-id "staging")))
 
     (is (= [(op/restore-snapshot snapshot-id {:DBInstanceIdentifier "production"
+                                              :DBInstanceArn "arn:db:production"
                                               :PreferredMaintenanceWindow "tue:01:00-tue:02:00"
                                               :DBSubnetGroup {:VpcId "v1"}} "temp-staging")
             (op/enable-backups "temp-staging"
@@ -140,7 +141,7 @@
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
            (plan/replace-tree
-            [{:DBInstanceIdentifier "production"
+            [{:DBInstanceIdentifier "production" :DBInstanceArn "arn:db:production"
               :PreferredMaintenanceWindow "tue:01:00-tue:02:00" :DBSubnetGroup {:VpcId "v1"}}
              {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00" :MonitoringInterval 60}
