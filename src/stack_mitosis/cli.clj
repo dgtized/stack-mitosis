@@ -50,10 +50,12 @@
       (log/infof "Assuming role %s" (:role-arn role))
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
-        instances (interpreter/databases rds)]
-    (when (interpreter/verify-databases-exist instances [source target])
+        instances (interpreter/databases rds)
+        source-snapshot (interpreter/latest-snapshot rds source)]
+    (when (and (interpreter/verify-databases-exist instances [source target])
+               (interpreter/verify-snapshot-exists instances [source target]
+                                                   source-snapshot))
       (let [tags (interpreter/list-tags rds instances target)
-            source-snapshot (interpreter/latest-snapshot rds source)
             plan (plan/replace-tree instances source source-snapshot target
                                     :restart restart :tags tags)]
         (cond (:plan options)

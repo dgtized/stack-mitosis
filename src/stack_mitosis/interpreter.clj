@@ -51,6 +51,22 @@
         false)
       true)))
 
+(defn verify-snapshot-exists
+  [instances identifiers snapshot]
+  (let [instances (map (partial lookup/by-id instances) identifiers)
+        vpcs (map #(->> % :DBSubnetGroup :VpcId) instances)
+        cross-vpc-mitosis (-> vpcs distinct count (> 1))]
+    (if (and cross-vpc-mitosis (not snapshot))
+      (do
+        (log/error
+         (str/join "\n" ["Source database has no snapshots." ""
+                         (str "Source and target databases are in different VPCs."
+                              " When that happens, stack-mitosis uses "
+                              "RestoreDBInstanceFromDBSnapshot to be able to"
+                              " clone the source database to the target VPC.")]))
+        false)
+      true)))
+
 (defn list-tags
   "Mapping of db-id to tags list for each instance in a tree."
   [rds instances target]
