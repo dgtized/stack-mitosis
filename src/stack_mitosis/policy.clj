@@ -40,9 +40,9 @@
   [instances action]
   ;; For create replica, use the ARN from the source database
   (let [snapshot-id (->> action :request :DBSnapshotIdentifier)
-        source-arn (->> action dbg :meta :SourceDBInstance :DBInstanceArn)
+        source-arn (->> action :meta :SourceDBInstance :DBInstanceArn)
         snapshot-arn (-> source-arn (str/split #":db:") first (str ":snapshot:" snapshot-id))
-        db-id (dbg (r/db-id action))
+        db-id (r/db-id action)
         target-arn (:DBInstanceArn (lookup/by-id (predict/predict instances action) db-id))]
     [{:op (:op action)
       ;; TODO: can these permissions be more specific instead of wildcard?
