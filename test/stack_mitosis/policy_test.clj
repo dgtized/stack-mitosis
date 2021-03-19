@@ -51,7 +51,7 @@
              :arn ["arn:aws:rds:*:*:og:*"
                    "arn:aws:rds:*:*:pg:*"
                    "arn:aws:rds:*:*:subgrp:*"
-                   "arn:aws:rds:us-east-1:1234567:snapshot:foo"
+                   "arn:aws:rds:us-east-1:1234567:snapshot:*"
                    "arn:aws:rds:us-east-1:1234567:db:bar"]}
             {:op :AddTagsToResource
              :arn "arn:aws:rds:us-east-1:1234567:db:bar"}]

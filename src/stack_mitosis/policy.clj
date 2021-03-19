@@ -39,9 +39,8 @@
 (defmethod permissions :RestoreDBInstanceFromDBSnapshot
   [instances action]
   ;; For create replica, use the ARN from the source database
-  (let [snapshot-id (->> action :request :DBSnapshotIdentifier)
-        source-arn (->> action :meta :SourceDBInstance :DBInstanceArn)
-        snapshot-arn (-> source-arn (str/split #":db:") first (str ":snapshot:" snapshot-id))
+  (let [source-arn (->> action :meta :SourceDBInstance :DBInstanceArn)
+        snapshot-arn (-> source-arn (str/split #":db:") first (str ":snapshot:*"))
         db-id (r/db-id action)
         target-arn (:DBInstanceArn (lookup/by-id (predict/predict instances action) db-id))]
     [{:op (:op action)
