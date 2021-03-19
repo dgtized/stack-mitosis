@@ -98,7 +98,7 @@
          [(make-arn "mitosis-*")]))
 
 (defn globals []
-  (allow [:DescribeDBInstances :ListTagsForResource]
+  (allow [:DescribeDBInstances :ListTagsForResource :DescribeDBSnapshots]
          [(make-arn "*")]))
 
 ;; TODO breakup permissions per operation type with better granularity

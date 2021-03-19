@@ -80,7 +80,7 @@
 (deftest from-plan
   (is (= {:Version "2012-10-17"
           :Statement
-          [(sut/allow [:DescribeDBInstances :ListTagsForResource]
+          [(sut/allow [:DescribeDBInstances :ListTagsForResource :DescribeDBSnapshots]
                       ["arn:aws:rds:*:*:db:*"])
            (sut/allow [:CreateDBInstanceReadReplica]
                       (into ["arn:aws:rds:*:*:og:*"
