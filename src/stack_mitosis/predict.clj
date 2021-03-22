@@ -87,7 +87,7 @@
         ;; end up being the source-arn
         target-arn (-> source-db :DBInstanceArn (str/split #":db:") first (str ":db:" target-id))]
     (as-> op $
-      ($ :request)
+      (:request $)
       (dissoc $ :DBSnapshotIdentifier)
       ;; This is not reeeally what happens, but replicating what happens is
       ;; complicated. We're getting a DB in the new subnet, missing a few
