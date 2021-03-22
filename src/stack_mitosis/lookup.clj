@@ -33,6 +33,9 @@
       (and (or (seq? v) (vector? v))
            (empty? v))))
 
+(defn same-vpc? [db-a db-b]
+  (= (-> db-a :DBSubnetGroup :VpcId) (-> db-b :DBSubnetGroup :VpcId)))
+
 (defn restore-snapshot-attributes
   "Creates a list of additional attributes to clone from original instance into
   the newly created replica instance.

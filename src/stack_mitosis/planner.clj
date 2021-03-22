@@ -42,11 +42,8 @@
         root-id (:DBInstanceIdentifier root)
 
         ;; can't rely on replication when target and source have different VPCs
-        target-vpc (->> root :DBSubnetGroup :VpcId)
         source-instance (lookup/by-id instances source)
-        source-vpc (->> source-instance :DBSubnetGroup :VpcId)
-        same-vpc (= source-vpc target-vpc)
-
+        same-vpc (lookup/same-vpc? source-instance root)
         root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))
         root-restore-attrs (lookup/restore-snapshot-attributes root (get alias-tags root-id))]
     (into (if same-vpc

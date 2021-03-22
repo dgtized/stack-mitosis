@@ -54,7 +54,8 @@
                    "arn:aws:rds:us-east-1:1234567:snapshot:*"
                    "arn:aws:rds:us-east-1:1234567:db:bar"]}
             {:op :AddTagsToResource
-             :arn "arn:aws:rds:us-east-1:1234567:db:bar"}]
+             :arn "arn:aws:rds:us-east-1:1234567:db:bar"}
+            {:op :DescribeDBSnapshots :arn "*"}]
            (sut/permissions [instance] (op/restore-snapshot "foo" instance "bar"))))
     (is (= [{:op :ModifyDBInstance
              :arn ["arn:aws:rds:*:*:og:*"
@@ -80,7 +81,7 @@
 (deftest from-plan
   (is (= {:Version "2012-10-17"
           :Statement
-          [(sut/allow [:DescribeDBInstances :ListTagsForResource :DescribeDBSnapshots]
+          [(sut/allow [:DescribeDBInstances :ListTagsForResource]
                       ["arn:aws:rds:*:*:db:*"])
            (sut/allow [:CreateDBInstanceReadReplica]
                       (into ["arn:aws:rds:*:*:og:*"

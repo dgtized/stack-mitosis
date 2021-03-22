@@ -51,7 +51,8 @@
                   (make-arn "*" :type "pg")
                   (make-arn "*" :type "subgrp")]
                  [snapshot-arn target-arn])}
-     {:op :AddTagsToResource :arn target-arn}]))
+     {:op :AddTagsToResource :arn target-arn}
+     {:op :DescribeDBSnapshots :arn "*"}]))
 
 (defmethod permissions :ModifyDBInstance
   [instances action]
@@ -97,7 +98,7 @@
          [(make-arn "mitosis-*")]))
 
 (defn globals []
-  (allow [:DescribeDBInstances :ListTagsForResource :DescribeDBSnapshots]
+  (allow [:DescribeDBInstances :ListTagsForResource]
          [(make-arn "*")]))
 
 ;; TODO breakup permissions per operation type with better granularity

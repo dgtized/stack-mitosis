@@ -4,6 +4,7 @@
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]
             [stack-mitosis.interpreter :as interpreter]
+            [stack-mitosis.lookup :as lookup]
             [stack-mitosis.planner :as plan]
             [stack-mitosis.policy :as policy]
             [stack-mitosis.request :as r]
@@ -51,10 +52,15 @@
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
         instances (interpreter/databases rds)
-        source-snapshot (interpreter/latest-snapshot rds source)]
+        same-vpc (lookup/same-vpc?
+                  (lookup/by-id instances source)
+                  (lookup/by-id instances target))
+        source-snapshot (when (not same-vpc)
+                          (interpreter/latest-snapshot rds source))]
     (when (and (interpreter/verify-databases-exist instances [source target])
-               (interpreter/verify-snapshot-exists instances [source target]
-                                                   source-snapshot))
+               (or same-vpc
+                   (interpreter/verify-snapshot-exists instances [source target]
+                                                       source-snapshot)))
       (let [tags (interpreter/list-tags rds instances target)
             plan (plan/replace-tree instances source source-snapshot target
                                     :restart restart :tags tags)]
