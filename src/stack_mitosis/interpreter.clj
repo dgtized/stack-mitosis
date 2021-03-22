@@ -54,7 +54,7 @@
 (defn verify-snapshot-exists
   [instances identifiers snapshot]
   (let [instances (map (partial lookup/by-id instances) identifiers)
-        vpcs (map #(->> % :DBSubnetGroup :VpcId) instances)
+        vpcs (map #(get-in % [:DBSubnetGroup :VpcId]) instances)
         cross-vpc-mitosis (-> vpcs distinct count (> 1))]
     (if (and cross-vpc-mitosis (not snapshot))
       (do
