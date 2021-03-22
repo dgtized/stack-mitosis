@@ -86,18 +86,16 @@
         ;; We use the arn for some policy calculations, and we don't want it to
         ;; end up being the source-arn
         target-arn (-> source-db :DBInstanceArn (str/split #":db:") first (str ":db:" target-id))]
-    (-> op
-        :request
-        (dissoc :DBSnapshotIdentifier)
-        ;; This is not reeeally what happens, but replicating what happens is
-        ;; complicated. We're getting a DB in the new subnet, missing a few
-        ;; params, that are not going to be === the source params, but carry
-        ;; default values from RDS.
-        ;;
-        ;; Also, invert the param order so our params override source-db's
-        (#(merge %2 %1) source-db)
-        (assoc :DBInstanceArn target-arn)
-        (#(conj %2 %1) instances))))
+    (as-> op $
+      ($ :request)
+      (dissoc $ :DBSnapshotIdentifier)
+      ;; This is not reeeally what happens, but replicating what happens is
+      ;; complicated. We're getting a DB in the new subnet, missing a few
+      ;; params, that are not going to be === the source params, but carry
+      ;; default values from RDS.
+      (merge source-db $)
+      (assoc $ :DBInstanceArn target-arn)
+      (conj instances $))))
 
 (defmethod predict :ModifyDBInstance
   [instances op]
