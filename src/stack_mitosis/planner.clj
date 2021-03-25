@@ -39,7 +39,6 @@
                            (list-tree instances target))
         root-id (:DBInstanceIdentifier root)
 
-        ;; can't rely on replication when target and source have different VPCs
         source-instance (lookup/by-id instances source)
         same-vpc (lookup/same-vpc? source-instance root)
         root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))
