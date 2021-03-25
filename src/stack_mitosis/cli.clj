@@ -21,6 +21,7 @@
    ["-c" "--credentials FILENAME" "Credentials file in edn for iam assume-role"]
    ["-p" "--plan" "Display expected flightplan for operation."]
    ["-i" "--iam-policy" "Generate IAM policy for planned actions."]
+   [nil "--restore-snapshot" "Always clone using snapshot restore."]
    ["-h" "--help"]])
 
 (defn parse-args [args]
@@ -55,10 +56,12 @@
         same-vpc (lookup/same-vpc?
                   (lookup/by-id instances source)
                   (lookup/by-id instances target))
-        source-snapshot (when (not same-vpc)
-                          (interpreter/latest-snapshot rds source))]
+        use-restore-snapshot (or (:restore-snapshot options) (not same-vpc))
+        source-snapshot (if use-restore-snapshot
+                          (interpreter/latest-snapshot rds source)
+                          :none)]
     (when (and (interpreter/verify-databases-exist instances [source target])
-               (or same-vpc
+               (or (not use-restore-snapshot)
                    (interpreter/verify-snapshot-exists instances [source target]
                                                        source-snapshot)))
       (let [tags (interpreter/list-tags rds instances target)
@@ -79,8 +82,7 @@
     (when exit-msg
       (println exit-msg)
       (System/exit (if ok 0 1)))
-    (System/exit (if (process options) 0 1))
-    ))
+    (System/exit (if (process options) 0 1))))
 
 (comment
   (process (parse-args ["--source" "mitosis-prod" "--target" "mitosis-demo"

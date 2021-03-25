@@ -40,10 +40,9 @@
         root-id (:DBInstanceIdentifier root)
 
         source-instance (lookup/by-id instances source)
-        same-vpc (lookup/same-vpc? source-instance root)
         root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))
         root-restore-attrs (lookup/restore-snapshot-attributes root (get alias-tags root-id))]
-    (into (if same-vpc
+    (into (if (= source-snapshot :none)
             [(op/create-replica source root-id root-attrs)
              ;; postgres does not allow replica of replica, so need to promote before
              ;; replicating children
