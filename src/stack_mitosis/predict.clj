@@ -95,6 +95,7 @@
       ;; default values from RDS.
       (merge source-db $)
       (assoc $ :DBInstanceArn target-arn)
+      (dissoc $ :ReadReplicaDBInstanceIdentifiers)
       (conj instances $))))
 
 (defmethod predict :ModifyDBInstance

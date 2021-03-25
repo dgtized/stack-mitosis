@@ -117,7 +117,9 @@
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
            (plan/replace-tree
-            [{:DBInstanceIdentifier "production"
+            [{:DBInstanceIdentifier "production" :ReadReplicaDBInstanceIdentifiers ["production-replica"]
+              :PreferredMaintenanceWindow "tue:01:00-tue:02:00"}
+             {:DBInstanceIdentifier "production-replica" :ReadReplicaSourceDBInstanceIdentifier "production"
               :PreferredMaintenanceWindow "tue:01:00-tue:02:00"}
              {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00"}
@@ -128,6 +130,7 @@
     (is (= [(op/restore-snapshot snapshot-id {:DBInstanceIdentifier "production"
                                               :DBInstanceArn "arn:db:production"
                                               :PreferredMaintenanceWindow "tue:01:00-tue:02:00"
+                                              :ReadReplicaDBInstanceIdentifiers ["production-replica"]
                                               :DBSubnetGroup {:VpcId "v1"}} "temp-staging")
             (op/enable-backups "temp-staging"
                                {:PreferredMaintenanceWindow "tue:02:00-tue:03:00" :MonitoringInterval 60})
@@ -142,6 +145,9 @@
             (op/delete "old-staging")]
            (plan/replace-tree
             [{:DBInstanceIdentifier "production" :DBInstanceArn "arn:db:production"
+              :ReadReplicaDBInstanceIdentifiers ["production-replica"]
+              :PreferredMaintenanceWindow "tue:01:00-tue:02:00" :DBSubnetGroup {:VpcId "v1"}}
+             {:DBInstanceIdentifier "production-replica" :ReadReplicaSourceDBInstanceIdentifier "production"
               :PreferredMaintenanceWindow "tue:01:00-tue:02:00" :DBSubnetGroup {:VpcId "v1"}}
              {:DBInstanceIdentifier "staging" :ReadReplicaDBInstanceIdentifiers ["staging-replica"]
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00" :MonitoringInterval 60}
