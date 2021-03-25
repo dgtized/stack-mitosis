@@ -52,30 +52,31 @@
       (log/infof "Assuming role %s" (:role-arn role))
       (sudo/sudo-provider role)))
   (let [rds (interpreter/client)
-        instances (interpreter/databases rds)
-        same-vpc (lookup/same-vpc?
-                  (lookup/by-id instances source)
-                  (lookup/by-id instances target))
-        use-restore-snapshot (or (:restore-snapshot options) (not same-vpc))
-        source-snapshot (if use-restore-snapshot
-                          (interpreter/latest-snapshot rds source)
-                          :none)]
-    (when (and (interpreter/verify-databases-exist instances [source target])
-               (or (not use-restore-snapshot)
-                   (interpreter/verify-snapshot-exists instances [source target]
-                                                       source-snapshot)))
-      (let [tags (interpreter/list-tags rds instances target)
-            plan (plan/replace-tree instances source source-snapshot target
-                                    :restart restart :tags tags)]
-        (cond (:plan options)
-              (do (println (flight-plan (interpreter/check-plan instances plan)))
-                  true)
-              (:iam-policy options)
-              (do (json/pprint (policy/from-plan instances plan))
-                  true)
-              :else
-              (let [last-action (interpreter/evaluate-plan rds plan)]
-                (not (contains? last-action :ErrorResponse))))))))
+        instances (interpreter/databases rds)]
+    (when (interpreter/verify-databases-exist instances [source target])
+      (let [same-vpc (lookup/same-vpc?
+                      (lookup/by-id instances source)
+                      (lookup/by-id instances target))
+            use-restore-snapshot (or (:restore-snapshot options) (not same-vpc))
+            source-snapshot (if use-restore-snapshot
+                              (interpreter/latest-snapshot rds source)
+                              :none)]
+
+        (when (or (not use-restore-snapshot)
+                  (interpreter/verify-snapshot-exists instances [source target]
+                                                      source-snapshot))
+          (let [tags (interpreter/list-tags rds instances target)
+                plan (plan/replace-tree instances source source-snapshot target
+                                        :restart restart :tags tags)]
+            (cond (:plan options)
+                  (do (println (flight-plan (interpreter/check-plan instances plan)))
+                      true)
+                  (:iam-policy options)
+                  (do (json/pprint (policy/from-plan instances plan))
+                      true)
+                  :else
+                  (let [last-action (interpreter/evaluate-plan rds plan)]
+                    (not (contains? last-action :ErrorResponse))))))))))
 
 (defn -main [& args]
   (let [{:keys [ok exit-msg] :as options} (parse-args args)]
