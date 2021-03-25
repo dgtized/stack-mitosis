@@ -121,7 +121,6 @@
          :EnablePerformanceInsights (:PerformanceInsightsEnabled original)
          :EnableIAMDatabaseAuthentication (:IAMDatabaseAuthenticationEnabled original)
          :EnableCloudwatchLogsExports (:EnabledCloudwatchLogsExports original)
-         :DBSubnetGroupName (:DBSubnetGroupName (:DBSubnetGroup original))
          :Port (:Port (:Endpoint original))
 
          ;; all active security groups ids
