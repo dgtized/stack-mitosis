@@ -40,7 +40,7 @@
             (op/modify "temp-b" {})
             (op/create-replica "temp-b" "temp-c")
             (op/modify "temp-c" {})]
-           (plan/copy-tree instances "source" snapshot-id "target"
+           (plan/copy-tree instances "source" :none "target"
                            (partial plan/aliased "temp")
                            :tags {"target" tags-target
                                   "b" tags-b})))
@@ -101,7 +101,7 @@
             (op/rename "temp-staging" "staging")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" snapshot-id "staging")))
+           (plan/replace-tree instances "production" :none "staging")))
 
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
@@ -123,7 +123,7 @@
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00"}
              {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
               :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
-            "production" snapshot-id "staging")))
+            "production" :none "staging")))
 
     (is (= [(op/restore-snapshot snapshot-id {:DBInstanceIdentifier "production"
                                               :DBInstanceArn "arn:db:production"
@@ -161,7 +161,7 @@
             (op/shell-command "./restart.sh")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" snapshot-id "staging"
+           (plan/replace-tree instances "production" :none "staging"
                               :restart "./restart.sh"
                               :tags {"staging" tags
                                      "staging-replica" tags})))))
