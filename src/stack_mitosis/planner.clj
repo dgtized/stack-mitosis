@@ -28,8 +28,6 @@
        (zipmap ids)
        topological-sort))
 
-;; postgres does not allow replica of replica, so need to promote before
-;; replicating children
 (defn copy-tree
   [instances source source-snapshot target alias-fn & {:keys [tags]}]
   (let [alias-tags
@@ -48,6 +46,8 @@
         root-restore-attrs (lookup/restore-snapshot-attributes root (get alias-tags root-id))]
     (into (if same-vpc
             [(op/create-replica source root-id root-attrs)
+             ;; postgres does not allow replica of replica, so need to promote before
+             ;; replicating children
              (op/promote root-id)
              ;; postgres only allows backups after promotion
              (op/enable-backups root-id (lookup/post-create-replica-attributes root))]
