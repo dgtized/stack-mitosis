@@ -40,6 +40,8 @@ Once that is complete, it's safe to rename the `temp-` prefixed clones back to `
 
 Note that this replication graph is a simple case, but it supports replacing arbitrarily complex replication graphs on RDS and has been verified with mysql and postgres database engines. The postgres engine on RDS only allows multiple replicas of a single primary, but the Mysql engine on RDS allows cascading replicas of replicas. See the AWS documentation for [working with RDS read replicas](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html) for more information on these limitations.
 
+In the case where source and target instances live in different VPCs, or in case `--restore-snapshot` is used, the first instance (`temp-mitosis-demo` here) is created by restoring the latest available snapshot, instead of using replication. This also skips the promote replica step. All other steps remain the same.
+
 # Install
 
 After installing a JDK, follow the [clojure install
@@ -79,6 +81,7 @@ Hopefully in the future this can be parsed directly from the `AWS_CONFIG` file.
         [--credentials resources/role.edn]
         [--plan]
         [--iam-policy]
+        [--restore-snapshot]
 
 ## Flight Plan
 
