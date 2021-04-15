@@ -38,7 +38,7 @@
 
   ;; clj -Mkaocha -m kaocha.runner --config-file test/tests.edn
   :kaocha {:extra-paths ["test"]
-           :extra-deps {lambdaisland/kaocha {:mvn/version "1.0.732"}
+           :extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}
                         lambdaisland/kaocha-junit-xml {:mvn/version "0.0.76"}
                         lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}}}
 
