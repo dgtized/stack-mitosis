@@ -51,6 +51,22 @@
         false)
       true)))
 
+(defn verify-snapshot-exists
+  [instances identifiers snapshot]
+  (let [instances (map (partial lookup/by-id instances) identifiers)
+        vpcs (map #(get-in % [:DBSubnetGroup :VpcId]) instances)
+        cross-vpc-mitosis (-> vpcs distinct count (> 1))]
+    (if (and cross-vpc-mitosis (not snapshot))
+      (do
+        (log/error
+         (str/join "\n" ["Source database has no snapshots." ""
+                         (str "Source and target databases are in different VPCs."
+                              " When that happens, stack-mitosis uses "
+                              "RestoreDBInstanceFromDBSnapshot to be able to"
+                              " clone the source database to the target VPC.")]))
+        false)
+      true)))
+
 (defn list-tags
   "Mapping of db-id to tags list for each instance in a tree."
   [rds instances target]
@@ -61,6 +77,15 @@
                     db-id (:DBInstanceIdentifier instance)]
                 [db-id (:TagList (invoke-logged! rds (op/tags arn)))])))
        (into {})))
+
+(defn latest-snapshot
+  "Returns the latest snapshot for an instance"
+  [rds target]
+  (->> (invoke-logged! rds (op/list-snapshots target))
+       (:DBSnapshots)
+       (sort-by :SnapshotCreateTime)
+       (last)
+       (:DBSnapshotIdentifier)))
 
 (defn describe
   [rds id]
@@ -75,7 +100,7 @@
                         (op/completed? (describe rds new-id)))]
           [id #(op/completed? (describe rds id))])
         started (. System (nanoTime))
-        ret (wait/poll-until completed-fn {:delay 60000 :max-attempts 120})
+        ret (wait/poll-until completed-fn {:delay 60000 :max-attempts 180})
         msecs (/ (double (- (. System (nanoTime)) started)) 1000000.0)
         status (-> (describe rds result-id) :DBInstances first :DBInstanceStatus)
         msg (format "Completed after %.2fs with status %s" (/ msecs 1000) status)]
@@ -118,7 +143,7 @@
   (sudo/sudo-provider (sudo/load-role "resources/role.edn"))
   (def rds (client))
   (-> (predict/state [] (example/create example/template))
-      (plan/replace-tree "mitosis-prod" "mitosis-demo"))
+      (plan/replace-tree "mitosis-prod" "mitosis-demo" nil))
 
   (interpret rds (op/shell-command "echo restart"))
   (evaluate-plan rds [(op/shell-command "true") (op/shell-command "false")
@@ -126,7 +151,7 @@
 
   ;; check plan
   (let [state (databases rds)]
-    (check-plan state (plan/replace-tree state "mitosis-prod" "mitosis-demo")))
+    (check-plan state (plan/replace-tree state "mitosis-prod" "mitosis-demo" nil)))
 
   ;; create a copy of mitosis-prod tree
   (let [state (databases rds)]

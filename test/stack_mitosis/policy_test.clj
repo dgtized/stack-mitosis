@@ -7,6 +7,9 @@
 (defn fake-arn [name]
   (str "arn:aws:rds:us-east-1:1234567:db:" name))
 
+(defn fake-snapshot-arn [name]
+  (str "arn:aws:rds:us-east-1:1234567:snapshot:" name))
+
 (defn example-instances []
   [{:DBInstanceIdentifier "production" :ReadReplicaDBInstanceIdentifiers ["production-replica"]
     :DBInstanceArn (fake-arn "production")}
@@ -47,6 +50,16 @@
             {:op :AddTagsToResource
              :arn "arn:aws:rds:us-east-1:1234567:db:bar"}]
            (sut/permissions [instance] (op/create-replica "foo" "bar"))))
+    (is (= [{:op :RestoreDBInstanceFromDBSnapshot
+             :arn ["arn:aws:rds:*:*:og:*"
+                   "arn:aws:rds:*:*:pg:*"
+                   "arn:aws:rds:*:*:subgrp:*"
+                   "arn:aws:rds:us-east-1:1234567:snapshot:*"
+                   "arn:aws:rds:us-east-1:1234567:db:bar"]}
+            {:op :AddTagsToResource
+             :arn "arn:aws:rds:us-east-1:1234567:db:bar"}
+            {:op :DescribeDBSnapshots :arn "*"}]
+           (sut/permissions [instance] (op/restore-snapshot "foo" instance "bar"))))
     (is (= [{:op :ModifyDBInstance
              :arn ["arn:aws:rds:*:*:og:*"
                    "arn:aws:rds:*:*:pg:*"
@@ -95,4 +108,36 @@
            (sut/allow [:DeleteDBInstance]
                       (mapv fake-arn ["old-staging-replica" "old-staging"]))]}
          (sut/from-plan (example-instances)
-                        (plan/replace-tree (example-instances) "production" "staging")))))
+                        (plan/replace-tree (example-instances) "production" nil "staging"))))
+  (is (= {:Version "2012-10-17"
+          :Statement
+          [(sut/allow [:DescribeDBInstances :ListTagsForResource]
+                      ["arn:aws:rds:*:*:db:*"])
+           (sut/allow [:RestoreDBInstanceFromDBSnapshot]
+                      ["arn:aws:rds:*:*:og:*"
+                       "arn:aws:rds:*:*:pg:*"
+                       "arn:aws:rds:*:*:subgrp:*"
+                       (fake-snapshot-arn "*")
+                       (fake-arn "temp-staging")])
+           (sut/allow [:AddTagsToResource]
+                      (mapv fake-arn ["temp-staging" "temp-staging-replica"]))
+           (sut/allow [:DescribeDBSnapshots] ["*"])
+           (sut/allow [:ModifyDBInstance]
+                      (into ["arn:aws:rds:*:*:og:*"
+                             "arn:aws:rds:*:*:pg:*"
+                             "arn:aws:rds:*:*:secgrp:*"
+                             "arn:aws:rds:*:*:subgrp:*"]
+                            (mapv fake-arn ["temp-staging" "temp-staging-replica"
+                                            "staging-replica" "old-staging-replica"
+                                            "staging" "old-staging"])))
+           (sut/allow [:RebootDBInstance]
+                      (mapv fake-arn ["temp-staging" "temp-staging-replica" "staging-replica" "staging"]))
+           (sut/allow [:CreateDBInstanceReadReplica]
+                      (into ["arn:aws:rds:*:*:og:*"
+                             "arn:aws:rds:*:*:pg:*"
+                             "arn:aws:rds:*:*:subgrp:*"]
+                            (mapv fake-arn ["temp-staging" "temp-staging-replica"])))
+           (sut/allow [:DeleteDBInstance]
+                      (mapv fake-arn ["old-staging-replica" "old-staging"]))]}
+         (sut/from-plan (example-instances)
+                        (plan/replace-tree (example-instances) "production" "snapshot-id" "staging")))))

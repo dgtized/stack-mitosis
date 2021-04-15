@@ -77,6 +77,27 @@
             (update (lookup/position instances parent) detach child)
             (update (lookup/position instances child) promote))))))
 
+(defmethod predict :RestoreDBInstanceFromDBSnapshot
+  [instances op]
+  {:post [(lookup/exists? % (r/db-id op))]}
+  (let [source-id (->> op :meta :SourceDBInstance :DBInstanceIdentifier)
+        source-db (lookup/by-id instances source-id)
+        target-id (r/db-id op)
+        ;; We use the arn for some policy calculations, and we don't want it to
+        ;; end up being the source-arn
+        target-arn (-> source-db :DBInstanceArn (str/split #":db:") first (str ":db:" target-id))]
+    (as-> op $
+      (:request $)
+      (dissoc $ :DBSnapshotIdentifier)
+      ;; This is not reeeally what happens, but replicating what happens is
+      ;; complicated. We're getting a DB in the new subnet, missing a few
+      ;; params, that are not going to be === the source params, but carry
+      ;; default values from RDS.
+      (merge source-db $)
+      (assoc $ :DBInstanceArn target-arn)
+      (dissoc $ :ReadReplicaDBInstanceIdentifiers)
+      (conj instances $))))
+
 (defmethod predict :ModifyDBInstance
   [instances op]
   {:pre [(lookup/exists? instances (r/db-id op))]}
