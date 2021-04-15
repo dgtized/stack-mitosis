@@ -60,7 +60,7 @@
             use-restore-snapshot (or (:restore-snapshot options) (not same-vpc))
             source-snapshot (if use-restore-snapshot
                               (interpreter/latest-snapshot rds source)
-                              :none)]
+                              nil)]
 
         (when (or (not use-restore-snapshot)
                   (interpreter/verify-snapshot-exists instances [source target]

@@ -108,7 +108,7 @@
            (sut/allow [:DeleteDBInstance]
                       (mapv fake-arn ["old-staging-replica" "old-staging"]))]}
          (sut/from-plan (example-instances)
-                        (plan/replace-tree (example-instances) "production" :none "staging"))))
+                        (plan/replace-tree (example-instances) "production" nil "staging"))))
   (is (= {:Version "2012-10-17"
           :Statement
           [(sut/allow [:DescribeDBInstances :ListTagsForResource]
