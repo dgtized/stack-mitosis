@@ -53,12 +53,12 @@
                                   (lookup/restore-snapshot-attributes root root-tags))
              (op/enable-backups root-id (lookup/post-restore-snapshot-attributes root))])
           (mapcat
-           (fn [instance]
+           (fn [{replica-id :DBInstanceIdentifier :as instance}]
              [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
-                                 (:DBInstanceIdentifier instance)
+                                 replica-id
                                  (lookup/clone-replica-attributes instance
-                                                                  (get alias-tags (:DBInstanceIdentifier instance))))
-              (op/modify (:DBInstanceIdentifier instance)
+                                                                  (get alias-tags replica-id)))
+              (op/modify replica-id
                          (merge
                           (lookup/post-create-replica-attributes instance)
                           ;; enable-backups for any replicas with children
