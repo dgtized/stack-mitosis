@@ -10,4 +10,6 @@ bin/kaocha --plugin cloverage \
 
 clojure -Aclj-kondo -M --lint src
 
-clojure -X:uberjar && java -jar stack-mitosis.jar --help
+clojure -X:uberjar && \
+    ls -hs stack-mitosis.jar && \
+    java -jar stack-mitosis.jar --help
