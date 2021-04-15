@@ -46,6 +46,13 @@
        (concat ["Flight plan:"])
        (str/join "\n")))
 
+(defn use-restore-snapshot?
+  [instances {:keys [source target restore-snapshot]}]
+  (or restore-snapshot
+      (not (lookup/same-vpc?
+            (lookup/by-id instances source)
+            (lookup/by-id instances target)))))
+
 (defn process
   [{:keys [source target restart] :as options}]
   (when-let [creds (:credentials options)]
@@ -55,10 +62,7 @@
   (let [rds (interpreter/client)
         instances (interpreter/databases rds)]
     (when (interpreter/verify-databases-exist instances [source target])
-      (let [same-vpc (lookup/same-vpc?
-                      (lookup/by-id instances source)
-                      (lookup/by-id instances target))
-            use-restore-snapshot (or (:restore-snapshot options) (not same-vpc))
+      (let [use-restore-snapshot (use-restore-snapshot? instances options)
             source-snapshot (when use-restore-snapshot
                               (interpreter/latest-snapshot rds source))]
 
