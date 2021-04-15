@@ -19,7 +19,7 @@
                             com.sun.jmx/jmxri]}
 
   ;; command line
-  org.clojure/tools.cli       {:mvn/version "1.0.194"}
+  org.clojure/tools.cli       {:mvn/version "1.0.206"}
   }
  :paths ["src" "resources"]
  :aliases
