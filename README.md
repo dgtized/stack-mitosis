@@ -51,6 +51,22 @@ After installing a JDK, follow the [clojure install
 instructions](https://clojure.org/guides/getting_started) for your environment
 to ensure `clj` and `clojure` are in path.
 
+## Creating and using stack-mitosis.jar
+
+Executing:
+
+```
+clj -X:uberjar
+```
+
+will build an uberjar named `stack-mitosis.jar` in the root of the repository. This removes the need to install `clj` tools for the execution environment to simply requiring java to execute the jar file. Invocations such as `clj -m stack-mitosis.cli ...` can be replaced with `java -jar stack-mitosis.jar ...`. As example,
+
+```
+java -jar stack-mitosis.jar --help
+```
+
+Will print the standard help for invoking a clone operation.
+
 # Credentials
 
 Stack mitosis uses [aws-api](https://github.com/cognitect-labs/aws-api) to
