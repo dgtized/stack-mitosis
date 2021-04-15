@@ -143,7 +143,7 @@
   (sudo/sudo-provider (sudo/load-role "resources/role.edn"))
   (def rds (client))
   (-> (predict/state [] (example/create example/template))
-      (plan/replace-tree "mitosis-prod" "mitosis-demo" nil))
+      (plan/replace-tree "mitosis-prod" "mitosis-demo"))
 
   (interpret rds (op/shell-command "echo restart"))
   (evaluate-plan rds [(op/shell-command "true") (op/shell-command "false")
@@ -151,7 +151,7 @@
 
   ;; check plan
   (let [state (databases rds)]
-    (check-plan state (plan/replace-tree state "mitosis-prod" "mitosis-demo" nil)))
+    (check-plan state (plan/replace-tree state "mitosis-prod" "mitosis-demo")))
 
   ;; create a copy of mitosis-prod tree
   (let [state (databases rds)]

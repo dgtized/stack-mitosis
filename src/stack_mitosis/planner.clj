@@ -78,7 +78,9 @@
        (map op/delete)))
 
 (defn replace-tree
-  [instances source source-snapshot target & {:keys [restart tags] :or {tags {}}}]
+  [instances source target &
+   {:keys [source-snapshot restart tags]
+    :or {tags {}}}]
   ;; actions in copy, rename & delete change the local instances db, so use
   ;; predict to update that db for calculating next set of operations by
   ;; applying computation thus far to the initial instances

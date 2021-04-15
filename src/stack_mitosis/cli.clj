@@ -70,8 +70,10 @@
                   (interpreter/verify-snapshot-exists instances [source target]
                                                       source-snapshot))
           (let [tags (interpreter/list-tags rds instances target)
-                plan (plan/replace-tree instances source source-snapshot target
-                                        :restart restart :tags tags)]
+                plan (plan/replace-tree instances source target
+                                        :source-snapshot source-snapshot
+                                        :restart restart
+                                        :tags tags)]
             (cond (:plan options)
                   (do (println (flight-plan (interpreter/check-plan instances plan)))
                       true)

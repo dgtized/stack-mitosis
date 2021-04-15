@@ -101,7 +101,7 @@
             (op/rename "temp-staging" "staging")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" nil "staging")))
+           (plan/replace-tree instances "production" "staging")))
 
     (is (= [(op/create-replica "production" "temp-staging")
             (op/promote "temp-staging")
@@ -125,7 +125,7 @@
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00"}
              {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
               :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
-            "production" nil "staging")))
+            "production" "staging")))
 
     (is (= [(op/restore-snapshot snapshot-id {:DBInstanceIdentifier "production"
                                               :DBInstanceArn "arn:db:production"
@@ -153,7 +153,7 @@
               :PreferredMaintenanceWindow "tue:02:00-tue:03:00" :MonitoringInterval 60}
              {:DBInstanceIdentifier "staging-replica" :ReadReplicaSourceDBInstanceIdentifier "staging"
               :PreferredMaintenanceWindow "tue:03:00-tue:04:00"}]
-            "production" snapshot-id "staging")))
+            "production" "staging" :source-snapshot snapshot-id)))
 
     (is (= [(op/create-replica "production" "temp-staging" {:Tags tags})
             (op/promote "temp-staging")
@@ -167,7 +167,7 @@
             (op/shell-command "./restart.sh")
             (op/delete "old-staging-replica")
             (op/delete "old-staging")]
-           (plan/replace-tree instances "production" nil "staging"
+           (plan/replace-tree instances "production" "staging"
                               :restart "./restart.sh"
                               :tags {"staging" tags
                                      "staging-replica" tags})))))
