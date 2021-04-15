@@ -38,10 +38,11 @@
                                  (partial lookup/by-id instances))
                            (list-tree instances target))
         root-id (:DBInstanceIdentifier root)
+        root-tags (get alias-tags root-id)
 
         source-instance (lookup/by-id instances source)
-        root-attrs (lookup/clone-replica-attributes root (get alias-tags root-id))
-        root-restore-attrs (lookup/restore-snapshot-attributes root (get alias-tags root-id))]
+        root-attrs (lookup/clone-replica-attributes root root-tags)
+        root-restore-attrs (lookup/restore-snapshot-attributes root root-tags)]
     (into (if (nil? source-snapshot)
             [(op/create-replica source root-id root-attrs)
              ;; postgres does not allow replica of replica, so need to promote before
