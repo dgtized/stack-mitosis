@@ -157,7 +157,15 @@
   https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_ModifyDBInstance.html
   has more information on these attributes."
   [original]
-  (let [translated-attributes
+  (let [attributes-to-clone
+        [:PreferredMaintenanceWindow
+         :PreferredBackupWindow
+         ;; TODO ?
+         ;; :AllocatedStorage
+         ;; :MaxAllocatedStorage
+         ]
+
+        translated-attributes
         {;; Triggers "The specified DB instance is already in the target DB subnet group"
          ;; probably need to detect if changing? disabling for now
          ;; :DBSubnetGroupName (:DBSubnetGroupName (:DBSubnetGroup original))
@@ -170,12 +178,7 @@
                            (:DBParameterGroupName group)))))
          }]
     (-> original
-        (select-keys [:PreferredMaintenanceWindow
-                      :PreferredBackupWindow
-                      ;; TODO ?
-                      ;; :AllocatedStorage
-                      ;; :MaxAllocatedStorage
-                      ])
+        (select-keys attributes-to-clone)
         ;; Attributes requiring custom rules to extract from original and
         ;; translate to key for modify-db request
         (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
