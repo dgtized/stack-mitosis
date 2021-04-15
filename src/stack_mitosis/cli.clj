@@ -59,9 +59,8 @@
                       (lookup/by-id instances source)
                       (lookup/by-id instances target))
             use-restore-snapshot (or (:restore-snapshot options) (not same-vpc))
-            source-snapshot (if use-restore-snapshot
-                              (interpreter/latest-snapshot rds source)
-                              nil)]
+            source-snapshot (when use-restore-snapshot
+                              (interpreter/latest-snapshot rds source))]
 
         (when (or (not use-restore-snapshot)
                   (interpreter/verify-snapshot-exists instances [source target]
