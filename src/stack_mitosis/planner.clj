@@ -34,24 +34,25 @@
         (->> tags
              (map (fn [[db-id instance-tags]] [(alias-fn db-id) instance-tags]))
              (into {}))
-        [root & tree] (map (comp (partial transform-instance alias-fn)
-                                 (partial lookup/by-id instances))
-                           (list-tree instances target))
-        root-id (:DBInstanceIdentifier root)
-        root-tags (get alias-tags root-id)
 
-        source-instance (lookup/by-id instances source)]
-    (into (if source-snapshot
-            [(op/restore-snapshot source-snapshot source-instance root-id
-                                  (lookup/restore-snapshot-attributes root root-tags))
-             (op/enable-backups root-id (lookup/post-restore-snapshot-attributes root))]
-            [(op/create-replica source root-id
-                                (lookup/clone-replica-attributes root root-tags))
-             ;; postgres does not allow replica of replica, so need to promote before
-             ;; replicating children
-             (op/promote root-id)
-             ;; postgres only allows backups after promotion
-             (op/enable-backups root-id (lookup/post-create-replica-attributes root))])
+        [root & tree]
+        (map (comp (partial transform-instance alias-fn)
+                   (partial lookup/by-id instances))
+             (list-tree instances target))]
+    (into (let [root-id (:DBInstanceIdentifier root)
+                root-tags (get alias-tags root-id)
+                source-instance (lookup/by-id instances source)]
+            (if source-snapshot
+              [(op/restore-snapshot source-snapshot source-instance root-id
+                                    (lookup/restore-snapshot-attributes root root-tags))
+               (op/enable-backups root-id (lookup/post-restore-snapshot-attributes root))]
+              [(op/create-replica source root-id
+                                  (lookup/clone-replica-attributes root root-tags))
+               ;; postgres does not allow replica of replica, so need to promote before
+               ;; replicating children
+               (op/promote root-id)
+               ;; postgres only allows backups after promotion
+               (op/enable-backups root-id (lookup/post-create-replica-attributes root))]))
           (mapcat
            (fn [{replica-id :DBInstanceIdentifier :as instance}]
              [(op/create-replica (:ReadReplicaSourceDBInstanceIdentifier instance)
