@@ -9,3 +9,5 @@ bin/kaocha --plugin cloverage \
            --junit-xml-file test-results/kaocha/results.xml
 
 clojure -Aclj-kondo -M --lint src
+
+clojure -X:uberjar && java -jar stack-mitosis.jar --help
