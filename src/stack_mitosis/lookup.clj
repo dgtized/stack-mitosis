@@ -28,13 +28,25 @@
   (get (by-id instances db-id)
        :ReadReplicaDBInstanceIdentifiers))
 
+(defn same-vpc? [db-a db-b]
+  (= (get-in db-a [:DBSubnetGroup :VpcId]) (get-in db-b [:DBSubnetGroup :VpcId])))
+
 (defn nil-or-empty? [v]
   (or (nil? v)
       (and (or (seq? v) (vector? v))
            (empty? v))))
 
-(defn same-vpc? [db-a db-b]
-  (= (get-in db-a [:DBSubnetGroup :VpcId]) (get-in db-b [:DBSubnetGroup :VpcId])))
+(defn- extract-relevant-attributes
+  "From db instance map `original`, select `attributes-to-clone` by keyword, and
+  then merge in all `translated-attributes` that are present in the original."
+  [original attributes-to-clone translated-attributes]
+  (-> original
+      ;; extract keys as-is with no translation
+      (select-keys attributes-to-clone)
+      ;; Attributes requiring custom rules to extract from original and
+      ;; translate to key for clone-replica request
+      (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
+                              translated-attributes)))))
 
 (defn restore-snapshot-attributes
   "Creates a list of additional attributes to clone from original instance into
@@ -83,13 +95,7 @@
          ;; TODO map for names on original
          ;; :DomainMemberships -> :Domain, :DomainIAMRoleName
          }]
-    (-> original
-        ;; copy as-is with no translation
-        (select-keys attributes-to-clone)
-        ;; Attributes requiring custom rules to extract from original and
-        ;; translate to key for clone-replica request
-        (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
-                                translated-attributes))))))
+    (extract-relevant-attributes original attributes-to-clone translated-attributes)))
 
 (defn clone-replica-attributes
   "Creates a list of additional attributes to clone from original instance into
@@ -140,13 +146,7 @@
          ;; TODO map for names on original
          ;; :DomainMemberships -> :Domain, :DomainIAMRoleName
          }]
-    (-> original
-        ;; copy as-is with no translation
-        (select-keys attributes-to-clone)
-        ;; Attributes requiring custom rules to extract from original and
-        ;; translate to key for clone-replica request
-        (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
-                                translated-attributes))))))
+    (extract-relevant-attributes original attributes-to-clone translated-attributes)))
 
 (defn post-create-replica-attributes
   "List of additional attributes to apply after creation.
@@ -177,12 +177,7 @@
                       (and (= (:ParameterApplyStatus group) "in-sync")
                            (:DBParameterGroupName group)))))
          }]
-    (-> original
-        (select-keys attributes-to-clone)
-        ;; Attributes requiring custom rules to extract from original and
-        ;; translate to key for modify-db request
-        (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
-                                translated-attributes))))))
+    (extract-relevant-attributes original attributes-to-clone translated-attributes)))
 
 (defn post-restore-snapshot-attributes
   "List of additional attributes to apply after creation.
@@ -218,9 +213,4 @@
               (some (fn [group]
                       (and (= (:ParameterApplyStatus group) "in-sync")
                            (:DBParameterGroupName group)))))}]
-    (-> original
-        (select-keys attributes-to-clone)
-        ;; Attributes requiring custom rules to extract from original and
-        ;; translate to key for modify-db request
-        (merge (into {} (remove (fn [[_ v]] (nil-or-empty? v))
-                                translated-attributes))))))
+    (extract-relevant-attributes original attributes-to-clone translated-attributes)))
