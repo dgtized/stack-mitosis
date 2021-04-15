@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+ - Build a uberjar for running stack-mitosis without the clojure CLI tools with `clojure -X:uberjar`.
+
 ### Added
 
 ## [0.6.0]
