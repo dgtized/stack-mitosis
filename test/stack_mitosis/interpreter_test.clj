@@ -27,8 +27,22 @@
     (is (= [] (sut/databases identity))))
   (with-redefs [aws/invoke (fn [& _] {})]
     (is (thrown-with-msg? java.lang.AssertionError #"Assert failed"
-                          (sut/databases identity))))
-  )
+                          (sut/databases identity)))))
+
+(deftest verify-databases-exist
+  (is (true? (sut/verify-databases-exist
+              [{:DBInstanceIdentifier "a"} {:DBInstanceIdentifier "b"}]
+              ["a"])))
+  (is (true? (sut/verify-databases-exist
+              [{:DBInstanceIdentifier "a"} {:DBInstanceIdentifier "b"}]
+              ["a" "b"])))
+  (tlog/with-log
+    (let [verified (sut/verify-databases-exist
+                    [{:DBInstanceIdentifier "a"}]
+                    ["a" "c"])]
+      (is (false? verified))
+      (is (= ["Database(s) do not exist in region:  c"]
+             (map :message (tlog/the-log)))))))
 
 (deftest evaluate-plan
   (with-redefs [aws/invoke (mock-invoke [{:DBInstanceIdentifier "a"}])]
