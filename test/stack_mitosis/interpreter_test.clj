@@ -44,6 +44,8 @@
       (is (= ["Database(s) do not exist in region:  c"]
              (map :message (tlog/the-log)))))))
 
+;; TODO test verify-snapshot-exists?
+
 (deftest evaluate-plan
   (with-redefs [aws/invoke (mock-invoke [{:DBInstanceIdentifier "a"}])]
     (is (= {:output
