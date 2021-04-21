@@ -6,6 +6,9 @@
             [stack-mitosis.operations :as op]
             [cognitect.aws.client.api :as aws]))
 
+;; Can any of this be simplified with https://github.com/bguthrie/shrubbery or
+;; some other mock/stub framework?
+
 (defn- eval-plan [ops]
   (tlog/with-log
     (let [capture (new java.io.StringWriter)]
