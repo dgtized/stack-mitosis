@@ -175,8 +175,7 @@
               :DBParameterGroups
               (some (fn [group]
                       (and (= (:ParameterApplyStatus group) "in-sync")
-                           (:DBParameterGroupName group)))))
-         }]
+                           (:DBParameterGroupName group)))))}]
     (extract-relevant-attributes original attributes-to-clone translated-attributes)))
 
 (defn post-restore-snapshot-attributes

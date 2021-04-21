@@ -173,8 +173,7 @@
                              tags (list-tags rds instances "mitosis-demo")]
                          (plan/replace-tree instances "mitosis-prod" "mitosis-demo"
                                             :tags tags))))
-  (time (evaluate-plan rds (example/destroy)))
-  )
+  (time (evaluate-plan rds (example/destroy))))
 
 (comment
   (keys (aws/ops rds))

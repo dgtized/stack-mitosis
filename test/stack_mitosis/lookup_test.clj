@@ -35,8 +35,7 @@
                   :Endpoint {:Port 9999}
                   :PreferredBackupWindow "06:35-07:05"
                   :PreferredMaintenanceWindow "tue:06:05-tue:06:35"
-                  :DBSubnetGroup {:DBSubnetGroupName "subnet-group"}
-                  }
+                  :DBSubnetGroup {:DBSubnetGroupName "subnet-group"}}
         tags [(op/kv "k" "v")]]
     (is (= {:Port 9999
             :StorageType "io1"

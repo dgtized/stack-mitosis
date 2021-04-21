@@ -36,8 +36,7 @@
               {:DBPortNumber 5430
                :PreferredMaintenanceWindow "tue:07:02-tue:08:00"
                :PreferredBackupWindow "05:30-06:20"
-               :EnableIAMDatabaseAuthentication true
-               })
+               :EnableIAMDatabaseAuthentication true})
    (op/modify "mitosis-demo-replica"
               {:DBPortNumber 5431
                :PreferredMaintenanceWindow "mon:07:30-mon:08:00"
@@ -46,8 +45,7 @@
                ;; disabled for mysql on db.t3.micro and other t2/t3 instance classes
                ;; Performance Insights not supported for this configuration, please disable this feature (mysql?)
                ;; :EnablePerformanceInsights true
-               })
-   ])
+               })])
 
 (defn destroy []
   (let [state (predict/state [] (create template))]

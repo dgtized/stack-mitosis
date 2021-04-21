@@ -27,5 +27,4 @@
     (a/<!! (waiter pred-fn delay max-attempts))))
 
 (comment
-  (poll-until #(block 10) {:delay 100 :max-attempts 5})
-  )
+  (poll-until #(block 10) {:delay 100 :max-attempts 5}))

@@ -108,8 +108,7 @@
 
     (do
       (log/error "Unknown or missing db instance status from" state)
-      :in-progress)
-    ))
+      :in-progress)))
 
 (defn completed?
   [described-instances]

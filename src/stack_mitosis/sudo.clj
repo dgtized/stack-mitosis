@@ -80,5 +80,4 @@
 
   ;; use it!
   (aws/invoke iam-with-assumed-role {:op :GetUser :request {:UserName (:UserName me)}})
-  (aws/invoke sts-with-assumed-role {:op :GetCallerIdentity})
-  )
+  (aws/invoke sts-with-assumed-role {:op :GetCallerIdentity}))

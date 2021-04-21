@@ -220,5 +220,4 @@
       (is (= [:ok (op/add-tags "y" tags)]
              (plan/attempt [{:DBInstanceIdentifier "x" :DBInstanceArn "y"}]
                            (op/add-tags "x" tags)))
-          "translates from instance id to arn if available"))
-    ))
+          "translates from instance id to arn if available"))))
