@@ -47,6 +47,12 @@
   {:extra-deps {clj-kondo/clj-kondo {:mvn/version "RELEASE"}}
    :main-opts ["-m" "clj-kondo.main"]}
 
+  ;; clj -Mcljfmt -m cljfmt.main check
+  ;; Currently src/stack_mitosis/interpreter.clj has an incorrect recommended
+  ;; indentation, so not automating running this just yet
+  :cljfmt
+  {:extra-deps {cljfmt/cljfmt {:mvn/version "0.7.0"}}}
+
   ;; clj -Mcoverage
   :coverage {:extra-deps {cloverage/cloverage {:mvn/version "RELEASE"}}
              :main-opts ["-m" "cloverage.coverage" "-p" "src"]}}}
